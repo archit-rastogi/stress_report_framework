@@ -1,0 +1,16 @@
+.root {
+    display: flex;
+}
+
+
+.right {
+    padding: 10px;
+    float: right;
+    width: 100%;
+}
+
+.status {
+    font-weight: bold;
+    font-size: x-large;
+
+}

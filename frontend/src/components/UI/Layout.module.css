@@ -1,0 +1,21 @@
+
+.container {
+    margin-top: 2%;
+}
+
+@media only screen and (max-width: 800px) {
+}
+
+@media (min-width: 801px ) and (max-width: 1001px ) {
+    .container {
+        margin-left: 10%;
+        margin-right: 10%;
+    }
+}
+
+@media (min-width: 1001px ) {
+    .container {
+        margin-left: 20%;
+        margin-right: 20%;
+    }
+}

@@ -1,0 +1,33 @@
+
+.table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.div {
+
+}
+
+@media only screen and (max-width: 800px) {
+}
+
+@media (min-width: 801px ) and (max-width: 1501px ) {
+    .div {
+        padding-left: 20%;
+        padding-right: 20%;
+    }
+}
+
+@media (min-width: 1501px ) {
+    .div {
+        padding-left: 30%;
+        padding-right: 30%;
+    }
+}
+
+.td {
+
+    padding: 5px 10px 5px 10px;
+    border-bottom: 1px solid #ddd;
+    overflow: hidden;
+}
