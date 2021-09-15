@@ -152,7 +152,6 @@ const Steps = (props) => {
         setOpenedSteps(newSteps);
     }
     const [openedSteps, setOpenedSteps] = useState([]);
-    console.log(openedSteps, steps);
     const openedStepsData = steps.filter(step => openedSteps.includes(step.properties.name));
     const onCloseAllOpenedSteps = () => {
         setOpenedSteps([])

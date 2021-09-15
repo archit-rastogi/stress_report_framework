@@ -15,11 +15,9 @@ const RunDetail = (props) => {
 
     useEffect(() => {
         const prepareMetrics = (res) => {
-            console.log('metrics', res)
             setMetrics(res.metrics)
         }
         const prepareSteps = (res) => {
-            console.log('steps', res)
             setSteps(res.steps)
         }
         sendRequest({
