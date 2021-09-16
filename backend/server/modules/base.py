@@ -7,7 +7,7 @@ from uuid import uuid4
 
 from aiohttp import web
 from aiohttp.web_request import Request
-from asyncpg import connect, Connection, Record, InterfaceError
+from asyncpg import Connection, Record, InterfaceError, connect
 
 
 def request_handler(post_params=True, request_require=False, get_params=False):
@@ -55,7 +55,7 @@ class QueryExecute:
     async def connect(self):
         self.log.info('open new connections')
         for _ in range(5):
-            self.open_connections.append(**self.connection_params)
+            self.open_connections.append(await connect(**self.connection_params))
         self.log.info('opened new 5 connections')
 
     async def execute(self, query: str, params: list or tuple = None):
@@ -66,7 +66,6 @@ class QueryExecute:
         if params is None:
             params = []
         failed_connection = False
-        self.log.info(f'{query} [{params}]')
         try:
             res: List[Record] = await connection.fetch(query, *params)
         except InterfaceError:
@@ -80,7 +79,6 @@ class QueryExecute:
         rows = []
         for record_row in res:
             rows.append(dict(record_row.items()))
-        self.log.info(f'connections {len(self.open_connections)}')
         return rows
 
     async def start_run(self, config: dict, start_time: datetime = None) -> str:
@@ -109,7 +107,6 @@ class QueryExecute:
                            f"values ('{metric_id}', $1, '{dumps(data)}', '{run_id}')", [m_time])
 
     async def get_runs(self, start_date: datetime, end_date: datetime) -> list[dict]:
-        self.log.info(f'start {start_date} end {end_date}')
         rows = await self.execute('select run_id, config, start_time, end_time, status '
                                   'from stress_tests_runs '
                                   'where start_time between $1 and $2'

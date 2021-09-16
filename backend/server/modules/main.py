@@ -1,6 +1,6 @@
 from datetime import datetime, timedelta
 
-from backend.server.modules.base import AbstractModule, request_handler
+from modules.base import AbstractModule, request_handler
 
 
 class MainModule(AbstractModule):

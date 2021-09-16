@@ -7,9 +7,6 @@ create table stress_tests_runs
     status     text
 );
 
-select run_id, config, start_time, end_time, status
-from stress_tests_runs;
-
 create table steps
 (
     step_id    text primary key,
@@ -26,12 +23,11 @@ create table steps
         on update restrict
 );
 
-select step_id, status, properties, start_time, end_time, run_id
-from steps;
-
+select *
+from stress_tests_runs;
 create table metrics
 (
-    metric_id text primary key,1
+    metric_id text primary key,
     time      timestamp,
     data      jsonb,
     run_id    text,

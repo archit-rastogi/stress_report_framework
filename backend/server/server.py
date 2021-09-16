@@ -2,7 +2,7 @@ from os import environ
 
 from aiohttp import web
 
-from backend.server.modules.main import MainModule
+from modules.main import MainModule
 
 host, port = environ['DB_URL'].split(':')
 db_name = environ.get('DB_NAME', 'postgres')
