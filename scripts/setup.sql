@@ -23,8 +23,6 @@ create table steps
         on update restrict
 );
 
-select *
-from stress_tests_runs;
 create table metrics
 (
     metric_id text primary key,

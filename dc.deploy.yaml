@@ -2,12 +2,9 @@ version: '3'
 
 services:
   server:
-    image: "server:latest"
+    image: "pilshchikov/stress-report-front:latest"
     depends_on:
       - db
-    build:
-      dockerfile: backend/server/build/Dockerfile
-      context: .
     ports:
       - "9999:9999"
     environment:
@@ -15,18 +12,15 @@ services:
       - "DB_NAME=postgres"
       - "DB_USER=postgres"
   frontend:
-    image: "frontend:latest"
+    image: "pilshchikov/stress-report-front:latest"
     depends_on:
       - server
     ports:
       - "80:80"
-    build:
-      dockerfile: frontend/build/Dockerfile
-      context: .
   db:
     image: "yugabytedb/yugabyte:latest"
     volumes:
-      - "/Users/spilshchikov/workplace/trash/yb/db:/db_data"
+      - "${DB_PATH}:/db_data"
     ports:
       - "7000:7000"
       - "9000:9000"
