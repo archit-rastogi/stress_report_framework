@@ -24,7 +24,7 @@ def dict_through(tree):
     return tree
 
 
-hakon_config = ConfigFactory.parse_file("/Users/spilshchikov/Library/Application Support/JetBrains/IntelliJIdea2021.2/scratches/yb_tests.conf")
+hakon_config = ConfigFactory.parse_file("yb_tests.conf")
 config_raw = dict_through(hakon_config)
 
 r = Random()

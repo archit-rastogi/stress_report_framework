@@ -2,10 +2,12 @@ version: '3'
 
 services:
   server:
+    image: "pilshchikov/stress-report-server:latest"
     build:
       dockerfile: backend/server/build/Dockerfile
       context: .
   frontend:
+    image: "pilshchikov/stress-report-front:latest"
     build:
       dockerfile: frontend/build/Dockerfile
       context: .

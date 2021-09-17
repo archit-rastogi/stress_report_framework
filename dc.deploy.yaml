@@ -2,7 +2,7 @@ version: '3'
 
 services:
   server:
-    image: "pilshchikov/stress-report-front:latest"
+    image: "pilshchikov/stress-report-server:latest"
     depends_on:
       - db
     ports:
