@@ -25,32 +25,58 @@ const MetricsGraph = (props) => {
     const setOption = (type) => {
         const series = []
         const legends = []
+        const subGraphs = {}
+        Object.keys(props.data.data).forEach(subGraphKey => {
+            const subGraphData = props.data.data[subGraphKey];
+            Object.keys(subGraphData.data).forEach(subGraphName => {
+                const separatedData = subGraphData.data[subGraphName];
+                if (subGraphs.hasOwnProperty(subGraphName)) {
+                    subGraphs[subGraphName] = subGraphs[subGraphName].concat([{time: subGraphData.time, data: separatedData}])
+                } else {
+                    subGraphs[subGraphName] = [{time: subGraphData.time, data: separatedData}]
+                }
+            })
+        })
         if (type === 'avg') {
-            legends.push('avg');
             const roundV = 10 ** props.data.round;
-            series.push({
-                type: 'line',
-                name: 'avg',
-                data: props.data.data.map(sample => [sample.time, Math.round(avg(Object.values(sample.data)) * roundV) / roundV])
-            })
-        } else if (type === 'separated') {
-            const graphs = [];
-            props.data.data.forEach((sample) => {
-                Object.keys(sample.data).forEach(graphName => {
-                    if (!graphs.includes(graphName)) {
-                        graphs.push(graphName);
-                    }
-                })
-            })
-            graphs.forEach(graphName => {
-                legends.push(graphName);
-                const data = props.data.data.filter(sample => sample.data[graphName]).map(sample => [sample.time, sample.data[graphName]]);
+
+            Object.keys(subGraphs).forEach(subGraphName => {
+                const subGraphData = subGraphs[subGraphName];
+                const seriesName = `${subGraphName} avg`
                 series.push({
                     type: 'line',
-                    name: graphName,
-                    data
+                    name: seriesName,
+                    data: subGraphData.map(pointData =>
+                        [pointData.time, Math.round(avg(Object.values(pointData.data)) * roundV) / roundV]
+                    )
                 })
-            })
+                legends.push(seriesName)
+            });
+        } else if (type === 'separated') {
+            Object.keys(subGraphs).forEach(subGraphName => {
+                const subGraphData = subGraphs[subGraphName];
+                const hostsData = {}
+                subGraphData.forEach(point => {
+                    Object.keys(point.data).forEach(host => {
+                        const d = [point.time, point.data[host]]
+                        if (hostsData.hasOwnProperty(host)) {
+                            hostsData[host] = hostsData[host].concat([d])
+                        } else {
+                            hostsData[host] = [[d]]
+                        }
+                    })
+                });
+                console.log('host data', hostsData);
+                Object.keys(hostsData).forEach(host => {
+                    const seriesName = `${subGraphName} ${host}`;
+                    series.push({
+                        type: 'line',
+                        name: seriesName,
+                        data: hostsData[host]
+                    });
+                    legends.push(seriesName);
+                })
+            });
         }
         setGraphOptions({
             animationDuration: 100,
@@ -71,6 +97,9 @@ const MetricsGraph = (props) => {
                     saveAsImage: {},
                 },
                 z: 0
+            },
+            emphasis: {
+                focus: 'series'
             },
             xAxis: [{
                 name: 'time',

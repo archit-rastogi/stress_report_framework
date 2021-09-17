@@ -24,7 +24,7 @@ def dict_through(tree):
     return tree
 
 
-hakon_config = ConfigFactory.parse_file("yb_tests.conf")
+hakon_config = ConfigFactory.parse_file("/Users/spilshchikov/Library/Application Support/JetBrains/IntelliJIdea2021.2/scratches/yb_tests.conf")
 config_raw = dict_through(hakon_config)
 
 r = Random()
@@ -94,7 +94,10 @@ for i in range(34):
             ["cql", 'Ops', 0]
         ]:
             m_data[line_name] = {
-                'data': {h: r.randint(10, 1000) for h in [f"172.25.1.{h}" for h in range(3)]},
+                'data': {
+                    thr: {h: r.randint(10, 1000) for h in [f"172.25.1.{h}" for h in range(3)]}
+                    for thr in choice([["system", 'user'], ["ss", 'qq', 'aa'], ["aa", "hh", 'zz']])
+                },
                 'name': line_name,
                 'symbol': symbol,
                 'round_val': round_val
