@@ -33,7 +33,7 @@ jobs:
           context: .
           file: ./frontend/build/Dockerfile
           push: true
-          tags: ghcr.io/${{ github.repository_owner }}/frontend:${{ github.event.inputs.frontend_version }}
+          tags: ghcr.io/${{ github.repository_owner }}/stress-report/frontend:${{ github.event.inputs.frontend_version }}
 
   server:
     runs-on: ubuntu-latest
@@ -57,4 +57,4 @@ jobs:
           context: .
           file: ./backend/server/build/Dockerfile
           push: true
-          tags: ghcr.io/${{ github.repository_owner }}/server:${{ github.event.inputs.server_version }}
+          tags: ghcr.io/${{ github.repository_owner }}/stress-report/server:${{ github.event.inputs.server_version }}
