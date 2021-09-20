@@ -1,6 +1,6 @@
-create table stress_tests_runs
+create table stress_tests
 (
-    run_id     text primary key,
+    test_id    text primary key,
     config     jsonb,
     start_time timestamp without time zone,
     end_time   timestamp without time zone,
@@ -14,10 +14,10 @@ create table steps
     properties jsonb,
     start_time timestamp without time zone,
     end_time   timestamp without time zone,
-    run_id     text,
+    test_id    text,
 
-    constraint fk_run_id foreign key (run_id)
-        references stress_tests_runs (run_id)
+    constraint fk_test_id foreign key (test_id)
+        references stress_tests (test_id)
             match full
         on delete cascade
         on update restrict
@@ -28,12 +28,13 @@ create table metrics
     metric_id text primary key,
     time      timestamp,
     data      jsonb,
-    run_id    text,
-    constraint fk_run_id foreign key (run_id)
-        references stress_tests_runs (run_id)
+    test_id   text,
+    constraint fk_test_id foreign key (test_id)
+        references stress_tests (test_id)
             match full
         on delete cascade
         on update restrict
 );
 
-CREATE INDEX stress_idx ON stress_tests_runs(start_time ASC, end_time ASC);
+CREATE INDEX stress_idx ON stress_tests (start_time ASC, end_time ASC);
+

@@ -5,7 +5,7 @@ import Steps from '../components/steps/Steps';
 import Metrics from '../components/metics/Metrics';
 
 
-const RunDetail = (props) => {
+const TestDetail = (props) => {
     const params = useParams();
     const {isLoading, error, sendRequest} = useHttp()
 
@@ -21,11 +21,11 @@ const RunDetail = (props) => {
             setSteps(res.steps)
         }
         sendRequest({
-            url: `get_metrics?run_id=${params.runId}`,
+            url: `get_metrics?test_id=${params.testId}`,
             method: 'GET',
         }, prepareMetrics)
         sendRequest({
-            url: `get_steps?run_id=${params.runId}`,
+            url: `get_steps?test_id=${params.testId}`,
             method: 'GET',
         }, prepareSteps)
     }, [])
@@ -38,4 +38,4 @@ const RunDetail = (props) => {
     )
 };
 
-export default RunDetail;
+export default TestDetail;

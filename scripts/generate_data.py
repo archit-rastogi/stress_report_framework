@@ -1,6 +1,7 @@
 from copy import deepcopy
 from datetime import datetime, timedelta
 from random import choice, Random
+from uuid import uuid4
 
 from pyhocon import ConfigFactory, ConfigTree
 from requests import post
@@ -24,9 +25,6 @@ def dict_through(tree):
     return tree
 
 
-hakon_config = ConfigFactory.parse_file("/Users/spilshchikov/Library/Application Support/JetBrains/IntelliJIdea2021.2/scratches/yb_tests.conf")
-config_raw = dict_through(hakon_config)
-
 r = Random()
 
 base_url = 'http://localhost:9999/back'
@@ -39,13 +37,15 @@ def handle_res(_res):
 all_steps_names = [f'Step #{i}' for i in range(15)]
 
 for i in range(34):
-    print(f"insert run {i}")
-    start_run_res = post(f'{base_url}/start_run', json={
-        'config': config_raw,
+    print(f"insert test {i}")
+    start_test_res = post(f'{base_url}/start_test', json={
+        'config': {
+            "name": f"test {i}"
+        },
         'start_time': datetime.now().timestamp()
     }).json()
-    handle_res(start_run_res)
-    run_id = start_run_res['run_id']
+    handle_res(start_test_res)
+    test_id = start_test_res['test_id']
 
     step_names = {}
     not_ended_steps = []
@@ -63,7 +63,7 @@ for i in range(34):
 
         print(f"insert step {s}")
         start_step_res = post(f'{base_url}/start_step', json={
-            "run_id": run_id,
+            "test_id": test_id,
             'properties': prop,
             'start_time': start_d.timestamp()
         }).json()
@@ -84,7 +84,7 @@ for i in range(34):
         handle_res(end_step_res)
 
     ts = datetime.now()
-    for m in range(r.randint(10, 15)):
+    for m in range(r.randint(100, 150)):
         ts += timedelta(seconds=30)
         m_data = {}
         for line_name, symbol, round_val in [
@@ -105,16 +105,16 @@ for i in range(34):
         print(f"insert metric {m}")
         add_metric_res = post(f'{base_url}/add_metric', json={
             'data': m_data,
-            'run_id': run_id,
+            'test_id': test_id,
             'time': ts.timestamp()
         }).json()
         handle_res(add_metric_res)
 
     if r.randint(1, 10) == 5:
         continue
-    end_run_res = post(f'{base_url}/end_run', json={
-        'run_id': run_id,
+    end_test_res = post(f'{base_url}/end_test', json={
+        'test_id': test_id,
         'status': choice(["passed", 'failed']),
         'end_time': (datetime.now() + timedelta(minutes=r.randint(20, 50))).timestamp()
     }).json()
-    handle_res(end_run_res)
+    handle_res(end_test_res)

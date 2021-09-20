@@ -1,20 +1,20 @@
-import RunsListPage from './pages/Runs';
 import {Redirect, Route, Switch} from 'react-router-dom';
 import {Fragment} from 'react';
-import RunDetail from './pages/RunDetail';
+import TestsListPage from './pages/Tests';
+import TestDetail from './pages/TestDetail';
 
 function App() {
     return (
         <Fragment>
             <Switch>
                 <Route path="/" exact>
-                    <Redirect to="/runs"/>
+                    <Redirect to="/tests"/>
                 </Route>
-                <Route path="/runs" exact>
-                    <RunsListPage/>
+                <Route path="/tests" exact>
+                    <TestsListPage/>
                 </Route>
-                <Route path="/runs/:runId" exact>
-                    <RunDetail/>
+                <Route path="/tests/:testId" exact>
+                    <TestDetail/>
                 </Route>
             </Switch>
         </Fragment>

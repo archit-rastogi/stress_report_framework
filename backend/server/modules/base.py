@@ -81,34 +81,34 @@ class QueryExecute:
             rows.append(dict(record_row.items()))
         return rows
 
-    async def start_run(self, config: dict, start_time: datetime = None) -> str:
-        run_id = str(uuid4())
-        await self.execute('insert into stress_tests_runs(run_id, config, start_time, status) '
-                           f"values ('{run_id}', '{dumps(config)}', $1, 'running')", [start_time])
-        return run_id
+    async def start_test(self, config: dict, start_time: datetime = None) -> str:
+        test_id = str(uuid4())
+        await self.execute('insert into stress_tests(test_id, config, start_time, status) '
+                           f"values ('{test_id}', '{dumps(config)}', $1, 'running')", [start_time])
+        return test_id
 
-    async def end_run(self, run_id: str, status: str, end_time: datetime):
-        await self.execute(f"update stress_tests_runs set status='{status}', end_time=$1 "
-                           f"where run_id = '{run_id}'", [end_time])
+    async def end_test(self, test_id: str, status: str, end_time: datetime):
+        await self.execute(f"update stress_tests set status='{status}', end_time=$1 "
+                           f"where test_id = '{test_id}'", [end_time])
 
-    async def start_step(self, run_id: str, properties: dict, start_time: datetime) -> str:
+    async def start_step(self, test_id: str, properties: dict, start_time: datetime) -> str:
         step_id = str(uuid4())
-        await self.execute('insert into steps(step_id, properties, start_time, run_id, status) '
-                           f"values ('{step_id}', '{dumps(properties)}', $1, '{run_id}', 'running')",
+        await self.execute('insert into steps(step_id, properties, start_time, test_id, status) '
+                           f"values ('{step_id}', '{dumps(properties)}', $1, '{test_id}', 'running')",
                            [start_time])
         return step_id
 
     async def end_step(self, step_id: str, status: str, end_time: datetime):
         await self.execute(f"update steps set status='{status}', end_time=$1 where step_id = '{step_id}'", [end_time])
 
-    async def add_metric(self, data: dict, run_id: str, m_time: datetime):
+    async def add_metric(self, data: dict, test_id: str, m_time: datetime):
         metric_id = str(uuid4())
-        await self.execute(f"insert into metrics(metric_id, time, data, run_id) "
-                           f"values ('{metric_id}', $1, '{dumps(data)}', '{run_id}')", [m_time])
+        await self.execute(f"insert into metrics(metric_id, time, data, test_id) "
+                           f"values ('{metric_id}', $1, '{dumps(data)}', '{test_id}')", [m_time])
 
-    async def get_runs(self, start_date: datetime, end_date: datetime) -> list[dict]:
-        rows = await self.execute('select run_id, config, start_time, end_time, status '
-                                  'from stress_tests_runs '
+    async def get_tests(self, start_date: datetime, end_date: datetime) -> list[dict]:
+        rows = await self.execute('select test_id, config, start_time, end_time, status '
+                                  'from stress_tests '
                                   'where start_time between $1 and $2'
                                   'order by start_time desc', [start_date, end_date])
         for row in rows:
@@ -117,18 +117,18 @@ class QueryExecute:
             row['config'] = loads(row['config'])
         return rows
 
-    async def get_steps(self, run_id: str):
-        rows = await self.execute(f"select step_id, status, properties, start_time, end_time, run_id "
-                                  f"from steps where run_id = '{run_id}' order by start_time")
+    async def get_steps(self, test_id: str):
+        rows = await self.execute(f"select step_id, status, properties, start_time, end_time, test_id "
+                                  f"from steps where test_id = '{test_id}' order by start_time")
         for row in rows:
             row['start_time'] = row['start_time'].timestamp()
             row['end_time'] = row['end_time'].timestamp() if row.get('end_time') else None
             row['properties'] = loads(row['properties'])
         return rows
 
-    async def get_metrics(self, run_id: str):
-        rows = await self.execute("select metric_id, time, data, run_id "
-                                  f"from metrics where run_id = '{run_id}' order by time")
+    async def get_metrics(self, test_id: str):
+        rows = await self.execute("select metric_id, time, data, test_id "
+                                  f"from metrics where test_id = '{test_id}' order by time")
         for row in rows:
             row['time'] = row['time'].timestamp()
             row['data'] = loads(row['data'])

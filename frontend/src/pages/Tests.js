@@ -2,15 +2,15 @@ import 'date-fns';
 import Layout from '../components/UI/Layout';
 import {useEffect, useState} from 'react';
 import useHttp from '../hooks/use-http';
-import Run from '../components/run/Run';
 import {Button, LinearProgress, List, TextField} from '@material-ui/core';
 import DateFnsUtils from '@date-io/date-fns';
 import {KeyboardDatePicker, MuiPickersUtilsProvider} from '@material-ui/pickers';
 import {useHistory, useLocation, useRouteMatch} from 'react-router-dom';
 import moment from 'moment/moment';
+import Test from '../components/test/Test';
 
 
-const RunsListPage = (props) => {
+const TestsListPage = (props) => {
     const match = useRouteMatch();
     const history = useHistory();
     const location = useLocation();
@@ -20,24 +20,24 @@ const RunsListPage = (props) => {
         initialDate = new Date(queryParams.get('time'));
     }
     const [selectedDate, setSelectedDate] = useState(initialDate)
-    const [runs, setRuns] = useState([])
-    const [showRuns, setShowRuns] = useState([])
+    const [tests, setTests] = useState([])
+    const [showTests, setShowTests] = useState([])
     const {isLoading, error, sendRequest} = useHttp()
 
     useEffect(() => {
         const prepareData = (res) => {
-            if (res.hasOwnProperty('runs')) {
-                const newRuns = res.runs.map(run => {
-                    run.start_time_pretty = moment(run.start_time * 1000).format('DD.MM HH:mm:ss')
-                    run.end_time_pretty = moment(run.end_time * 1000).format('DD.MM HH:mm:ss')
-                    return run;
+            if (res.hasOwnProperty('tests')) {
+                const newTests = res.tests.map(test => {
+                    test.start_time_pretty = moment(test.start_time * 1000).format('DD.MM HH:mm:ss')
+                    test.end_time_pretty = moment(test.end_time * 1000).format('DD.MM HH:mm:ss')
+                    return test;
                 })
-                setRuns(res.runs)
-                setShowRuns(res.runs)
+                setTests(newTests);
+                setShowTests(newTests)
             }
         }
         sendRequest({
-            url: 'get_runs',
+            url: 'get_tests',
             body: {
                 date: selectedDate.getTime() / 1000
             }
@@ -65,12 +65,12 @@ const RunsListPage = (props) => {
 
     const onFilterInput = (event) => {
         const value = event.target.value;
-        setShowRuns(runs.filter(run =>
-            run.run_id.includes(value)
-            || run.status.includes(value)
-            || run.start_time_pretty.includes(value)
-            || run.end_time_pretty.includes(value)
-            || Object.values(run.config).find(v => v.toString().includes(value))
+        setShowTests(tests.filter(test =>
+            test.test_id.includes(value)
+            || test.status.includes(value)
+            || test.start_time_pretty.includes(value)
+            || test.end_time_pretty.includes(value)
+            || Object.values(test.config).find(v => v.toString().includes(value))
         ));
     }
 
@@ -98,10 +98,10 @@ const RunsListPage = (props) => {
             </div>
             <TextField onChange={onFilterInput} style={{width: '400px'}}/>
             <List>
-                {showRuns.map(run => <Run data={run} key={run.run_id}/>)}
+                {showTests.map(test => <Test data={test} key={test.test_id}/>)}
             </List>
         </Layout>
     )
 }
 
-export default RunsListPage
+export default TestsListPage

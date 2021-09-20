@@ -2,10 +2,10 @@ import {Card, CardActionArea, CardContent, Divider, Grid, LinearProgress, Typogr
 import {Fragment} from 'react';
 import moment from 'moment/moment';
 import {useHistory, useRouteMatch} from 'react-router-dom';
-import css from './Run.module.css'
+import css from './Test.module.css'
 
 
-const Run = (props) => {
+const Test = (props) => {
     const match = useRouteMatch();
     const history = useHistory();
 
@@ -20,7 +20,7 @@ const Run = (props) => {
     const statusColor = props.data.status === 'passed' ? 'rgba(11,164,1,0.5)' : props.data.status === 'failed' ? 'rgba(168,0,0,0.5)' : 'rgba(190,115,1,0.5)'
 
     const clickHandler = () => {
-        history.push(`${match.url}/${props.data.run_id}`);
+        history.push(`${match.url}/${props.data.test_id}`);
     }
 
     return (
@@ -31,13 +31,13 @@ const Run = (props) => {
                         <Grid item xs={3}>
                             <CardContent>
                                 <Typography gutterBottom variant="body1" component="h5">
-                                    {props.data.run_id}
+                                    {props.data.test_id}
                                 </Typography>
                             </CardContent>
                         </Grid>
                         <Grid item xs={6}>
                             <Typography gutterBottom variant="body1" component="div">
-                                {Object.keys(props.data.config).map(k => <div key={k}>{k}: {props.data.config[k]}</div>)}
+                                {Object.keys(props.data.config).map(k => <div key={k}>{k}: {props.data.config[k]}</div>).splice(0, 10)}
                             </Typography>
                         </Grid>
                         <Grid item xs={3}>
@@ -53,9 +53,8 @@ const Run = (props) => {
                     </Grid>
                 </CardActionArea>
             </Card>
-            {props.data.status === 'running' && <LinearProgress style={{width: '100%'}}/>}
         </Fragment>
     )
 }
 
-export default Run;
+export default Test;
