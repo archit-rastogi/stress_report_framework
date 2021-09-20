@@ -14,10 +14,8 @@ const MetricsGraph = (props) => {
         setOption(newGraphType);
     }
 
-    const format = (timestamp) => moment(timestamp * 1000).format('DD.MM HH:mm:ss');
-    const timeFormat = (data) => {
-        return format(data)
-    }
+    const format = (timestamp) => moment(timestamp).format('DD.MM HH:mm:ss');
+    const timeFormat = (data) => format(data)
     const avg = (items) => {
         return items.reduce((prev, next) => prev + next) / items.length
     }
@@ -48,7 +46,7 @@ const MetricsGraph = (props) => {
                     data: subGraphData
                         .filter(pointData => Object.keys(pointData.data).length > 0)
                         .map(pointData =>
-                            [pointData.time, Math.round(avg(Object.values(pointData.data)) * roundV) / roundV]
+                            [pointData.time * 1000, Math.round(avg(Object.values(pointData.data)) * roundV) / roundV]
                         )
                 })
                 legends.push(seriesName)
@@ -59,7 +57,7 @@ const MetricsGraph = (props) => {
                 const hostsData = {}
                 subGraphData.forEach(point => {
                     Object.keys(point.data).forEach(host => {
-                        const d = [Math.round(point.time), point.data[host]]
+                        const d = [Math.round(point.time) * 1000, point.data[host]]
                         if (hostsData.hasOwnProperty(host)) {
                             hostsData[host] = hostsData[host].concat([d])
                         } else {
@@ -102,8 +100,7 @@ const MetricsGraph = (props) => {
                 focus: 'series'
             },
             xAxis: [{
-                name: 'time',
-                type: 'category',
+                type: 'time',
                 axisLabel: {
                     formatter: timeFormat
                 }
