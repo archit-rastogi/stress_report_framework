@@ -28,12 +28,17 @@ const Run = (props) => {
             <Card className={css.root} onClick={clickHandler} style={{backgroundColor: cardColor}}>
                 <CardActionArea>
                     <Grid container>
-                        <Grid item xs={9}>
+                        <Grid item xs={3}>
                             <CardContent>
-                                <Typography gutterBottom variant="h5" component="h2">
+                                <Typography gutterBottom variant="body1" component="h5">
                                     {props.data.run_id}
                                 </Typography>
                             </CardContent>
+                        </Grid>
+                        <Grid item xs={6}>
+                            <Typography gutterBottom variant="body1" component="div">
+                                {Object.keys(props.data.config).map(k => <div key={k}>{k}: {props.data.config[k]}</div>)}
+                            </Typography>
                         </Grid>
                         <Grid item xs={3}>
                             <Typography className={css.right} variant="body1" component="div">

@@ -39,16 +39,17 @@ const MetricsGraph = (props) => {
         })
         if (type === 'avg') {
             const roundV = 10 ** props.data.round;
-
             Object.keys(subGraphs).forEach(subGraphName => {
                 const subGraphData = subGraphs[subGraphName];
                 const seriesName = `${subGraphName} avg`
                 series.push({
                     type: 'line',
                     name: seriesName,
-                    data: subGraphData.map(pointData =>
-                        [pointData.time, Math.round(avg(Object.values(pointData.data)) * roundV) / roundV]
-                    )
+                    data: subGraphData
+                        .filter(pointData => Object.keys(pointData.data).length > 0)
+                        .map(pointData =>
+                            [pointData.time, Math.round(avg(Object.values(pointData.data)) * roundV) / roundV]
+                        )
                 })
                 legends.push(seriesName)
             });
@@ -58,7 +59,7 @@ const MetricsGraph = (props) => {
                 const hostsData = {}
                 subGraphData.forEach(point => {
                     Object.keys(point.data).forEach(host => {
-                        const d = [point.time, point.data[host]]
+                        const d = [Math.round(point.time), point.data[host]]
                         if (hostsData.hasOwnProperty(host)) {
                             hostsData[host] = hostsData[host].concat([d])
                         } else {
@@ -66,7 +67,6 @@ const MetricsGraph = (props) => {
                         }
                     })
                 });
-                console.log('host data', hostsData);
                 Object.keys(hostsData).forEach(host => {
                     const seriesName = `${subGraphName} ${host}`;
                     series.push({
@@ -123,7 +123,6 @@ const MetricsGraph = (props) => {
     const onExtend = () => {
         setExtend(!extend)
     }
-
 
     return (
         <Fragment>

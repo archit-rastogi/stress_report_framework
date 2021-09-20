@@ -65,7 +65,13 @@ const RunsListPage = (props) => {
 
     const onFilterInput = (event) => {
         const value = event.target.value;
-        setShowRuns(runs.filter(run => run.run_id.includes(value) || run.status.includes(value) || run.start_time_pretty.includes(value) || run.end_time_pretty.includes(value)));
+        setShowRuns(runs.filter(run =>
+            run.run_id.includes(value)
+            || run.status.includes(value)
+            || run.start_time_pretty.includes(value)
+            || run.end_time_pretty.includes(value)
+            || Object.values(run.config).find(v => v.toString().includes(value))
+        ));
     }
 
     return (

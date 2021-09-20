@@ -29,6 +29,7 @@ const Metrics = (props) => {
             }
         })
     })
+
     return (
         <Fragment>
             {Object.keys(graphsData).map(graphName => <MetricsGraph key={graphName} data={graphsData[graphName]}/>)}

@@ -24,10 +24,6 @@ const Steps = (props) => {
     });
 
     const minTime = Math.min(...props.steps.map(step => step.start_time))
-    let maxTime = Math.max(...props.steps.map(step => step.end_time))
-    if (maxTime === 0) {
-        maxTime = minTime + 60 * 5
-    }
     const stepsNames = Object.keys(stepsGroups).sort((a, b) => stepsGroups[b][0].start_time - stepsGroups[a][0].start_time)
     const stepLastTime = {}
     const series = []
@@ -36,7 +32,7 @@ const Steps = (props) => {
         stepsGroups[stepKey].forEach((step, sIdx) => {
             steps.push(step);
             if (step.status === 'running') {
-                step.end_time = maxTime;
+                step.end_time = step.start_time + 60 * 5;
             }
             const stepName = step.properties.name;
             if (!stepLastTime.hasOwnProperty(stepName)) {
@@ -110,18 +106,16 @@ const Steps = (props) => {
                 formatter: timeFormat
             }
         },
-        dataZoom: [
-            {
-                show: true,
-                start: 0,
-                end: 100
+        toolbox: {
+            feature: {
+                dataZoom: {
+                    yAxisIndex: 'none'
+                },
+                restore: {},
+                saveAsImage: {},
             },
-            {
-                type: 'inside',
-                start: 0,
-                end: 100
-            }
-        ],
+            z: 0
+        },
         yAxis: {
             type: 'category',
             data: stepsNames
