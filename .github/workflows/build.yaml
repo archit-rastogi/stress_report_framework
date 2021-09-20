@@ -30,7 +30,7 @@ jobs:
       - name: Build and push
         uses: docker/build-push-action@v2
         with:
-          context: ./frontend
+          context: .
           file: ./frontend/build/Dockerfile
           push: true
           tags: ghcr.io/${{ github.repository_owner }}/frontend:${{ github.event.inputs.frontend_version }}
@@ -54,7 +54,7 @@ jobs:
       - name: Build and push
         uses: docker/build-push-action@v2
         with:
-          context: ./backend
+          context: .
           file: ./backend/server/build/Dockerfile
           push: true
           tags: ghcr.io/${{ github.repository_owner }}/server:${{ github.event.inputs.server_version }}
