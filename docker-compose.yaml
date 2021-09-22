@@ -2,7 +2,7 @@ version: '3'
 
 services:
   server:
-    image: "pilshchikov/stress-report-server:latest"
+    image: "ghcr.io/pilshchikov/stress-report/server:latest"
     depends_on:
       - db
     ports:
@@ -12,11 +12,26 @@ services:
       - "DB_NAME=postgres"
       - "DB_USER=postgres"
   frontend:
-    image: "pilshchikov/stress-report-front:latest"
+    image: "ghcr.io/pilshchikov/stress-report/frontend:latest"
     depends_on:
       - server
     ports:
       - "80:80"
+  files:
+    image: "ghcr.io/pilshchikov/stress-report/files:latest"
+    depends_on:
+      - db
+    ports:
+      - "9998:9998"
+    environment:
+      - "STORAGE_PATH=/files_dir"
+      - "DB_USER=yugabyte"
+      - "DB_PASSWORD=yugabyte"
+      - "DB_NAME=postgres"
+      - "DB_HOST=server"
+      - "DB_PORT=5433"
+    volumes:
+      - "${FILES_DIR}:/files_dir"
   db:
     image: "yugabytedb/yugabyte:latest"
     volumes:

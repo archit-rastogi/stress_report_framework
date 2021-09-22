@@ -7,13 +7,15 @@ provider "aws" {
 locals {
   instance_home = "/home/${var.ssh_user_name}"
   db_path = "${local.instance_home}/db"
+  files_path = "${local.instance_home}/files"
   docker_compose_path = "${local.instance_home}/docker-compose.yaml"
 }
 
 data "template_file" "compose" {
-  template = file("${path.module}/../../../dc.deploy.yaml")
+  template = file("${path.module}/../../../docker-compose.yaml")
   vars = {
     DB_PATH = local.db_path
+    FILES_DIR = local.files_path
   }
 }
 

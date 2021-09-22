@@ -3,7 +3,7 @@ from datetime import datetime, timedelta
 from random import choice, Random
 from uuid import uuid4
 
-from pyhocon import ConfigFactory, ConfigTree
+from pyhocon import ConfigTree
 from requests import post
 
 
@@ -109,6 +109,24 @@ for i in range(34):
             'time': ts.timestamp()
         }).json()
         handle_res(add_metric_res)
+
+    for a in range(r.randint(10, 30)):
+        path = choice(["a/s/d/f/", 'a/s/d/', 'a/s/', 'a/', ''])
+        file_name = f'{str(uuid4())}-test.log'
+        print(f'add file {file_name}')
+        file_add_res = post("http://localhost:9998/files/add", files={
+            "file": b'asdasdasd\ntesttest\testtest\ntsadsda'
+        }, headers={"name": file_name})
+        assert file_add_res.status_code == 200, f'Cant add file {file_name}'
+        print(f'add attachment {a}')
+        att_res = post(f'{base_url}/add_attachment', json={
+            'name': f"{path}Attachment {str(uuid4())[:6]}",
+            'source': file_name,
+            'type': 'file',
+            'test_id': test_id
+        })
+        att_res
+        handle_res(att_res.json())
 
     if r.randint(1, 10) == 5:
         continue

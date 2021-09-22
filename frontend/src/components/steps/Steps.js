@@ -9,7 +9,7 @@ const Steps = (props) => {
     const stepsGroups = props.steps.reduce((prev, next) => {
         if (!prev.hasOwnProperty('status')) {
             if (Object.keys(prev).includes(next.properties.name)) {
-                prev[next.properties.name].push(next)
+                prev[next.properties.name].push(next);
                 prev[next.properties.name] = prev[next.properties.name].sort((a, b) => a.start_time - b.start_time)
             } else {
                 prev[next.properties.name] = [next]

@@ -20,6 +20,8 @@ app.add_routes([
     web.post('/back/get_tests', main_module.get_tests),
     web.get('/back/get_steps', main_module.get_steps),
     web.get('/back/get_metrics', main_module.get_metrics),
+    web.post('/back/add_attachment', main_module.add_attachment),
+    web.get('/back/get_attachments', main_module.get_attachments),
 ]),
 
 web.run_app(app, port=int(environ.get('PORT', 9999)))

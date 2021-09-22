@@ -26,7 +26,7 @@ create table steps
 create table metrics
 (
     metric_id text primary key,
-    time      timestamp,
+    time      timestamp without time zone,
     data      jsonb,
     test_id   text,
     constraint fk_test_id foreign key (test_id)
@@ -37,4 +37,29 @@ create table metrics
 );
 
 CREATE INDEX stress_idx ON stress_tests (start_time ASC, end_time ASC);
+
+create table attachments
+(
+    attachment_id text primary key,
+    name          text,
+    time          timestamp without time zone,
+    source        text,
+    type          text,
+    test_id       text,
+
+    constraint fk_test_id foreign key (test_id)
+        references stress_tests (test_id)
+            match full
+        on delete cascade
+        on update restrict
+);
+
+create table files
+(
+    file_id text primary key,
+    time    timestamp without time zone,
+    name    text
+);
+
+CREATE INDEX file_name_idx ON files (name);
 

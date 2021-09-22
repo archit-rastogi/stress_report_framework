@@ -81,3 +81,27 @@ class MainModule(AbstractModule):
             'status': True,
             'metrics': await self.db.get_metrics(test_id)
         }
+
+    @request_handler()
+    async def add_attachment(self, params: dict):
+        name = params['name']
+        source = params['source']
+        attachment_type = params['type']
+        test_id = params['test_id']
+        timestamp = params.get('timestamp', None)
+        if timestamp is not None:
+            timestamp = datetime.fromtimestamp(timestamp)
+
+        attachment_id = await self.db.add_attachment(name, source, attachment_type, test_id, timestamp)
+        return {
+            'status': True,
+            'attachment_id': attachment_id
+        }
+
+    @request_handler(get_params=True, post_params=False)
+    async def get_attachments(self, params: dict):
+        test_id = params['test_id']
+        return {
+            'status': True,
+            'attachments': await self.db.get_attachments(test_id)
+        }

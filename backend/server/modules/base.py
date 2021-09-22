@@ -117,7 +117,7 @@ class QueryExecute:
             row['config'] = loads(row['config'])
         return rows
 
-    async def get_steps(self, test_id: str):
+    async def get_steps(self, test_id: str) -> list[dict]:
         rows = await self.execute(f"select step_id, status, properties, start_time, end_time, test_id "
                                   f"from steps where test_id = '{test_id}' order by start_time")
         for row in rows:
@@ -126,12 +126,28 @@ class QueryExecute:
             row['properties'] = loads(row['properties'])
         return rows
 
-    async def get_metrics(self, test_id: str):
+    async def get_metrics(self, test_id: str) -> list[dict]:
         rows = await self.execute("select metric_id, time, data, test_id "
                                   f"from metrics where test_id = '{test_id}' order by time")
         for row in rows:
             row['time'] = row['time'].timestamp()
             row['data'] = loads(row['data'])
+        return rows
+
+    async def add_attachment(self, name, source, attachment_type, test_id, timestamp: datetime = None) -> str:
+        attachment_id = str(uuid4())
+        if timestamp is None:
+            timestamp = datetime.now()
+        await self.execute("insert into attachments(attachment_id, name, time, source, type, test_id) "
+                           f"values ('{attachment_id}', '{name}', $1, '{source}', '{attachment_type}', '{test_id}')",
+                           params=[timestamp])
+        return attachment_id
+
+    async def get_attachments(self, test_id) -> list[dict]:
+        rows = await self.execute("select attachment_id, name, time, source, type, test_id "
+                                  f"from attachments where test_id = '{test_id}' order by name")
+        for row in rows:
+            row['time'] = row['time'].timestamp()
         return rows
 
 
