@@ -5,13 +5,13 @@ on:
     inputs:
       frontend_version:
         description: Frontend image version
-        default: 'latest'
+        default: ''
       server_version:
         description: Server image version
-        default: 'latest'
+        default: ''
       files_version:
         description: Files image version
-        default: 'latest'
+        default: ''
 
 jobs:
   frontend:
