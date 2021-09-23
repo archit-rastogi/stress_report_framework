@@ -29,6 +29,14 @@ resource "aws_security_group" "report_security" {
   }
 
   ingress {
+    description = "Files"
+    cidr_blocks = ["0.0.0.0/0"]
+    protocol = "tcp"
+    from_port = 9998
+    to_port = 9998
+  }
+
+  ingress {
     description = "DB YSQL"
     cidr_blocks = ["0.0.0.0/0"]
     protocol = "tcp"
