@@ -1,13 +1,15 @@
-import {Card, CardActionArea, CardContent, Divider, Grid, LinearProgress, Typography} from '@material-ui/core';
-import {Fragment} from 'react';
+import {Button, Card, CardActionArea, CardActions, CardContent, Dialog, Grid, List, ListItem, ListItemText, Typography} from '@material-ui/core';
+import React, {Fragment, useState} from 'react';
 import moment from 'moment/moment';
 import {useHistory, useRouteMatch} from 'react-router-dom';
 import css from './Test.module.css'
+import ReportDialog from './ReportDialog';
 
 
 const Test = (props) => {
-    const match = useRouteMatch();
     const history = useHistory();
+    const [openDialog, setOpenDialog] = useState(false);
+    const [reports, setReports] = useState([]);
 
     const formatTime = (ts) => {
         if (ts === null) {
@@ -20,23 +22,16 @@ const Test = (props) => {
     const statusColor = props.data.status === 'passed' ? 'rgba(11,164,1,0.5)' : props.data.status === 'failed' ? 'rgba(168,0,0,0.5)' : 'rgba(190,115,1,0.5)'
 
     const clickHandler = () => {
-        history.push(`${match.url}/${props.data.test_id}`);
+        history.push(`/tests/${props.data.test_id}`);
     }
 
     return (
         <Fragment>
-            <Card className={css.root} onClick={clickHandler} style={{backgroundColor: cardColor}}>
-                <CardActionArea>
+            <Card style={{backgroundColor: cardColor}}>
+                <CardActionArea style={{width: '100%'}} onClick={clickHandler}>
                     <Grid container>
-                        <Grid item xs={3}>
-                            <CardContent>
-                                <Typography gutterBottom variant="body1" component="h5">
-                                    {props.data.test_id}
-                                </Typography>
-                            </CardContent>
-                        </Grid>
-                        <Grid item xs={6}>
-                            <Typography gutterBottom variant="body1" component="div">
+                        <Grid item xs={9}>
+                            <Typography style={{padding: '10px'}} gutterBottom variant="body1" component="div">
                                 {Object.keys(props.data.config).map(k => <div key={k}>{k}: {props.data.config[k]}</div>).splice(0, 10)}
                             </Typography>
                         </Grid>
@@ -52,7 +47,13 @@ const Test = (props) => {
                         </Grid>
                     </Grid>
                 </CardActionArea>
+                <CardActions style={{display: 'flex', justifyContent: 'right'}}>
+                    {props.showReportAction && <Button onClick={() => setOpenDialog(true)} size="small" color="primary">
+                        Add to report
+                    </Button>}
+                </CardActions>
             </Card>
+            <ReportDialog openDialog={openDialog} testId={props.data.test_id} onCloseDialog={() => setOpenDialog(false)}/>
         </Fragment>
     )
 }

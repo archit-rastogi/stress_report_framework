@@ -1,6 +1,6 @@
 import 'date-fns';
-import Layout from '../components/UI/Layout';
-import {useEffect, useState} from 'react';
+import Container from '../components/UI/Container';
+import React, {useEffect, useState} from 'react';
 import useHttp from '../hooks/use-http';
 import {Button, LinearProgress, List, TextField} from '@material-ui/core';
 import DateFnsUtils from '@date-io/date-fns';
@@ -75,7 +75,7 @@ const TestsListPage = (props) => {
     }
 
     return (
-        <Layout>
+        <Container>
             {isLoading && <LinearProgress style={{width: '100%'}}/>}
             <div style={{display: 'flex'}}>
                 <Button onClick={onPrevious}>{'<'}</Button>
@@ -86,7 +86,6 @@ const TestsListPage = (props) => {
                         variant="inline"
                         format="MM/dd/yy"
                         margin="normal"
-                        id="date-picker-inline"
                         value={selectedDate}
                         onChange={onDateChange}
                         KeyboardButtonProps={{
@@ -98,9 +97,9 @@ const TestsListPage = (props) => {
             </div>
             <TextField onChange={onFilterInput} style={{width: '400px'}}/>
             <List>
-                {showTests.map(test => <Test data={test} key={test.test_id}/>)}
+                {showTests.map(test => <Test showReportAction={true} data={test} key={test.test_id}/>)}
             </List>
-        </Layout>
+        </Container>
     )
 }
 

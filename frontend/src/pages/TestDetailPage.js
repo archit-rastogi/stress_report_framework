@@ -6,7 +6,7 @@ import Metrics from '../components/metics/Metrics';
 import AttachmentsList from '../components/attachments/AttachmentsList';
 
 
-const TestDetail = (props) => {
+const TestDetailPage = (props) => {
     const params = useParams();
     const {isLoading, error, sendRequest} = useHttp()
 
@@ -47,4 +47,4 @@ const TestDetail = (props) => {
     )
 };
 
-export default TestDetail;
+export default TestDetailPage;

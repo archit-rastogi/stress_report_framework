@@ -5,7 +5,7 @@ import css from './AttachmentsList.module.css';
 const AttachmentsList = (props) => {
     return (
         <div className={css.container}>
-            <AttachmentItem className={css.item} parentName={'Attachments'} attachments={props.attachments}/>
+            <AttachmentItem parentName={'Attachments'} attachments={props.attachments}/>
         </div>
     )
 }

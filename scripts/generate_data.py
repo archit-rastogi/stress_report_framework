@@ -125,7 +125,6 @@ for i in range(34):
             'type': 'file',
             'test_id': test_id
         })
-        att_res
         handle_res(att_res.json())
 
     if r.randint(1, 10) == 5:

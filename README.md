@@ -10,7 +10,7 @@ Components:
  - DB - [YugabyteDB](https://www.yugabyte.com/)
 
 ### Architecture:
-<img src="scripts/arch.png" height="400px">
+<img src="scripts/arch.png" width="400px">
 
 ### Requirements
 - Python 3.9+
@@ -60,7 +60,7 @@ docker-compose up -d
 
 
 ##### Tests list
-<img src="scripts/list.png" height="400px">
+<img src="scripts/list.png" width="400px">
 
 ##### Test details
-<img src="scripts/details.png" height="400px">
+<img src="scripts/details.png" width="400px">

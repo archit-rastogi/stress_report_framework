@@ -28,7 +28,7 @@ services:
       - "DB_USER=yugabyte"
       - "DB_PASSWORD=yugabyte"
       - "DB_NAME=postgres"
-      - "DB_HOST=server"
+      - "DB_HOST=db"
       - "DB_PORT=5433"
     volumes:
       - "${FILES_DIR}:/files_dir"

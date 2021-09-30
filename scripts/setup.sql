@@ -63,3 +63,11 @@ create table files
 
 CREATE INDEX file_name_idx ON files (name);
 
+create table stress_report
+(
+    report_id     text primary key,
+    name          text,
+    config        jsonb,
+    cases         jsonb,
+    creation_time timestamp without time zone
+);
