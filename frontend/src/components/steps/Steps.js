@@ -6,22 +6,28 @@ import {Button} from '@material-ui/core';
 
 const Steps = (props) => {
     const format = (timestamp) => moment(timestamp * 1000).format('DD.MM HH:mm:ss');
-    const stepsGroups = props.steps.reduce((prev, next) => {
-        if (!prev.hasOwnProperty('status')) {
-            if (Object.keys(prev).includes(next.properties.name)) {
-                prev[next.properties.name].push(next);
-                prev[next.properties.name] = prev[next.properties.name].sort((a, b) => a.start_time - b.start_time)
+
+    let stepsGroups = {}
+    if (props.steps.length === 1) {
+        stepsGroups[props.steps[0].properties.name] = [props.steps[0]]
+    } else {
+        stepsGroups = props.steps.reduce((prev, next) => {
+            if (!prev.hasOwnProperty('status')) {
+                if (Object.keys(prev).includes(next.properties.name)) {
+                    prev[next.properties.name].push(next);
+                    prev[next.properties.name] = prev[next.properties.name].sort((a, b) => a.start_time - b.start_time)
+                } else {
+                    prev[next.properties.name] = [next]
+                }
             } else {
-                prev[next.properties.name] = [next]
+                const res = {}
+                res[next.properties.name] = [next]
+                res[prev.properties.name] = [prev]
+                return res
             }
-        } else {
-            const res = {}
-            res[next.properties.name] = [next]
-            res[prev.properties.name] = [prev]
-            return res
-        }
-        return prev
-    });
+            return prev
+        });
+    }
 
     const minTime = Math.min(...props.steps.map(step => step.start_time))
     const stepsNames = Object.keys(stepsGroups).sort((a, b) => stepsGroups[b][0].start_time - stepsGroups[a][0].start_time)
