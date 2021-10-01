@@ -1,16 +1,15 @@
 import React, {Fragment, useState} from 'react';
 import {Button} from '@material-ui/core';
 import {KeyboardArrowDown, KeyboardArrowRight} from '@material-ui/icons';
-import {useLocation} from 'react-router-dom';
 
 const buttonStyle = {
     textTransform: 'none',
-    justifyContent: 'flex-start'
+    justifyContent: 'flex-start',
+    textAlign: 'left'
 }
 
 const AttachmentItem = (props) => {
     const [open, setOpen] = useState(false);
-    const location = useLocation()
     const items = []
     const toParents = []
     props.attachments.forEach(attachment => {
@@ -36,7 +35,7 @@ const AttachmentItem = (props) => {
         setOpen(!open)
     }
     const onOpen = (attachment) => {
-        window.open(`${window.location.protocol}//${window.location.host}/files/get?name=${attachment.source}`, "_blank")
+        window.open(`${window.location.protocol}//${window.location.host}/files/get?name=${attachment.source}`, '_blank')
     }
     return (
         <Fragment>
@@ -46,7 +45,8 @@ const AttachmentItem = (props) => {
                     onClick={onToggle}>{props.parentName}</Button>
             {open && <ul>
                 {Object.keys(parents).map(parentName => <AttachmentItem key={parentName} parentName={parentName} attachments={parents[parentName]}/>)}
-                {Object.values(items).map(item => <Button onClick={() => onOpen(item)} style={buttonStyle} fullWidth={true} key={item.attachment_id}>{item.name}</Button>)}
+                {Object.values(items).map(item => <Button onClick={() => onOpen(item)} style={buttonStyle} fullWidth={true}
+                                                          key={item.attachment_id}>{item.name}</Button>)}
             </ul>}
         </Fragment>
     )
