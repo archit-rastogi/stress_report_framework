@@ -18,14 +18,10 @@ export class AcceptOptions {
   templateUrl: './accept-dialog.component.html',
   styleUrls: ['./accept-dialog.component.scss']
 })
-export class AcceptDialogComponent implements OnInit {
+export class AcceptDialogComponent {
 
   constructor(@Inject(MAT_DIALOG_DATA) public data: AcceptOptions,
               private dialogRef: MatDialogRef<AcceptDialogComponent>) { }
-
-  ngOnInit(): void {
-    console.log(this.data);
-  }
 
   approve() {
     this.dialogRef.close(true);

@@ -135,7 +135,6 @@ export class StressStepsComponent implements OnInit {
     const timeFormat = (data: number) => {
       return this.format(this.minTime + data);
     }
-    console.log(series.filter(s => s.name == 'Step #2'));
     this.chartOptions.next({
       title: {
         text: ''
@@ -182,8 +181,6 @@ export class StressStepsComponent implements OnInit {
         return step;
       });
     const step = steps.find(step => event.value === step.value);
-    console.log(event);
-    console.log(steps);
     if (step !== undefined) {
       const steps = this.openedSteps.getValue();
       if (steps.find(oStep => oStep.step_id === step.step_id)) {

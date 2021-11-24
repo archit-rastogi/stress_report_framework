@@ -48,7 +48,6 @@ export class StressReportComponent implements OnInit {
   }
 
   excludeTests() {
-    console.log(this.reportId);
     this.excludeTestsSub = this.api.post('add_exclude_tests', {
       tests: this.selectedTests.getValue(),
       name: this.reportId

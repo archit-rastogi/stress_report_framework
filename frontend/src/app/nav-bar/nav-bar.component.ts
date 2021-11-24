@@ -15,7 +15,6 @@ export class NavBarComponent implements OnInit {
   }
 
   goTo(path: string): void {
-    console.log('go', path);
     this.router.navigateByUrl(path);
   }
 
