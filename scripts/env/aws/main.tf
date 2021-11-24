@@ -8,15 +8,6 @@ locals {
   instance_home = "/home/${var.ssh_user_name}"
   db_path = "${local.instance_home}/db"
   files_path = "${local.instance_home}/files"
-  docker_compose_path = "${local.instance_home}/docker-compose.yaml"
-}
-
-data "template_file" "compose" {
-  template = file("${path.module}/../../../docker-compose.yaml")
-  vars = {
-    DB_PATH = local.db_path
-    FILES_DIR = local.files_path
-  }
 }
 
 resource "aws_instance" "service" {
@@ -35,8 +26,18 @@ resource "aws_instance" "service" {
   }
 
   provisioner "file" {
-    content = data.template_file.compose.rendered
-    destination = local.docker_compose_path
+    source = "${path.module}/../../../docker-compose.yaml"
+    destination = "${local.instance_home}/docker-compose.yaml"
+  }
+
+  provisioner "file" {
+    source = "${path.module}/../../../start.sh"
+    destination = "${local.instance_home}/start.sh"
+  }
+
+  provisioner "file" {
+    source = "${path.module}/../../setup.sql"
+    destination = "${local.instance_home}/setup.sql"
   }
 
   tags = {
@@ -49,7 +50,11 @@ resource "aws_instance" "service" {
       "sudo curl -L https://github.com/docker/compose/releases/download/1.27.0/docker-compose-`uname -s`-`uname -m` | sudo tee /usr/local/bin/docker-compose > /dev/null",
       "sudo chmod +x /usr/local/bin/docker-compose",
       "sudo ln -s /usr/local/bin/docker-compose /usr/bin/docker-compose",
-      "mkdir ${local.instance_home}/db"
+      "mkdir ${local.instance_home}/db",
+      "chmod -R 777 ${local.instance_home}/db",
+      "mkdir ${local.instance_home}/files",
+      "chmod -R 777 ${local.instance_home}/files",
+      "chmod a+x ${local.instance_home}/start.sh",
     ]
   }
 }

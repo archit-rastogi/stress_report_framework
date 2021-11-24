@@ -35,11 +35,11 @@ services:
       - "DB_HOST=db"
       - "DB_PORT=5433"
     volumes:
-      - "${FILES_DIR}:/files_dir"
+      - "${FILES_DIR:-/tmp/files}:/files_dir"
   db:
     image: "yugabytedb/yugabyte:${YUGABYTE_VERSION:-latest}"
     volumes:
-      - "${DB_PATH}:/db_data"
+      - "${DB_PATH:-/tmp/db}:/db_data"
     ports:
       - "7000:7000"
       - "9000:9000"
