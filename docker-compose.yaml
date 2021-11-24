@@ -2,7 +2,7 @@ version: '3'
 
 services:
   server:
-    image: "ghcr.io/pilshchikov/stress-report/server:latest"
+    image: "ghcr.io/pilshchikov/stress-report/server:${SERVER_VERSION:-latest}"
     depends_on:
       - db
     ports:
@@ -13,14 +13,16 @@ services:
       - "DB_USER=postgres"
       - "FILES_URL=files:9998"
       - "SETUP_FILE=/setup.sql"
+    volumes:
+      - "${SETUP_DB_FILE_PATH:-/tmp}:/setup.sql:ro"
   frontend:
-    image: "ghcr.io/pilshchikov/stress-report/frontend:latest"
+    image: "ghcr.io/pilshchikov/stress-report/frontend:${FRONTEND_VERSION:-latest}"
     depends_on:
       - server
     ports:
       - "80:80"
   files:
-    image: "ghcr.io/pilshchikov/stress-report/files:latest"
+    image: "ghcr.io/pilshchikov/stress-report/files:${FILES_VERISON:-latest}"
     depends_on:
       - db
     ports:
@@ -35,7 +37,7 @@ services:
     volumes:
       - "${FILES_DIR}:/files_dir"
   db:
-    image: "yugabytedb/yugabyte:latest"
+    image: "yugabytedb/yugabyte:${YUGABYTE_VERSION:-latest}"
     volumes:
       - "${DB_PATH}:/db_data"
     ports:

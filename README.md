@@ -4,7 +4,7 @@ Report framework for stress testing
 Developed for https://github.com/pilshchikov/test_framework
 
 Components:
- - Frontend - React ([Material UI](https://next.material-ui.com/), [Apache ECharts](https://echarts.apache.org/)) - [here](./frontend)
+ - Frontend - Angular 13 ([Material UI](https://material.angular.io/), [Apache ECharts](https://echarts.apache.org/)) - [here](./frontend)
  - Server - Python 3.9 ([AIOHTTP](https://docs.aiohttp.org), [AsyncPG](https://github.com/MagicStack/asyncpg)) - [here](./backend/server)
  - Files - GO ([ulikunitz/xz](https://github.com/ulikunitz/xz), [pq](https://github.com/lib/pq)) - [here](./backend/files)
  - DB - [YugabyteDB](https://www.yugabyte.com/)
