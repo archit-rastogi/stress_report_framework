@@ -1,0 +1,13 @@
+<button mat-button (click)="open = !open" class="opener width">
+  <mat-icon [svgIcon]="open ? 'fas:angle-down' : 'fas:angle-right'"></mat-icon>
+  {{name}}
+</button>
+<ng-container *ngIf="open">
+  <ul>
+    <app-stress-attachment-item [name]="parent.name" [attachments]="parent.parents" *ngFor="let parent of parents | async"></app-stress-attachment-item>
+    <button class="width attachment" (click)="openAttachment(item)" mat-button *ngFor="let item of items | async">
+      <mat-icon svgIcon="far:file-alt"></mat-icon>
+      {{item.name}}
+    </button>
+  </ul>
+</ng-container>

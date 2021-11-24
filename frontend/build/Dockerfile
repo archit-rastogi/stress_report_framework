@@ -1,4 +1,3 @@
-
 FROM node:latest as builder
 
 ADD ./frontend /src
@@ -13,7 +12,7 @@ RUN npm run-script build
 
 FROM nginx:alpine as production
 
-COPY --from=builder /src/build /usr/share/nginx/html
+COPY --from=builder /src/dist/frontend /usr/share/nginx/html
 COPY ./frontend/build/nginx.conf /etc/nginx/nginx.conf
 
 ENV TARGET ""

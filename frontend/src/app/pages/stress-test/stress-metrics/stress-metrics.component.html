@@ -1,0 +1,4 @@
+<div class="flex-container">
+  <button mat-button (click)="toggleStatus = !toggleStatus">{{toggleStatus ? 'Close' : 'Open'}} all</button>
+</div>
+<app-stress-metric-graph [openInput]="toggleStatus" [graphData]="graphData" *ngFor="let graphData of graphs | async"></app-stress-metric-graph>

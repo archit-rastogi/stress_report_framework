@@ -1,0 +1,44 @@
+.demo-chart {
+  height: 40%;
+}
+
+.flex {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+td {
+  text-align: left;
+}
+
+h3 {
+  text-align: center;
+  font-weight: bold;
+}
+
+table {
+  width: 600px;
+  margin-top: 20px;
+  margin-bottom: 20px;
+  border-collapse: collapse;
+
+}
+
+.headers {
+  font-weight: bold;
+  background-color: rgba(60, 0, 190, 0.15);
+}
+
+th, td {
+  border-bottom: 1px solid #ddd;
+}
+
+
+.width {
+  width: 100%;
+}
+
+.time-range {
+  text-align: center;
+}

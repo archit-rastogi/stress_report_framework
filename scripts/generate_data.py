@@ -40,7 +40,8 @@ for i in range(34):
     print(f"insert test {i}")
     start_test_res = post(f'{base_url}/start_test', json={
         'config': {
-            "name": f"test {i}"
+            "name": f"test {i}",
+            **{f'key {i}': f'value {i}' for i in range(r.randint(0, 10))}
         },
         'start_time': datetime.now().timestamp()
     }).json()

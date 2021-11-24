@@ -32,7 +32,7 @@ variable "instance_type" {
 
 variable "tag_name" {
   description = "Your user name tag value"
-  default = "yb-qa"
+  default = "stress-report"
 }
 
 variable "base_image_id" {

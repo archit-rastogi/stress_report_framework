@@ -1,0 +1,18 @@
+<div echarts [options]="(chartOptions | async) ?? {}" (chartClick)="click($event)" class="demo-chart width"></div>
+<div class="flex">
+  <button class="close" mat-button (click)="openedSteps.next([])" *ngIf="((openedSteps | async) ?? []).length > 0">Close all</button>
+  <ng-container *ngFor="let step of openedSteps | async">
+    <h3 class="width" [ngStyle]="getStepStatus(step.status)">{{step.properties.name}}</h3>
+    <span class="width time-range">{{getStepTime(step)}}</span>
+    <table>
+      <tr class="headers">
+        <th>Property</th>
+        <th>Value</th>
+      </tr>
+      <tr *ngFor="let propKey of getKeys(step.properties)">
+        <td>{{ propKey }}</td>
+        <td>{{ step.properties[propKey] }}</td>
+      </tr>
+    </table>
+  </ng-container>
+</div>

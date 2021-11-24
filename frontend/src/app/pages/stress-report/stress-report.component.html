@@ -1,0 +1,13 @@
+<div class="container">
+  <div *ngIf="((selectedTests | async) ?? []).length > 0">
+    <button mat-button color="warn" (click)="excludeTests()">
+      Exclude {{ ((selectedTests | async) ?? []).length }} cases
+    </button>
+    <button mat-button (click)="selectedTests.next([])">Cancel selection</button>
+  </div>
+  <app-stress-test-card
+    [selected]="isSelected(test)"
+    [test]="test"
+    (onToggle)="testSelected(test)"
+    *ngFor="let test of tests | async"></app-stress-test-card>
+</div>

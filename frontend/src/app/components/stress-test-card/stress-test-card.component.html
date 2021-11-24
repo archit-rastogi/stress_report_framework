@@ -1,0 +1,13 @@
+<mat-card [ngStyle]="getCardColor()" (click)="openTest(test.test_id)" (contextmenu)="selectCard($event)">
+  <mat-card-title-group>
+    <div class="configs">
+      <div *ngFor="let key of getKeys(test.config)">
+        {{key}}: {{test.config[key]}}
+      </div>
+    </div>
+    <div>
+      <div class="time">{{ getTimeFormat(test) }}</div>
+      <div class="status" [ngStyle]="getStatusStyle(test.status)">{{test.status}}</div>
+    </div>
+  </mat-card-title-group>
+</mat-card>

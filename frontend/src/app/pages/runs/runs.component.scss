@@ -1,0 +1,64 @@
+.container {
+  margin-top: 1%;
+}
+
+@media only screen and (max-width: 1200px) {
+  .container {
+    margin-left: 5%;
+    margin-right: 5%;
+  }
+}
+
+@media (min-width: 1200px) and (max-width: 1600px) {
+  .container {
+    margin-left: 10%;
+    margin-right: 10%;
+  }
+}
+
+@media (min-width: 1600px) and (max-width: 2400px) {
+  .container {
+    margin-left: 20%;
+    margin-right: 20%;
+  }
+}
+
+@media (min-width: 2400px) {
+  .container {
+    margin-left: 25%;
+    margin-right: 25%;
+  }
+}
+
+.search-field {
+  display: flex;
+}
+
+.time-range {
+  cursor: pointer;
+}
+
+.active-filters {
+  display: flex;
+}
+
+.add-filter {
+  width: 100px;
+}
+
+.context-filter {
+  width: 100%;
+}
+
+.actions {
+  background-color: rgba(255, 0, 22, 0.05);
+  padding: 10px;
+  width: 100%;
+  text-align: right;
+}
+
+.refresh {
+  margin-left: auto;
+  width: 45px;
+  height: 45px;
+}

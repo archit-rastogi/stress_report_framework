@@ -1,15 +1,19 @@
+import asyncio
 import logging
 from datetime import datetime
 from json import dumps, loads
+from pathlib import Path
+from re import sub
 from typing import List
 from uuid import uuid4
 
-from asyncpg import Connection, Record, InterfaceError, connect
+from asyncpg import Connection, Record, InterfaceError, connect, UndefinedTableError
 
 
 class QueryExecute:
 
-    def __init__(self, log: logging.Logger, host, port, database, user):
+    def __init__(self, log: logging.Logger, host, port, database, user,
+                 setup_file_path: str = None):
         self.log: logging.Logger = log
         self.connection_params = {
             'host': host,
@@ -20,6 +24,16 @@ class QueryExecute:
         self.host = host
         self.port = port
         self.open_connections: List[Connection] = []
+        self.setup_file_path = setup_file_path
+        self.first_query = True
+
+    async def _setup_db(self, queries):
+        try:
+            await self.get_reports()
+        except UndefinedTableError:
+            self.log.info("create DB")
+            for query in queries:
+                await self.execute(query)
 
     async def connect(self):
         self.log.info('open new connections')
@@ -30,6 +44,14 @@ class QueryExecute:
     async def execute(self, query: str, params: list or tuple = None):
         if not self.open_connections:
             await self.connect()
+            if self.first_query and self.setup_file_path:
+                setup_file = Path(self.setup_file_path)
+                if setup_file.exists():
+                    loop = asyncio.get_event_loop()
+                    loop.create_task(
+                        self._setup_db(sub('\s+', ' ', setup_file.read_text().replace('\n', ' ')).split(';'))
+                    )
+                    self.first_query = False
         connection = self.open_connections.pop()
 
         if params is None:
@@ -75,16 +97,25 @@ class QueryExecute:
         await self.execute(f"insert into metrics(metric_id, time, data, test_id) "
                            f"values ('{uuid4()}', $1, '{dumps(data)}', '{test_id}')", [m_time])
 
-    async def get_tests(self, start_date: datetime, end_date: datetime) -> list[dict]:
-        rows = await self.execute('select test_id, config, start_time, end_time, status '
-                                  'from stress_tests '
-                                  'where start_time between $1 and $2'
+    async def get_tests(self, start_date: datetime, end_date: datetime, filters: list[dict] = None) -> list[dict]:
+        filter_condition = ''
+        if filters:
+            filter_condition += ' and '
+            filter_condition += ' and '.join([f"config->'{f['key']}' is not null and config->>'{f['key']}' ~ '{f['value']}'" for f in filters])
+        rows = await self.execute('select test_id, config, start_time, end_time, status from stress_tests '
+                                  f'where start_time between $1 and $2 {filter_condition} '
                                   'order by start_time desc', [start_date, end_date])
         for row in rows:
             row['start_time'] = row['start_time'].timestamp()
             row['end_time'] = row['end_time'].timestamp() if row.get('end_time') else None
             row['config'] = loads(row['config'])
         return rows
+
+    async def delete_test(self, test_id: str):
+        await self.execute(f"delete from stress_tests where test_id = '{test_id}'")
+
+    async def delete_report(self, report_id: str):
+        await self.execute(f"delete from stress_report where report_id = '{report_id}'")
 
     async def get_steps(self, test_id: str) -> list[dict]:
         rows = await self.execute(f"select step_id, status, properties, start_time, end_time, test_id "
@@ -119,37 +150,93 @@ class QueryExecute:
             row['time'] = row['time'].timestamp()
         return rows
 
-    async def add_report(self, name):
+    async def add_report(self, name: dict, config: dict):
         report_id = str(uuid4())
-        await self.execute(f'insert into stress_report(report_id, name, config, cases, creation_time) '
-                           f"values ('{report_id}', '{name}', '{{}}', '[]', $1)", [datetime.now()])
+        await self.execute(f'insert into stress_report(report_id, name, config, creation_time) '
+                           f"values ('{report_id}', '{name}', '{dumps(config)}', now()::timestamp)")
         return report_id
 
     async def add_report_case(self, report_id: str, case_id: str):
-        rows = await self.execute(f"select cases from stress_report where report_id = '{report_id}'")
-        cases = loads(rows[0]['cases'])
-        cases.append(case_id)
-        await self.execute(f"update stress_report set cases = '{dumps(cases)}' where report_id = '{report_id}'")
+        rows = await self.execute(f"select config from stress_report where report_id = '{report_id}'")
+        config = loads(rows[0]['config'])
+        config['cases'] = config.get('cases', []) + [case_id]
+        await self.execute(f"update stress_report set config = '{dumps(config)}' where report_id = '{report_id}'")
 
-    async def get_reports(self):
-        rows = await self.execute("select report_id, name, config, cases, creation_time "
-                                  "from stress_report order by creation_time")
+    async def get_reports(self, report_ids: list[str] = None, names: list[str] = None) -> list:
+        conditions = []
+        if report_ids:
+            reports = ", ".join([f"'{report_id}'" for report_id in report_ids])
+            conditions.append(f'report_id in ({reports})')
+        if names:
+            names = ", ".join([f"'{name}'" for name in names])
+            conditions.append(f'name in ({names})')
+        condition = ''
+        if conditions:
+            condition = f'where {" and ".join(conditions)}'
+        rows = await self.execute("select report_id, name, config, creation_time "
+                                  f"from stress_report {condition} order by creation_time")
         for row in rows:
-            row['cases'] = loads(row['cases'])
+            row['config'] = loads(row['config'])
             row['creation_time'] = row['creation_time'].timestamp()
+
         return rows
 
-    async def get_report_cases(self, report_name) -> list[dict]:
-        rows = await self.execute(f"select cases from stress_report where name = '{report_name}'")
-        cases: list[str] = loads(rows[0]['cases'])
+    async def update_reports(self, report_id: str, new_config: dict):
+        await self.execute(f"update stress_report set config = '{dumps(new_config)}' where report_id = '{report_id}'")
+
+    async def find_report_by_name(self, report_name) -> dict:
+        rows = await self.execute(f"select name, config, report_id from stress_report where name = '{report_name}'")
+        rows[0]['config'] = loads(rows[0]['config'])
+        return rows[0]
+
+    async def format_case(self, case: dict):
+        case['start_time'] = case['start_time'].timestamp()
+        case['end_time'] = case['end_time'].timestamp() if case.get('end_time') else None
+        case['config'] = loads(case['config'])
+
+    async def get_report_cases(self, report_id) -> list[dict]:
+        rows = await self.execute(f"select config from stress_report where report_id = '{report_id}'")
+        config: dict = loads(rows[0]['config'])
         cases_data = []
-        for case_id in cases:
+
+        for case_id in config.get('cases', []):
             case_data_rows = await self.execute(f"select test_id, config, start_time, end_time, status "
                                                 f"from stress_tests where test_id = '{case_id}'")
 
             case_data = case_data_rows[0]
-            case_data['start_time'] = case_data['start_time'].timestamp()
-            case_data['end_time'] = case_data['end_time'].timestamp() if case_data.get('end_time') else None
-            case_data['config'] = loads(case_data['config'])
+            await self.format_case(case_data)
             cases_data.append(case_data)
+
+        filters_condition = []
+        if config.get('filters', []):
+            filters_condition.append(
+                ' and '.join([f"config->'{f['key']}' is not null and config->>'{f['key']}' ~ '{f['value']}'" for f in config.get('filters', [])]))
+
+        args = []
+        if config.get('dates', []):
+            dates_condition = []
+            for condition_date in config['dates']:
+                dates_condition.append(f'start_time between ${len(args) + 1} and ${len(args) + 2} ')
+                args.append(datetime.fromtimestamp(condition_date['start']))
+                args.append(datetime.fromtimestamp(condition_date['end']))
+            filters_condition.append(f'({"or".join(dates_condition)}) ')
+        excludes: list[str] = config.get('excludes', [])
+        case_data_rows = await self.execute(f"select test_id, config, start_time, end_time, status "
+                                            f"from stress_tests where {'and '.join(filters_condition)}", args)
+        for case_data in case_data_rows:
+            if case_data['test_id'] not in excludes:
+                await self.format_case(case_data)
+                cases_data.append(case_data)
+
         return cases_data
+
+    async def get_excluded_tests(self, report_id: str) -> list:
+        reports = await self.get_reports(report_ids=[report_id])
+        report = reports[0]
+        excludes = report['config'].get('excludes', [])
+        excludes_condition = "', '".join(excludes)
+        tests = await self.execute(f"select test_id, config, start_time, end_time, status  "
+                                   f"from stress_tests where test_id in ('{excludes_condition}')")
+        for test in tests:
+            await self.format_case(test)
+        return tests

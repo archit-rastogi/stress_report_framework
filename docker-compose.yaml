@@ -11,6 +11,8 @@ services:
       - "DB_URL=db:5433"
       - "DB_NAME=postgres"
       - "DB_USER=postgres"
+      - "FILES_URL=files:9998"
+      - "SETUP_FILE=/setup.sql"
   frontend:
     image: "ghcr.io/pilshchikov/stress-report/frontend:latest"
     depends_on:

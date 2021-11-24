@@ -1,4 +1,5 @@
 import logging
+from dataclasses import dataclass
 from datetime import datetime
 from traceback import format_exc
 
@@ -38,11 +39,29 @@ def request_handler(post_params=True, request_require=False, get_params=False):
     return wrapper
 
 
+@dataclass
+class ModuleConfig:
+    db_host: str
+    db_port: int
+    db_username: str
+    db_name: str
+    files_url: str
+    setup_file_path: str = None
+
+
 class AbstractModule:
-    def __init__(self, host: str, port: int, database: str, user: str):
+    def __init__(self, config: ModuleConfig):
         self.log = logging
         self.log.basicConfig(level=logging.INFO)
-        self.db = QueryExecute(self.log, host, port, database, user)
+        self.config = config
+        self.db = QueryExecute(
+            self.log,
+            self.config.db_host,
+            self.config.db_port,
+            self.config.db_name,
+            self.config.db_username,
+            setup_file_path=config.setup_file_path
+        )
 
     async def get_params(self, request: Request):
         return await request.json()

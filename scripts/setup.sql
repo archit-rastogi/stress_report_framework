@@ -1,4 +1,4 @@
-create table stress_tests
+create table IF NOT EXISTS stress_tests
 (
     test_id    text primary key,
     config     jsonb,
@@ -7,7 +7,7 @@ create table stress_tests
     status     text
 );
 
-create table steps
+create table IF NOT EXISTS steps
 (
     step_id    text primary key,
     status     text,
@@ -23,7 +23,7 @@ create table steps
         on update restrict
 );
 
-create table metrics
+create table IF NOT EXISTS  metrics
 (
     metric_id text primary key,
     time      timestamp without time zone,
@@ -36,9 +36,9 @@ create table metrics
         on update restrict
 );
 
-CREATE INDEX stress_idx ON stress_tests (start_time ASC, end_time ASC);
+CREATE INDEX IF NOT EXISTS  stress_idx ON stress_tests (start_time ASC, end_time ASC);
 
-create table attachments
+create table IF NOT EXISTS  attachments
 (
     attachment_id text primary key,
     name          text,
@@ -54,16 +54,16 @@ create table attachments
         on update restrict
 );
 
-create table files
+create table IF NOT EXISTS files
 (
     file_id text primary key,
     time    timestamp without time zone,
     name    text
 );
 
-CREATE INDEX file_name_idx ON files (name);
+CREATE INDEX IF NOT EXISTS file_name_idx ON files (name);
 
-create table stress_report
+create table IF NOT EXISTS stress_report
 (
     report_id     text primary key,
     name          text,

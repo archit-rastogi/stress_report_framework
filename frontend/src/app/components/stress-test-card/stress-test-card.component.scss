@@ -1,0 +1,29 @@
+
+.time {
+  margin-left: auto;
+}
+
+mat-card {
+  margin-top: 5px;
+}
+
+mat-card:hover {
+  background-color: rgba(5, 0, 255, 0.06);
+  cursor: pointer;
+}
+
+.status {
+  margin-top: 10px;
+  text-align: right;
+  font-size: x-large;
+  font-weight: bold;
+}
+
+mat-card-title-group {
+  display: flex;
+}
+
+.configs {
+  margin-left: 20px;
+  margin-right: auto;
+}

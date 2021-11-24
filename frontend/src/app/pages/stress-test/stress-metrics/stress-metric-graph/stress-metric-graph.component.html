@@ -1,0 +1,15 @@
+<div class="flex-container">
+  <button class="toggle" mat-button (click)="open = !open">
+    <mat-icon [svgIcon]="open ? 'fas:angle-down' : 'fas:angle-right'"></mat-icon>
+    {{ graphData.name }}
+  </button>
+</div>
+<ng-container *ngIf="open">
+  <div class="flex-container">
+    <mat-button-toggle-group [(value)]="selectedGraph" (valueChange)="setOption($event)">
+      <mat-button-toggle value="avg">AVG</mat-button-toggle>
+      <mat-button-toggle value="separated">Separated</mat-button-toggle>
+    </mat-button-toggle-group>
+  </div>
+  <div echarts [options]="(echartsOptions | async) ?? {}" class="demo-chart"></div>
+</ng-container>
