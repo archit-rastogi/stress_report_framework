@@ -22,7 +22,7 @@ export class StressMetricsComponent implements OnInit {
     this.openedGraphs.next([]);
     this.getMetricsSub = this.api
       .post('get_metrics', {test_id: this.testId})
-      .subscribe((res: any) => this.graphs.next(res.metrics));
+      .subscribe((res: any) => this.graphs.next(res.metrics.sort((a: any, b: any) => a.localeCompare(b))));
   }
 
   graphIsOpen(graphName: string) {

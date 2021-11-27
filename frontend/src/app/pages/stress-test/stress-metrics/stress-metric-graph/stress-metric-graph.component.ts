@@ -90,7 +90,7 @@ export class StressMetricGraphComponent implements OnInit, OnDestroy {
           }],
 
           grid: {
-            bottom: manyLines ? 150 : 0
+            bottom: manyLines ? 150 : 50
           },
           yAxis: [{
             name: res.symbol,
