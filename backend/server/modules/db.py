@@ -49,7 +49,7 @@ class QueryExecute:
                 if setup_file.exists():
                     loop = asyncio.get_event_loop()
                     loop.create_task(
-                        self._setup_db(sub('\s+', ' ', setup_file.read_text().replace('\n', ' ')).split(';'))
+                        self._setup_db(sub(r'\s+', ' ', setup_file.read_text().replace('\n', ' ')).split(';'))
                     )
                     self.first_query = False
         connection = self.open_connections.pop()

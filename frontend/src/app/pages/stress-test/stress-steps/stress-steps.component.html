@@ -1,4 +1,4 @@
-<div echarts [options]="(chartOptions | async) ?? {}" (chartClick)="click($event)" class="demo-chart width"></div>
+<div echarts [options]="(chartOptions | async) ?? {}" (chartClick)="click($event)" class="chart width"></div>
 <div class="flex">
   <button class="close" mat-button (click)="openedSteps.next([])" *ngIf="((openedSteps | async) ?? []).length > 0">Close all</button>
   <ng-container *ngFor="let step of openedSteps | async">

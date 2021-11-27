@@ -174,13 +174,13 @@ export class StressStepsComponent implements OnInit {
   }
 
   click(event: any) {
-    const steps = this.steps.getValue()
+    let selectedSteps = this.steps.getValue()
       .filter(step => step.properties.name === event.seriesName)
       .map(step => {
         step.value = step.end_time - step.start_time;
         return step;
       });
-    const step = steps.find(step => event.value === step.value);
+    const step = selectedSteps.find(step => event.value === step.value);
     if (step !== undefined) {
       const steps = this.openedSteps.getValue();
       if (steps.find(oStep => oStep.step_id === step.step_id)) {
@@ -189,6 +189,21 @@ export class StressStepsComponent implements OnInit {
         steps.push(step);
         this.openedSteps.next(steps);
       }
+    } else {
+      selectedSteps = this.steps.getValue().filter(step => step.properties.name === event.name)
+      const openedSteps = this.openedSteps.getValue();
+      const canFindInSelected = (step_id: string) => selectedSteps.find(ss => ss.step_id === step_id) !== undefined
+      if (openedSteps.find(s => canFindInSelected(s.step_id))) {
+        this.openedSteps.next(openedSteps.filter(s => !canFindInSelected(s.step_id)));
+      } else {
+        selectedSteps
+          .filter(os => openedSteps.find(ss => ss.step_id === os.step_id) === undefined)
+          .forEach(os => {
+            openedSteps.push(os);
+          })
+        this.openedSteps.next(openedSteps);
+      }
+
     }
   }
 

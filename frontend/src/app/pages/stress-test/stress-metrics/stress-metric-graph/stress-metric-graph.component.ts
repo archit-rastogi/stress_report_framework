@@ -1,133 +1,106 @@
-import {Component, Input, OnChanges, OnInit, SimpleChanges} from '@angular/core';
-import {BehaviorSubject} from 'rxjs';
+import {Component, Input, OnChanges, OnDestroy, OnInit, SimpleChanges} from '@angular/core';
+import {BehaviorSubject, Subscriber, Subscription} from 'rxjs';
 import * as moment from 'moment';
 import {EChartsOption} from 'echarts';
+import {ApiService} from '../../../../services/api.service';
+import {FormControl} from '@angular/forms';
 
 @Component({
   selector: 'app-stress-metric-graph',
   templateUrl: './stress-metric-graph.component.html',
   styleUrls: ['./stress-metric-graph.component.scss']
 })
-export class StressMetricGraphComponent implements OnInit, OnChanges {
+export class StressMetricGraphComponent implements OnInit, OnDestroy {
+  echartsOptions = new BehaviorSubject<EChartsOption>({} as EChartsOption);
+  @Input() graphName: any;
+  @Input() testId: any;
 
-  echartsOptions = new BehaviorSubject<EChartsOption>({});
-  open: boolean = false;
-  @Input() graphData: any;
-  @Input() openInput: boolean | undefined;
-  selectedGraph: string = 'avg';
+  toggle = new FormControl('avg');
+  getMetricSub = new Subscription();
 
-  constructor() {
+  constructor(private api: ApiService) {
   }
 
   ngOnInit(): void {
-    this.open = false;
-    this.selectedGraph = 'avg';
-    this.setOption(this.selectedGraph);
+    this.drawGraph();
   }
 
-  ngOnChanges(changes: any): void {
-    if (changes.hasOwnProperty('openInput')) {
-      this.open = changes.openInput.currentValue;
-    }
+  changeValue() {
+    this.drawGraph();
   }
 
-  avg = (items: Array<any>) => {
-    return items.reduce((prev, next) => prev + next) / items.length
+  ngOnDestroy() {
+    this.api.unsub(this.getMetricSub);
   }
 
-  format = (timestamp: number) => moment(timestamp).format('DD.MM HH:mm:ss');
+  drawGraph() {
+    this.getMetricSub = this.api.post('get_metric', {
+      test_id: this.testId,
+      metric_name: this.graphName,
+      graph_type: this.toggle.value,
+    }).subscribe(res => {
+      if (res.status) {
 
-  setOption = (type: string) => {
-    const series: Array<any> = []
-    const legends: Array<string> = []
-    const subGraphs: any = {}
-    Object.keys(this.graphData.data).forEach(subGraphKey => {
-      const subGraphData = this.graphData.data[subGraphKey];
-      Object.keys(subGraphData.data).forEach(subGraphName => {
-        const separatedData = subGraphData.data[subGraphName];
-        if (subGraphs.hasOwnProperty(subGraphName)) {
-          subGraphs[subGraphName] = subGraphs[subGraphName].concat([{time: subGraphData.time, data: separatedData}])
-        } else {
-          subGraphs[subGraphName] = [{time: subGraphData.time, data: separatedData}]
-        }
-      })
-    })
-    if (type === 'avg') {
-      const roundV = 10 ** this.graphData.round;
-      Object.keys(subGraphs).forEach(subGraphName => {
-        const subGraphData = subGraphs[subGraphName];
-        const seriesName = `${subGraphName} avg`
-        series.push({
-          type: 'line',
-          name: seriesName,
-          data: subGraphData
-            .filter((pointData: any) => Object.keys(pointData.data).length > 0)
-            .map((pointData: any) =>
-              [pointData.time * 1000, Math.round(this.avg(Object.values(pointData.data)) * roundV) / roundV]
-            )
-        })
-        legends.push(seriesName)
-      });
-    } else if (type === 'separated') {
-      Object.keys(subGraphs).forEach(subGraphName => {
-        const subGraphData = subGraphs[subGraphName];
-        const hostsData: any = {}
-        subGraphData.forEach((point: any) => {
-          Object.keys(point.data).forEach(host => {
-            const d = [Math.round(point.time) * 1000, point.data[host]]
-            if (hostsData.hasOwnProperty(host)) {
-              hostsData[host] = hostsData[host].concat([d])
-            } else {
-              hostsData[host] = [[d]]
-            }
-          })
-        });
-        Object.keys(hostsData).forEach(host => {
-          const seriesName = `${subGraphName} ${host}`;
-          series.push({
+        const toRound = 10 ** res.round_value;
+        const series: any[] = Object.keys(res.series).map(lineName => {
+          return {
+            name: lineName,
             type: 'line',
-            name: seriesName,
-            data: hostsData[host]
-          });
-          legends.push(seriesName);
-        })
-      });
-    }
-    this.echartsOptions.next({
-      animationDuration: 100,
-      legend: {
-        data: legends,
-        bottom: 0
-      },
-      tooltip: {
-        order: 'valueDesc',
-        trigger: 'axis'
-      },
-      toolbox: {
-        feature: {
-          dataZoom: {
-            yAxisIndex: 'none'
-          },
-          restore: {},
-          saveAsImage: {},
-        },
-        z: 0
-      },
-      emphasis: {
-        focus: 'series'
-      },
-      xAxis: [{
-        type: 'time',
-        axisLabel: {
-          formatter: this.format
+            data: res.series[lineName].map((data: number[]) => {
+              return [data[0] * 1000, (Math.round(data[1] * toRound)) / toRound]
+            })
+          }
+        });
+        const manyLines = Object.keys(res.series).length > 10;
+        const formatCursor = (params: any) => {
+          const lines = params
+            .filter((p: any) => p.value[1] > 0)
+            .map((s: any) => `<tr><td>${s.marker} ${s.seriesName}</td><td>${s.value[1]}</td></tr>`);
+          return `${params[0].axisValueLabel}<br/><table style="width: 100%">${lines.join('')}</table>`
         }
-      }],
-      yAxis: [{
-        name: this.graphData.symbol,
-        type: 'value'
-      }],
-      series
+        this.echartsOptions.next({
+          animationDuration: 100,
+          legend: {
+            data: Object.keys(res.series),
+            bottom: 0,
+          },
+          tooltip: {
+            order: 'valueDesc',
+            trigger: 'axis',
+            formatter: formatCursor,
+          },
+          toolbox: {
+            feature: {
+              dataZoom: {
+                yAxisIndex: 'none'
+              },
+              restore: {},
+              saveAsImage: {},
+            },
+            z: 0
+          },
+          emphasis: {
+            focus: 'series'
+          },
+          xAxis: [{
+            type: 'time',
+            axisLabel: {
+              formatter: this.format
+            }
+          }],
+
+          grid: {
+            bottom: manyLines ? 150 : 0
+          },
+          yAxis: [{
+            name: res.symbol,
+            type: 'value'
+          }],
+          series: series
+        });
+      }
     });
   }
 
+  format = (timestamp: number) => moment(timestamp).format('DD.MM HH:mm:ss');
 }

@@ -85,18 +85,22 @@ for i in range(34):
         handle_res(end_step_res)
 
     ts = datetime.now()
-    for m in range(r.randint(100, 150)):
+    for m in range(r.randint(100, 300)):
         ts += timedelta(seconds=30)
         m_data = {}
         for line_name, symbol, round_val in [
             ["cpu", '%', 0],
             ["mem", 'GB', 2],
             ["sql", 'Ops', 0],
-            ["cql", 'Ops', 0]
+            ["cql", 'Ops', 0],
+            ["net", 'packs', 0],
+            ["net bytes", 'GB', 3],
+            ["disk", 'Ops', 0],
+            ["disk bytes", 'MB', 3],
         ]:
             m_data[line_name] = {
                 'data': {
-                    thr: {h: r.randint(10, 1000) for h in [f"172.25.1.{h}" for h in range(3)]}
+                    thr: {h: 0 if (metric := r.randint(-1000, 10000)) < 0 else metric for h in [f"172.25.1.{h}" for h in range(9)]}
                     for thr in choice([["system", 'user'], ["ss", 'qq', 'aa'], ["aa", "hh", 'zz']])
                 },
                 'name': line_name,

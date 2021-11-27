@@ -36,6 +36,7 @@ app.add_routes([
     web.post('/back/get_tests', main_module.get_tests),
     web.post('/back/get_steps', main_module.get_steps),
     web.post('/back/get_metrics', main_module.get_metrics),
+    web.post('/back/get_metric', main_module.get_metric),
     web.post('/back/get_attachments', main_module.get_attachments),
 
     web.post('/back/get_reports', main_module.get_reports),

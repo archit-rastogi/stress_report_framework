@@ -1,4 +1,18 @@
 <div class="flex-container">
-  <button mat-button (click)="toggleStatus = !toggleStatus">{{toggleStatus ? 'Close' : 'Open'}} all</button>
+  <button mat-button
+          (click)="openedGraphs.getValue().length > 0 ?  openedGraphs.next([]) : openedGraphs.next(graphs.getValue())"
+  >{{openedGraphs.getValue().length > 0 ? 'Close' : 'Open'}} all
+  </button>
 </div>
-<app-stress-metric-graph [openInput]="toggleStatus" [graphData]="graphData" *ngFor="let graphData of graphs | async"></app-stress-metric-graph>
+<div class="width" *ngFor="let graph of graphs | async">
+  <div class="flex-container">
+    <button mat-button (click)="toggleShow(graph)">
+      <mat-icon [svgIcon]="graphIsOpen(graph) ? 'fas:angle-down' : 'fas:angle-right'"></mat-icon>
+      {{ graph }}
+    </button>
+  </div>
+  <div *ngIf="graphIsOpen(graph)">
+    <app-stress-metric-graph [graphName]="graph" [testId]="testId"></app-stress-metric-graph>
+  </div>
+</div>
+

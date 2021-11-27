@@ -1,6 +1,7 @@
 import {Component, Input, OnInit} from '@angular/core';
 import {ApiService} from '../../../services/api.service';
-import {Subject} from 'rxjs';
+import {BehaviorSubject, Subject} from 'rxjs';
+
 
 @Component({
   selector: 'app-stress-metrics',
@@ -10,50 +11,31 @@ import {Subject} from 'rxjs';
 export class StressMetricsComponent implements OnInit {
 
   @Input() testId: string | undefined | null;
-  graphs = new Subject<Array<any>>();
-  toggleStatus = false;
+  graphs = new BehaviorSubject<Array<string>>([]);
+  openedGraphs = new BehaviorSubject<Array<string>>([]);
   getMetricsSub: any;
 
   constructor(private api: ApiService) {
   }
 
   ngOnInit(): void {
-    this.toggleStatus = false;
-    this.getMetricsSub = this.api.post('get_metrics', {test_id: this.testId}).subscribe((res: any) => {
-      if (res.status) {
-        const graphs: Array<any> = [];
-        res.metrics.forEach((sample: any) => {
-          const newMetrics = Object.keys(sample.data).filter(metricName => !graphs.includes(metricName));
-          if (newMetrics.length > 0) {
-            graphs.push(...newMetrics)
-          }
-        })
-
-        const graphsData: any = {};
-        res.metrics.forEach((sample: any) => {
-          graphs.forEach(graphName => {
-            if (sample.data.hasOwnProperty(graphName)) {
-              const sampleData = sample.data[graphName];
-              const sampleToAdd = {
-                data: sampleData.data,
-                time: sample.time
-              }
-
-              if (!graphsData.hasOwnProperty(graphName)) {
-                graphsData[graphName] = {data: [sampleToAdd], name: sampleData.name, symbol: sampleData.symbol, round: sampleData.round_val}
-              } else {
-                graphsData[graphName].data.push(sampleToAdd)
-                graphsData[graphName].data = graphsData[graphName].data.sort((a: any, b: any) => a.time - b.time);
-              }
-            }
-          })
-        });
-        this.graphs.next(Object.values(graphsData));
-      }
-    })
+    this.openedGraphs.next([]);
+    this.getMetricsSub = this.api
+      .post('get_metrics', {test_id: this.testId})
+      .subscribe((res: any) => this.graphs.next(res.metrics));
   }
 
-  toggleAll() {
+  graphIsOpen(graphName: string) {
+    return this.openedGraphs.getValue().includes(graphName);
+  }
 
+  toggleShow(graphName: string) {
+    if (this.graphIsOpen(graphName)) {
+      this.openedGraphs.next(this.openedGraphs.getValue().filter(g => g !== graphName));
+    } else {
+      const openedGraphs = this.openedGraphs.getValue();
+      openedGraphs.push(graphName);
+      this.openedGraphs.next(openedGraphs);
+    }
   }
 }

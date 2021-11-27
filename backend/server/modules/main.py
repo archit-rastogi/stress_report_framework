@@ -1,5 +1,6 @@
 import asyncio
 from datetime import datetime
+from time import time
 
 from requests import get
 
@@ -22,6 +23,68 @@ class MainModule(AbstractModule):
 
     @request_handler()
     async def get_metrics(self, params: dict):
+        test_id = params['test_id']
+        metrics = await self.db.get_metrics(test_id)
+        metrics_names = []
+        for metric in metrics:
+            metrics_names = list(set(metrics_names + list(metric['data'].keys())))
+        return {'metrics': metrics_names}
+
+    @request_handler()
+    async def get_metric(self, params: dict):
+        test_id = params['test_id']
+        metric_name = params['metric_name']
+        graph_type = params['graph_type']
+
+        found_metrics = await self.db.get_metrics(test_id)
+        name = None
+        round_val = None
+        symbol = None
+
+        metrics = {}
+
+        series_names = []
+
+        for metric in found_metrics:
+            metric_data = metric['data'].get(metric_name)
+            if metric_data is None:
+                continue
+            if name is not None and (real_metric_name := metric_data.get('name')):
+                name = real_metric_name
+            if round_val is not None and (metric_round_val := metric_data.get('round_val')):
+                round_val = metric_round_val
+            if symbol is not None and (metric_symbol := metric_data.get('symbol')):
+                symbol = metric_symbol
+
+            metric_time = metric['time']
+            lines_data: dict[str, dict[str, str]] = metric_data['data']
+            series_names = list(set(series_names + list(lines_data.keys())))
+            metrics[round(metric_time)] = lines_data
+
+        lines: dict[str, list[list]] = {}
+        sorted_metrics = sorted([[k, v] for k, v in metrics.items()], key=lambda k: k[0])
+
+        for t, lines_data in sorted_metrics:
+            for line_name, hosts in lines_data.items():
+                if graph_type == 'separated':
+                    for host, metric in hosts.items():
+                        _line_number = f'{line_name} {host}'
+                        lines[_line_number] = lines.get(_line_number, []) + [[t, metric]]
+                elif graph_type == 'avg':
+                    all_hosts_metrics = hosts.values()
+                    lines[line_name] = lines.get(line_name, []) + [[t, sum(all_hosts_metrics)/len(all_hosts_metrics)]]
+                elif graph_type == 'sum':
+                    all_hosts_metrics = hosts.values()
+                    lines[line_name] = lines.get(line_name, []) + [[t, sum(all_hosts_metrics)]]
+
+        return {
+            'symbol': symbol,
+            'round_value': round_val,
+            'series': lines
+        }
+
+    @request_handler()
+    async def _get_metrics(self, params: dict):
         test_id = params['test_id']
         return {'metrics': await self.db.get_metrics(test_id)}
 
