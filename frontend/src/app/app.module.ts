@@ -38,6 +38,8 @@ import {CreateReportComponent} from './pages/stress-reports/create-report/create
 import {EditReportComponent} from './pages/stress-reports/edit-report/edit-report.component';
 import {MatCheckboxModule} from '@angular/material/checkbox';
 import {AcceptDialogComponent} from './components/accept-dialog/accept-dialog.component';
+import { UniverseConfigsComponent } from './pages/universe-configs/universe-configs.component';
+import { UniverseConfigUploadDialogComponent } from './pages/universe-configs/universe-config-upload-dialog/universe-config-upload-dialog.component';
 
 @NgModule({
   declarations: [
@@ -56,6 +58,8 @@ import {AcceptDialogComponent} from './components/accept-dialog/accept-dialog.co
     StressReportComponent,
     EditReportComponent,
     AcceptDialogComponent,
+    UniverseConfigsComponent,
+    UniverseConfigUploadDialogComponent,
   ],
   imports: [
     BrowserModule,

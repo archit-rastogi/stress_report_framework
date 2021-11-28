@@ -1,0 +1,13 @@
+<div class="container">
+  <button mat-button (click)="openAddDialog()">
+    <mat-icon color="primary" svgIcon="fas:plus"></mat-icon>
+  </button>
+  <mat-card class="width" (click)="openConfig(config)" *ngFor="let config of configs | async">
+    <div class="flex">
+      {{ config.name }}
+      <button mat-button color="warn" class="delete" (click)="deleteConfig(config)">
+        <mat-icon svgIcon="fas:trash-alt"></mat-icon>
+      </button>
+    </div>
+  </mat-card>
+</div>

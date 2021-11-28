@@ -1,3 +1,27 @@
+<div class="status"
+      [ngStyle]="getStatusStyle(testInfo.getValue().status)"
+      *ngIf="getKeys((testInfo | async) ?? {}).length > 0">
+  {{testInfo.getValue().status}}
+</div>
+<div class="flex">
+  <button mat-button (click)="showInfo = !showInfo">
+    <mat-icon [svgIcon]="showInfo ? 'fas:angle-down' : 'fas:angle-right'"></mat-icon>
+    Build info
+  </button>
+</div>
+<ng-container *ngIf="showInfo">
+  <span class="time">
+    {{format(testInfo.getValue().start_time)}} - {{testInfo.getValue().end_time ? format(testInfo.getValue().end_time) : 'running'}}
+  </span>
+  <div class="flex">
+    <table>
+      <tr *ngFor="let propKey of getKeys(((testInfo | async) ?? {config: {}}).config)">
+        <td>{{ propKey }}</td>
+        <td>{{ testInfo.getValue().config[propKey] }}</td>
+      </tr>
+    </table>
+  </div>
+</ng-container>
 <app-stress-steps [testId]="testId"></app-stress-steps>
 <app-stress-attachments [testId]="testId"></app-stress-attachments>
 <app-stress-metrics [testId]="testId"></app-stress-metrics>

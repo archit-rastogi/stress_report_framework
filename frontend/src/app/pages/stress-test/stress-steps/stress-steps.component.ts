@@ -40,7 +40,7 @@ export class StressStepsComponent implements OnInit {
     let stepsGroups: any = {}
     if (newSteps.length === 1) {
       stepsGroups[newSteps[0].properties.name] = [newSteps[0]]
-    } else {
+    } else if (newSteps.length > 1) {
       stepsGroups = newSteps.reduce((prev, next) => {
         if (!prev.hasOwnProperty('status')) {
           if (Object.keys(prev).includes(next.properties.name)) {

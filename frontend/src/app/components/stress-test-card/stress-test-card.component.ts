@@ -57,9 +57,7 @@ export class StressTestCardComponent implements OnInit {
   }
 
   getKeys(config: any): Array<string> {
-    const keys = ['name'];
-    keys.push(...Object.keys(config).sort((a, b) => a.localeCompare(b) ? 0 : 1).filter(k => k !== 'name'));
-    return keys
+    return Object.keys(config).sort((a, b) => a.localeCompare(b) ? 0 : 1);
   }
 
   selectCard(event: Event) {

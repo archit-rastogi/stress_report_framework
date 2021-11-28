@@ -100,6 +100,12 @@ class QueryExecute:
         await self.execute(f"insert into metrics(metric_id, time, data, test_id) "
                            f"values ('{uuid4()}', $1, '{dumps(data)}', '{test_id}')", [m_time])
 
+    async def get_test(self, test_id: str):
+        rows = await self.execute(f"select test_id, config, start_time, end_time, status from stress_tests where test_id = '{test_id}'")
+        test = rows[0]
+        await self.format_test(test)
+        return test
+
     async def get_tests(self, start_date: datetime, end_date: datetime, filters: list[dict] = None) -> list[dict]:
         filter_condition = ''
         if filters:
@@ -192,7 +198,7 @@ class QueryExecute:
         rows[0]['config'] = loads(rows[0]['config'])
         return rows[0]
 
-    async def format_case(self, case: dict):
+    async def format_test(self, case: dict):
         case['start_time'] = case['start_time'].timestamp()
         case['end_time'] = case['end_time'].timestamp() if case.get('end_time') else None
         case['config'] = loads(case['config'])
@@ -207,7 +213,7 @@ class QueryExecute:
                                                 f"from stress_tests where test_id = '{case_id}'")
 
             case_data = case_data_rows[0]
-            await self.format_case(case_data)
+            await self.format_test(case_data)
             cases_data.append(case_data)
 
         filters_condition = []
@@ -228,7 +234,7 @@ class QueryExecute:
                                             f"from stress_tests where {'and '.join(filters_condition)}", args)
         for case_data in case_data_rows:
             if case_data['test_id'] not in excludes:
-                await self.format_case(case_data)
+                await self.format_test(case_data)
                 cases_data.append(case_data)
 
         return cases_data
@@ -241,5 +247,15 @@ class QueryExecute:
         tests = await self.execute(f"select test_id, config, start_time, end_time, status  "
                                    f"from stress_tests where test_id in ('{excludes_condition}')")
         for test in tests:
-            await self.format_case(test)
+            await self.format_test(test)
         return tests
+
+    async def get_universe_configs(self) -> list[dict[str]]:
+        return await self.execute('select universe_config_id, source, name from universe_configs')
+
+    async def add_universe_config(self, name, source):
+        return await self.execute('insert into universe_configs(universe_config_id, source, name) '
+                                  f"values('{uuid4()}', '{source}', '{name}')")
+
+    async def delete_universe_config(self, config_id: str):
+        return await self.execute(f"delete from universe_configs where universe_config_id = '{config_id}'")

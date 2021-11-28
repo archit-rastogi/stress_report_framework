@@ -71,3 +71,10 @@ create table IF NOT EXISTS stress_report
     cases         jsonb,
     creation_time timestamp without time zone
 );
+
+create table if not exists universe_configs
+(
+    universe_config_id  text primary key,
+    source              text,
+    name                text
+);

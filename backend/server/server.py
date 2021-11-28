@@ -34,6 +34,7 @@ app.add_routes([
     web.post('/back/add_attachment', receiver_module.add_attachment),
 
     web.post('/back/get_tests', main_module.get_tests),
+    web.post('/back/get_test_info', main_module.get_test_info),
     web.post('/back/get_steps', main_module.get_steps),
     web.post('/back/get_metrics', main_module.get_metrics),
     web.post('/back/get_metric', main_module.get_metric),
@@ -47,6 +48,9 @@ app.add_routes([
     web.post('/back/get_excluded_tests', main_module.get_excluded_tests),
     web.post('/back/delete_test', main_module.delete_test),
     web.post('/back/delete_report', main_module.delete_report),
+    web.post('/back/add_universe_config', main_module.add_universe_config),
+    web.post('/back/get_universe_configs', main_module.get_universe_configs),
+    web.post('/back/delete_universe_config', main_module.delete_universe_config),
 ]),
 
 web.run_app(app, port=int(environ.get('PORT', 9999)))

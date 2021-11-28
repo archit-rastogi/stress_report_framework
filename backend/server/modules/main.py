@@ -1,8 +1,8 @@
 import asyncio
 from datetime import datetime
-from time import time
+from json import dumps
 
-from requests import get
+from requests import get, post
 
 from modules.base import AbstractModule, request_handler
 
@@ -15,6 +15,13 @@ class MainModule(AbstractModule):
         end = datetime.fromtimestamp(params['end'])
         filters = params.get('filters')
         return {'tests': await self.db.get_tests(start, end, filters=filters)}
+
+    @request_handler()
+    async def get_test_info(self, params: dict):
+        test_id = params['test_id']
+        return {
+            'test_info': await self.db.get_test(test_id)
+        }
 
     @request_handler()
     async def get_steps(self, params: dict):
@@ -72,7 +79,7 @@ class MainModule(AbstractModule):
                         lines[_line_number] = lines.get(_line_number, []) + [[t, metric]]
                 elif graph_type == 'avg':
                     all_hosts_metrics = hosts.values()
-                    lines[line_name] = lines.get(line_name, []) + [[t, sum(all_hosts_metrics)/len(all_hosts_metrics)]]
+                    lines[line_name] = lines.get(line_name, []) + [[t, sum(all_hosts_metrics) / len(all_hosts_metrics)]]
                 elif graph_type == 'sum':
                     all_hosts_metrics = hosts.values()
                     lines[line_name] = lines.get(line_name, []) + [[t, sum(all_hosts_metrics)]]
@@ -144,3 +151,23 @@ class MainModule(AbstractModule):
     @request_handler()
     async def delete_report(self, params: dict):
         await self.db.delete_report(params['report_id'])
+
+    @request_handler()
+    async def add_universe_config(self, params: dict):
+        config_data = params['config']
+        name = params['name']
+        post(f'http://{self.config.files_url}/files/add', files={
+            "file": dumps(config_data).encode('utf-8')
+        }, headers={"name": name})
+
+        await self.db.add_universe_config(name, name)
+
+    @request_handler()
+    async def get_universe_configs(self, params: dict):
+        return {
+            'configs': await self.db.get_universe_configs()
+        }
+
+    @request_handler()
+    async def delete_universe_config(self, params: dict):
+        await self.db.delete_universe_config(params['id'])

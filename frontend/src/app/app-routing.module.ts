@@ -4,6 +4,7 @@ import {RunsComponent} from './pages/runs/runs.component';
 import {StressTestComponent} from './pages/stress-test/stress-test.component';
 import {StressReportsComponent} from './pages/stress-reports/stress-reports.component';
 import {StressReportComponent} from './pages/stress-report/stress-report.component';
+import {UniverseConfigsComponent} from './pages/universe-configs/universe-configs.component';
 
 const routes: Routes = [
   {
@@ -21,6 +22,10 @@ const routes: Routes = [
   {
     path: 'stress_report/:id',
     component: StressReportComponent
+  },
+  {
+    path: 'universe_configs',
+    component: UniverseConfigsComponent
   },
   {
     path: '**',
