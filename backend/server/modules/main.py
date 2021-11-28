@@ -171,3 +171,4 @@ class MainModule(AbstractModule):
     @request_handler()
     async def delete_universe_config(self, params: dict):
         await self.db.delete_universe_config(params['id'])
+        post(f"http://{self.config.files_url}/files/remove?name={params['source']}")

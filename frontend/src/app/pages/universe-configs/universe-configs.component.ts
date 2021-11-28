@@ -58,7 +58,8 @@ export class UniverseConfigsComponent implements OnInit {
     this.dialogSub = this.dialog.open(AcceptDialogComponent, {data: new AcceptOptions()}).afterClosed().subscribe(dialogRes => {
       if (dialogRes) {
         this.deleteUniverseConfigsSub = this.api.post('delete_universe_config', {
-          id: config.universe_config_id
+          id: config.universe_config_id,
+          source: config.source
         }).subscribe(res => {
           if (res.status) {
             this.api.snackMessage('Config deleted!', 2);
