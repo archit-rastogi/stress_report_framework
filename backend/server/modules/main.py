@@ -56,11 +56,11 @@ class MainModule(AbstractModule):
             metric_data = metric['data'].get(metric_name)
             if metric_data is None:
                 continue
-            if name is not None and (real_metric_name := metric_data.get('name')):
+            if name is None and (real_metric_name := metric_data.get('name')):
                 name = real_metric_name
-            if round_val is not None and (metric_round_val := metric_data.get('round_val')):
+            if round_val is None and (metric_round_val := metric_data.get('round_val')):
                 round_val = metric_round_val
-            if symbol is not None and (metric_symbol := metric_data.get('symbol')):
+            if symbol is None and (metric_symbol := metric_data.get('symbol')):
                 symbol = metric_symbol
 
             metric_time = metric['time']

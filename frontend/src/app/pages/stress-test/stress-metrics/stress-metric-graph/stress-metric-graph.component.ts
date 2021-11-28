@@ -55,6 +55,7 @@ export class StressMetricGraphComponent implements OnInit, OnDestroy {
         const formatCursor = (params: any) => {
           const lines = params
             .filter((p: any) => p.value[1] > 0)
+            .sort((a: any, b: any) => b.value[1] - a.value[1])
             .map((s: any) => `<tr><td>${s.marker} ${s.seriesName}</td><td>${s.value[1]}</td></tr>`);
           return `${params[0].axisValueLabel}<br/><table style="width: 100%">${lines.join('')}</table>`
         }
