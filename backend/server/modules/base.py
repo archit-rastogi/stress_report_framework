@@ -5,6 +5,7 @@ from traceback import format_exc
 
 from aiohttp import web
 from aiohttp.web_request import Request
+from requests import post
 
 from modules.db import QueryExecute
 
@@ -83,3 +84,7 @@ class AbstractModule:
             else:
                 new_doc[k] = v
         return new_doc
+
+    async def remove_file(self, file_id):
+        res = post(f"http://{self.config.files_url}/files/remove?name={file_id}")
+        return res.status_code == 200

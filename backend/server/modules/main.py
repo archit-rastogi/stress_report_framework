@@ -140,7 +140,7 @@ class MainModule(AbstractModule):
             attachments = await self.db.get_attachments(test_id)
             self.log.debug('remove attachments')
             for attachment in attachments:
-                get(f'http://{self.config.files_url}/files/remove?name={attachment["source"]}')
+                await self.remove_file(attachment["source"])
             await self.db.delete_test(test_id)
 
     @request_handler()
@@ -171,4 +171,4 @@ class MainModule(AbstractModule):
     @request_handler()
     async def delete_universe_config(self, params: dict):
         await self.db.delete_universe_config(params['id'])
-        post(f"http://{self.config.files_url}/files/remove?name={params['source']}")
+        await self.remove_file(params['source'])
