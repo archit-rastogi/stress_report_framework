@@ -58,7 +58,7 @@ class ReceiverModule(AbstractModule):
 
         if found_attachments := await self.db.get_attachments(test_id, name):
             found_attachment = found_attachments[0]
-            await self.db.update_attachment(found_attachment, source)
+            await self.db.update_attachment(found_attachment['attachment_id'], source)
             return {'attachment_id': found_attachment['attachment_id']}
         else:
             attachment_id = await self.db.add_attachment(name, source, attachment_type, test_id, timestamp)
