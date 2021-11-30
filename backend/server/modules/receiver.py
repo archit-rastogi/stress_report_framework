@@ -56,5 +56,10 @@ class ReceiverModule(AbstractModule):
         if timestamp is not None:
             timestamp = datetime.fromtimestamp(timestamp)
 
-        attachment_id = await self.db.add_attachment(name, source, attachment_type, test_id, timestamp)
-        return {'attachment_id': attachment_id}
+        if found_attachments := await self.db.get_attachments(test_id, name):
+            found_attachment = found_attachments[0]
+            self.db.update_attachment(found_attachment, source)
+            return {'attachment_id': found_attachment['attachment_id']}
+        else:
+            attachment_id = await self.db.add_attachment(name, source, attachment_type, test_id, timestamp)
+            return {'attachment_id': attachment_id}

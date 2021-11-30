@@ -152,12 +152,18 @@ class QueryExecute:
                            params=[timestamp])
         return attachment_id
 
-    async def get_attachments(self, test_id) -> list[dict]:
+    async def get_attachments(self, test_id, name=None) -> list[dict]:
+        condition = ''
+        if name is not None:
+            condition = f"and name = {name}"
         rows = await self.execute("select attachment_id, name, time, source, type, test_id "
-                                  f"from attachments where test_id = '{test_id}' order by time")
+                                  f"from attachments where test_id = '{test_id}' {condition} order by time")
         for row in rows:
             row['time'] = row['time'].timestamp()
         return rows
+
+    async def update_attachment(self, attachment_id: str, new_source: str):
+        await self.execute(f"update attachments set source = '{new_source}' where attachment_id = '{attachment_id}'")
 
     async def add_report(self, name: dict, config: dict):
         report_id = str(uuid4())
