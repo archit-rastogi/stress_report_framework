@@ -178,7 +178,10 @@ class MainModule(AbstractModule):
         test_id = params['test_id']
         data = params['data']
         name = params['name']
-        await self.db.add_results(test_id, name, data)
+        if result := await self.db.get_results(test_id):
+            await self.db.update_result(result['result_id'], data)
+        else:
+            await self.db.add_results(test_id, name, data)
 
     @request_handler()
     async def get_test_results(self, params: dict):

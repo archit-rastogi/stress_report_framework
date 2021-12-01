@@ -276,3 +276,16 @@ class QueryExecute:
         for row in rows:
             row['data'] = loads(row['data'])
         return rows
+
+    async def get_result(self, name: str, test_id: str) -> dict or None:
+        rows = await self.execute(f"select result_id, data, name, test_id from stress_results "
+                                  f"where test_id = '{test_id}' and name = '{name}'")
+        if rows:
+            doc = rows[0]
+            doc['data'] = loads(doc['data'])
+            return doc
+        else:
+            return None
+
+    async def update_result(self, result_id: str, data):
+        await self.execute(f"update stress_results set data = '{dumps(data)}' where result_id = '{result_id}'")
