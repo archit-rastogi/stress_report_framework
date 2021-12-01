@@ -155,7 +155,7 @@ class QueryExecute:
     async def get_attachments(self, test_id, name=None) -> list[dict]:
         condition = ''
         if name is not None:
-            condition = f"and name = '{name}'"
+            condition = f"and a.name = '{name}'"
         rows = await self.execute(
             "select attachment_id, a.name, a.time, source, type, test_id, file_id "
             "from attachments a "
