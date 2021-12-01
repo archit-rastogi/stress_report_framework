@@ -19,7 +19,7 @@ export class StressAttachmentItemComponent implements OnInit, OnChanges {
   clickBlock = false;
 
   constructor(private api: ApiService,
-              private attachmentsSync: AttachmentsSyncService) {
+              public attachmentsSync: AttachmentsSyncService) {
   }
 
   ngOnChanges(changes: any) {
@@ -78,5 +78,22 @@ export class StressAttachmentItemComponent implements OnInit, OnChanges {
 
   getStyle(item: any) {
     return this.attachmentsSync.selectedAttachments.getValue().map(os => os.attachment_id).includes(item.attachment_id) ? {backgroundColor: 'rgba(5, 0, 255, 0.2)'} : {};
+  }
+
+  selectAllList() {
+    const items = this.items.getValue()
+    const selected = this.attachmentsSync.selectedAttachments.getValue();
+    const itemsIds = items.map(i => i.attachment_id)
+    const selectedIds = selected.map(os => os.attachment_id)
+    if (selectedIds.filter(atId => itemsIds.includes(atId)).length > 0 && selected.length > 1) {
+      this.attachmentsSync.selectedAttachments.next(selected.filter(os => !itemsIds.includes(os.attachment_id)))
+    } else {
+      items.forEach(i => {
+        if (!selectedIds.includes(i.attachment_id)) {
+          selected.push(i);
+        }
+      });
+      this.attachmentsSync.selectedAttachments.next(selected);
+    }
   }
 }
