@@ -87,7 +87,7 @@ export class RunsComponent implements OnInit {
   }
 
   formatData(time: number): string {
-    return moment(time).format('HH:mm:ss DD.MM');
+    return moment(time * 1000).format('HH:mm:ss DD.MM');
   }
 
   removeFilter(filter: any) {
