@@ -189,3 +189,9 @@ class MainModule(AbstractModule):
         return {
             'results': await self.db.get_results(test_id)
         }
+
+    @request_handler()
+    async def delete_attachments(self, params: dict):
+        attachments = params['attachments']
+        for attachment in attachments:
+            await self.remove_file(attachment['source'])

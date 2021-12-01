@@ -1,6 +1,9 @@
 import {Component, Input, OnInit} from '@angular/core';
 import {ApiService} from '../../../services/api.service';
 import {Subject} from 'rxjs';
+import {AttachmentsSyncService} from './services/attachments.service';
+import {MatDialog} from '@angular/material/dialog';
+import {AcceptDialogComponent, AcceptOptions} from '../../../components/accept-dialog/accept-dialog.component';
 
 @Component({
   selector: 'app-stress-attachments',
@@ -13,14 +16,49 @@ export class StressAttachmentsComponent implements OnInit {
   attachments = new Subject<Array<any>>();
   show = new Subject<boolean>();
   getAttachmentsSub: any;
-  constructor(private api: ApiService) { }
+  deleteAttachmentSub: any;
+  acceptDialogSub: any;
+
+  constructor(private api: ApiService,
+              public attachmentsSync: AttachmentsSyncService,
+              private dialog: MatDialog) {
+  }
 
   ngOnInit(): void {
+    this.getAttachments();
+  }
+
+  getAttachments() {
     this.getAttachmentsSub = this.api.post('get_attachments', {test_id: this.testId}).subscribe(res => {
       if (res.status) {
         this.show.next(true);
         this.attachments.next(res.attachments);
       }
     })
+  }
+
+  delete() {
+    const selectedAttachments = this.attachmentsSync.selectedAttachments.getValue();
+    this.acceptDialogSub = this.dialog.open(
+      AcceptDialogComponent,
+      {data: new AcceptOptions(`You really want to delete ${selectedAttachments.length} attached files?`)}
+    ).afterClosed().subscribe(res => {
+      if (res) {
+        this.deleteAttachmentSub = this.api.post('delete_attachments', {
+          attachments: selectedAttachments
+        }).subscribe(res => {
+          if (res.status) {
+            this.api.snackMessage(`All selected attachments deleted!`, 2);
+            this.attachmentsSync.selectedAttachments.next([]);
+            this.getAttachments();
+          }
+        });
+      }
+    })
+
+  }
+
+  cancelSelection() {
+    this.attachmentsSync.selectedAttachments.next([]);
   }
 }

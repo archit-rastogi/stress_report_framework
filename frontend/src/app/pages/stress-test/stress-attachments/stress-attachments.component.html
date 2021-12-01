@@ -1,3 +1,7 @@
 <div class="container">
+  <div class="flex" *ngIf="((attachmentsSync.selectedAttachments | async) ?? []).length > 0">
+    <button mat-button color="warn" (click)="delete()">Delete selected attachment</button>
+    <button mat-button (click)="cancelSelection()">Cancel</button>
+  </div>
   <app-stress-attachment-item [name]="'Attachments'" [attachments]="(attachments | async) ?? []"></app-stress-attachment-item>
 </div>

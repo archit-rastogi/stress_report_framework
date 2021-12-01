@@ -53,6 +53,7 @@ app.add_routes([
     web.post('/back/add_universe_config', main_module.add_universe_config),
     web.post('/back/get_universe_configs', main_module.get_universe_configs),
     web.post('/back/delete_universe_config', main_module.delete_universe_config),
+    web.post('/back/delete_attachments', main_module.delete_attachments),
 ]),
 
 web.run_app(app, port=int(environ.get('PORT', 9999)))

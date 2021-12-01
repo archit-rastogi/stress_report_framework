@@ -1,6 +1,7 @@
 import {Component, Input, OnChanges, OnInit} from '@angular/core';
 import {BehaviorSubject} from 'rxjs';
 import {ApiService} from '../../../../services/api.service';
+import {AttachmentsSyncService} from '../services/attachments.service';
 
 @Component({
   selector: 'app-stress-attachment-item',
@@ -15,8 +16,10 @@ export class StressAttachmentItemComponent implements OnInit, OnChanges {
   open = false;
   items = new BehaviorSubject<Array<any>>([]);
   parents = new BehaviorSubject<Array<any>>([]);
+  clickBlock = false;
 
-  constructor(private api: ApiService) {
+  constructor(private api: ApiService,
+              private attachmentsSync: AttachmentsSyncService) {
   }
 
   ngOnChanges(changes: any) {
@@ -24,6 +27,7 @@ export class StressAttachmentItemComponent implements OnInit, OnChanges {
   }
 
   ngOnInit(): void {
+    this.clickBlock = false;
   }
 
   setData() {
@@ -56,6 +60,23 @@ export class StressAttachmentItemComponent implements OnInit, OnChanges {
   }
 
   openAttachment(item: any) {
-    window.open(`${this.api.getBaseLink()}/files/get?name=${item.source}`, '_blank')
+    if (!this.clickBlock) {
+      window.open(`${this.api.getBaseLink()}/files/get?name=${item.source}`, '_blank')
+    }
+  }
+
+  selectAttachment(event: Event, attachment: any) {
+    event.preventDefault();
+    const oldSelected = this.attachmentsSync.selectedAttachments.getValue();
+    if (oldSelected.map(os => os.attachment_id).includes(attachment.attachment_id)) {
+      this.attachmentsSync.selectedAttachments.next(oldSelected.filter(selectedId => selectedId.attachment_id !== attachment.attachment_id));
+    } else {
+      oldSelected.push(attachment);
+      this.attachmentsSync.selectedAttachments.next(oldSelected);
+    }
+  }
+
+  getStyle(item: any) {
+    return this.attachmentsSync.selectedAttachments.getValue().map(os => os.attachment_id).includes(item.attachment_id) ? {backgroundColor: 'rgba(5, 0, 255, 0.2)'} : {};
   }
 }

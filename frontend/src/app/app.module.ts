@@ -42,6 +42,7 @@ import { UniverseConfigsComponent } from './pages/universe-configs/universe-conf
 import { UniverseConfigUploadDialogComponent } from './pages/universe-configs/universe-config-upload-dialog/universe-config-upload-dialog.component';
 import { StressBuildInfoComponent } from './pages/stress-test/stress-build-info/stress-build-info.component';
 import { StressResultsComponent } from './pages/stress-test/stress-results/stress-results.component';
+import {AttachmentsSyncService} from './pages/stress-test/stress-attachments/services/attachments.service';
 
 @NgModule({
   declarations: [
@@ -91,6 +92,7 @@ import { StressResultsComponent } from './pages/stress-test/stress-results/stres
   ],
   providers: [
     ApiService,
+    AttachmentsSyncService,
     iconsAppInitializer
   ],
   bootstrap: [AppComponent]

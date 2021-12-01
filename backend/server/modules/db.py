@@ -156,8 +156,13 @@ class QueryExecute:
         condition = ''
         if name is not None:
             condition = f"and name = '{name}'"
-        rows = await self.execute("select attachment_id, name, time, source, type, test_id "
-                                  f"from attachments where test_id = '{test_id}' {condition} order by time")
+        rows = await self.execute(
+            "select attachment_id, a.name, a.time, source, type, test_id, file_id "
+            "from attachments a "
+            "  left join files f on a.source = f.name "
+            f"where a.test_id = '{test_id}' {condition} "
+            "order by time"
+        )
         for row in rows:
             row['time'] = row['time'].timestamp()
         return rows
