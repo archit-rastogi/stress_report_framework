@@ -1,0 +1,18 @@
+<div *ngFor="let results of results | async">
+  <h2>{{results.name}}</h2>
+  <div class="flex">
+    <table>
+      <col [style]="getColspan(results.data[0])" *ngFor="let _ of results.data[0]" style="width:5%">
+      <tr class="headers">
+        <th *ngFor="let column of results.data[0]">
+          {{ column }}
+        </th>
+      </tr>
+      <tr *ngFor="let columns of getTableBody(results.data)">
+        <td [ngStyle]="getCellStyle(cell)" *ngFor="let cell of columns">
+          {{ getCell(cell) }}
+        </td>
+      </tr>
+    </table>
+  </div>
+</div>

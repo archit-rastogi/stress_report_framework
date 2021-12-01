@@ -172,3 +172,17 @@ class MainModule(AbstractModule):
     async def delete_universe_config(self, params: dict):
         await self.db.delete_universe_config(params['id'])
         await self.remove_file(params['source'])
+
+    @request_handler()
+    async def add_test_results(self, params: dict):
+        test_id = params['test_id']
+        data = params['data']
+        name = params['name']
+        await self.db.add_results(test_id, name, data)
+
+    @request_handler()
+    async def get_test_results(self, params: dict):
+        test_id = params['test_id']
+        return {
+            'results': await self.db.get_results(test_id)
+        }

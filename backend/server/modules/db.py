@@ -265,3 +265,14 @@ class QueryExecute:
 
     async def delete_universe_config(self, config_id: str):
         return await self.execute(f"delete from universe_configs where universe_config_id = '{config_id}'")
+
+    async def add_results(self, test_id: str, name: str, data):
+        await self.execute(f"insert into stress_results(result_id, data, name, test_id) "
+                           f"values ('{uuid4()}', '{dumps(data)}', '{name}', '{test_id}')")
+
+    async def get_results(self, test_id: str) -> list[dict]:
+        rows = await self.execute(f"select result_id, data, name, test_id from stress_results "
+                                  f"where test_id = '{test_id}'")
+        for row in rows:
+            row['data'] = loads(row['data'])
+        return rows

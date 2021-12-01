@@ -32,7 +32,9 @@ app.add_routes([
 
     web.post('/back/add_metric', receiver_module.add_metric),
     web.post('/back/add_attachment', receiver_module.add_attachment),
+    web.post('/back/add_test_results', main_module.add_test_results),
 
+    web.post('/back/get_test_results', main_module.get_test_results),
     web.post('/back/get_tests', main_module.get_tests),
     web.post('/back/get_test_info', main_module.get_test_info),
     web.post('/back/get_steps', main_module.get_steps),

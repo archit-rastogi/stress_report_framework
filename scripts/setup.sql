@@ -23,7 +23,7 @@ create table IF NOT EXISTS steps
         on update restrict
 );
 
-create table IF NOT EXISTS  metrics
+create table IF NOT EXISTS metrics
 (
     metric_id text primary key,
     time      timestamp without time zone,
@@ -36,9 +36,9 @@ create table IF NOT EXISTS  metrics
         on update restrict
 );
 
-CREATE INDEX IF NOT EXISTS  stress_idx ON stress_tests (start_time ASC, end_time ASC);
+CREATE INDEX IF NOT EXISTS stress_idx ON stress_tests (start_time ASC, end_time ASC);
 
-create table IF NOT EXISTS  attachments
+create table IF NOT EXISTS attachments
 (
     attachment_id text primary key,
     name          text,
@@ -74,7 +74,22 @@ create table IF NOT EXISTS stress_report
 
 create table if not exists universe_configs
 (
-    universe_config_id  text primary key,
-    source              text,
-    name                text
+    universe_config_id text primary key,
+    source             text,
+    name               text
 );
+
+create table if not exists stress_results
+(
+    result_id text primary key,
+    data      jsonb,
+    name      text,
+    test_id   text,
+
+    constraint fk_test_id foreign key (test_id)
+        references stress_tests (test_id)
+            match full
+        on delete cascade
+        on update restrict
+);
+

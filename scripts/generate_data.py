@@ -36,7 +36,7 @@ def handle_res(_res):
 
 all_steps_names = [f'Step #{i}' for i in range(15)]
 
-for i in range(34):
+for i in range(3):
     print(f"insert test {i}")
     start_test_res = post(f'{base_url}/start_test', json={
         'config': {
@@ -85,7 +85,7 @@ for i in range(34):
         handle_res(end_step_res)
 
     ts = datetime.now()
-    for m in range(r.randint(100, 300)):
+    for m in range(r.randint(100, 200)):
         ts += timedelta(seconds=30)
         m_data = {}
         for line_name, symbol, round_val in [
@@ -128,6 +128,22 @@ for i in range(34):
             'name': f"{path}Attachment {str(uuid4())[:6]}",
             'source': file_name,
             'type': 'file',
+            'test_id': test_id
+        })
+        handle_res(att_res.json())
+
+    for _ in range(r.randint(1, 5)):
+        data = []
+        columns = [f'Column #{c}' for c in range(r.randint(3, 10))]
+        data.append(columns)
+        for num in range(r.randint(3, 20)):
+            data.append([f'row name #{num}'] + [str(r.randint(1, 10000000)) if r.randint(1, 20) < 19 else {
+                'status': r.choice(['passed', 'failed']),
+                'value': str(r.randint(1, 10000000))
+            } for i in range(len(columns) - 1)])
+        att_res = post(f'{base_url}/add_test_results', json={
+            'name': f"Result {str(uuid4())[:6]}",
+            'data': data,
             'test_id': test_id
         })
         handle_res(att_res.json())

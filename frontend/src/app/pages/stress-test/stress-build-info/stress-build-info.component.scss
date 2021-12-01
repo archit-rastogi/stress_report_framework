@@ -1,0 +1,41 @@
+.flex {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+table {
+  width: 600px;
+  margin-top: 20px;
+  margin-bottom: 20px;
+  border-collapse: collapse;
+
+}
+
+th, td {
+  border-bottom: 1px solid #ddd;
+}
+
+button {
+  width: 300px;
+}
+
+.text-center {
+  text-align: center;
+}
+
+.status {
+  display: block;
+  text-align: center;
+  font-weight: bold;
+  font-size: larger;
+  padding-top: 15px;
+  padding-bottom: 15px;
+  width: 100%;
+}
+
+.time {
+  display: block;
+  text-align: center;
+  font-size: larger;
+}

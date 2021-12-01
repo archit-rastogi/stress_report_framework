@@ -40,6 +40,8 @@ import {MatCheckboxModule} from '@angular/material/checkbox';
 import {AcceptDialogComponent} from './components/accept-dialog/accept-dialog.component';
 import { UniverseConfigsComponent } from './pages/universe-configs/universe-configs.component';
 import { UniverseConfigUploadDialogComponent } from './pages/universe-configs/universe-config-upload-dialog/universe-config-upload-dialog.component';
+import { StressBuildInfoComponent } from './pages/stress-test/stress-build-info/stress-build-info.component';
+import { StressResultsComponent } from './pages/stress-test/stress-results/stress-results.component';
 
 @NgModule({
   declarations: [
@@ -60,6 +62,8 @@ import { UniverseConfigUploadDialogComponent } from './pages/universe-configs/un
     AcceptDialogComponent,
     UniverseConfigsComponent,
     UniverseConfigUploadDialogComponent,
+    StressBuildInfoComponent,
+    StressResultsComponent,
   ],
   imports: [
     BrowserModule,
