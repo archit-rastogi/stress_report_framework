@@ -25,7 +25,7 @@ def request_handler(post_params=True, request_require=False, get_params=False):
             except Exception as e:
                 msg = f'{e}\n{format_exc()}'
                 self.log.error(msg)
-                return web.json_response({'status': False, 'reason': msg})
+                return web.json_response({'status': False, 'reason': msg}, status=500)
             if result is None:
                 result = {'status': True}
             if isinstance(result, dict):
