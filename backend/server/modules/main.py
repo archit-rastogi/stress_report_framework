@@ -2,12 +2,16 @@ import asyncio
 from datetime import datetime
 from json import dumps
 
-from requests import get, post
+from requests import post
 
 from modules.base import AbstractModule, request_handler
 
 
 class MainModule(AbstractModule):
+
+    @request_handler()
+    async def edit_test_info(self, params: dict):
+        await self.db.edit_test_info(params['info'], params['test_id'])
 
     @request_handler()
     async def get_tests(self, params: dict):

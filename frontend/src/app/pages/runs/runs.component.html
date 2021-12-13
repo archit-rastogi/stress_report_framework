@@ -1,4 +1,5 @@
 <div class="container">
+  <!--  Date   -->
   <div class="search-field">
     <mat-form-field class="time-range" appearance="fill">
       <mat-label>Enter a date range</mat-label>
@@ -11,6 +12,7 @@
     </mat-form-field>
     <button class="refresh" mat-icon-button (click)="getTests(this.filters.getValue())"><mat-icon svgIcon="fas:sync"></mat-icon></button>
   </div>
+  <!--  Add filters  -->
   <div>
     <mat-form-field>
       <mat-label>Property</mat-label>
@@ -22,6 +24,7 @@
     </mat-form-field>
     <button class="add-filter" mat-button (click)="addFilter()">Add filter</button>
   </div>
+  <!--  Filters  -->
   <div class="active-filters" *ngIf="((filters | async) ?? []).length > 0">
     <mat-chip-list *ngFor="let filter of filters | async">
       <mat-chip>
@@ -34,20 +37,27 @@
     <button mat-button (click)="clearAllFilters()">Clear</button>
   </div>
 
+  <!--  Context search  -->
   <mat-form-field class="context-filter">
     <mat-label>Search by context</mat-label>
     <input matInput (keydown)="contextSearch($event)">
   </mat-form-field>
   <mat-progress-bar *ngIf="loading" mode="indeterminate"></mat-progress-bar>
+
+  <!--  Actions  -->
   <div class="actions" *ngIf="((selectedTests | async) ?? []).length > 0">
     {{((selectedTests | async) ?? []).length}} tests selected
     <button mat-button (click)="selectedTests.next([])">
       Cancel
     </button>
+    <button mat-button (click)="openEditModal()">
+      <mat-icon svgIcon="fas:edit"></mat-icon>
+    </button>
     <button mat-button color="warn" (click)="deleteSelectedTests()">
       <mat-icon svgIcon="fas:trash-alt"></mat-icon>
     </button>
   </div>
+
   <app-stress-test-card
     (onToggle)="onTestToggle(test)"
     [test]="test"

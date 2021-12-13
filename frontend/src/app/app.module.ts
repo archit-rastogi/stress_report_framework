@@ -43,6 +43,7 @@ import { UniverseConfigUploadDialogComponent } from './pages/universe-configs/un
 import { StressBuildInfoComponent } from './pages/stress-test/stress-build-info/stress-build-info.component';
 import { StressResultsComponent } from './pages/stress-test/stress-results/stress-results.component';
 import {AttachmentsSyncService} from './pages/stress-test/stress-attachments/services/attachments.service';
+import { EditRunInfoDialogComponent } from './components/edit-run-info-dialog/edit-run-info-dialog.component';
 
 @NgModule({
   declarations: [
@@ -65,6 +66,7 @@ import {AttachmentsSyncService} from './pages/stress-test/stress-attachments/ser
     UniverseConfigUploadDialogComponent,
     StressBuildInfoComponent,
     StressResultsComponent,
+    EditRunInfoDialogComponent,
   ],
   imports: [
     BrowserModule,

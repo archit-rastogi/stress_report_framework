@@ -1,0 +1,24 @@
+<div class="container">
+  <mat-form-field class="width">
+    <mat-label>New key</mat-label>
+    <input matInput [formControl]="newKey">
+  </mat-form-field>
+  <mat-form-field class="width">
+    <mat-label>New Value</mat-label>
+    <input matInput [formControl]="newValue">
+  </mat-form-field>
+  <button mat-button class="width" style="margin-bottom: 30px" (click)="addField()">Add field</button>
+  <form [formGroup]="form" (ngSubmit)="update()">
+    <div class="width flex" *ngFor="let field of formFields">
+      <mat-form-field class="width">
+        <mat-label>{{field}}</mat-label>
+        <input [formControlName]="field" matInput>
+      </mat-form-field>
+      <button mat-button (click)="deleteRow(field)">
+        <mat-icon color="warn" svgIcon="fas:trash-alt"></mat-icon>
+      </button>
+    </div>
+    <button class="width" mat-button color="primary" type="submit">Update</button>
+  </form>
+  <button class="width" mat-button color="warn" (click)="close()">Cancel</button>
+</div>

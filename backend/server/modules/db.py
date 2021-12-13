@@ -294,3 +294,7 @@ class QueryExecute:
 
     async def update_result(self, result_id: str, data):
         await self.execute(f"update stress_results set data = '{dumps(data)}' where result_id = '{result_id}'")
+
+    async def edit_test_info(self, info: dict, test_id: str):
+        await self.execute(f"update stress_tests set config = '{dumps(info)}' where test_id = '{test_id}'")
+

@@ -5,6 +5,7 @@ import * as moment from 'moment';
 import {ApiService} from '../../services/api.service';
 import {MatDialog} from '@angular/material/dialog';
 import {AcceptDialogComponent, AcceptOptions} from '../../components/accept-dialog/accept-dialog.component';
+import {EditRunInfoDialogComponent} from '../../components/edit-run-info-dialog/edit-run-info-dialog.component';
 
 @Component({
   selector: 'app-runs',
@@ -24,6 +25,7 @@ export class RunsComponent implements OnInit {
   selectedTests = new BehaviorSubject<any[]>([]);
   acceptDialogSub: any;
   deleteTestSub: any;
+  editDialogSub: any;
 
   constructor(private api: ApiService,
               private dialog: MatDialog) {
@@ -150,12 +152,24 @@ export class RunsComponent implements OnInit {
           test_ids: this.selectedTests.getValue()
         }).subscribe(res => {
           if (res.status) {
-            this.api.snackMessage("Deletion in progress! It's take a while", 3);
+            this.api.snackMessage('Deletion in progress! It\'s take a while', 3);
             this.selectedTests.next([]);
             this.getTests(this.filters.getValue());
           }
         });
       }
     });
+  }
+
+  openEditModal() {
+    this.editDialogSub = this.dialog.open(
+      EditRunInfoDialogComponent,
+      {data: this.selectedTests.getValue()[0]}
+    ).afterClosed().subscribe(res => {
+      this.selectedTests.next([]);
+      if (res) {
+        this.getTests(this.filters.getValue());
+      }
+    })
   }
 }
