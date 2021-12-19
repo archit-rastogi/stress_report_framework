@@ -6,7 +6,7 @@
 </div>
 <div class="width" *ngFor="let graph of graphs | async">
   <div class="flex-container">
-    <button mat-button (click)="toggleShow(graph)">
+    <button class="show-button" mat-button (click)="toggleShow(graph)">
       <mat-icon [svgIcon]="graphIsOpen(graph) ? 'fas:angle-down' : 'fas:angle-right'"></mat-icon>
       {{ graph }}
     </button>

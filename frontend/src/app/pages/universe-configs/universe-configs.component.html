@@ -2,7 +2,7 @@
   <button mat-button (click)="openAddDialog()">
     <mat-icon color="primary" svgIcon="fas:plus"></mat-icon>
   </button>
-  <mat-card class="width" (click)="openConfig(config)" *ngFor="let config of configs | async">
+  <mat-card class="width" (contextmenu)="copyName($event, config.name)" (click)="openConfig(config)" *ngFor="let config of configs | async">
     <div class="flex">
       {{ config.name }}
       <button mat-button color="warn" class="delete" (click)="deleteConfig(config)">

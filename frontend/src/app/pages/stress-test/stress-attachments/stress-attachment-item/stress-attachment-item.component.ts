@@ -54,9 +54,11 @@ export class StressAttachmentItemComponent implements OnInit, OnChanges {
       }
     });
     this.items.next(items);
-    this.parents.next(Object.keys(parents).map(k => {
-      return {name: k, parents: parents[k]}
-    }));
+    this.parents.next(Object.keys(parents)
+      .sort((a: string, b: string) => a.localeCompare(b))
+      .map(k => {
+        return {name: k, parents: parents[k]}
+      }));
   }
 
   openAttachment(item: any) {

@@ -4,6 +4,7 @@ import {ApiService} from '../../services/api.service';
 import {MatDialog} from '@angular/material/dialog';
 import {UniverseConfigUploadDialogComponent} from './universe-config-upload-dialog/universe-config-upload-dialog.component';
 import {AcceptDialogComponent, AcceptOptions} from '../../components/accept-dialog/accept-dialog.component';
+import {Clipboard} from '@angular/cdk/clipboard';
 
 @Component({
   selector: 'app-universe-configs',
@@ -20,7 +21,8 @@ export class UniverseConfigsComponent implements OnInit {
   dialogSub: any;
 
   constructor(private api: ApiService,
-              private dialog: MatDialog) {
+              private dialog: MatDialog,
+              private clipboard: Clipboard) {
   }
 
   ngOnInit(): void {
@@ -68,5 +70,11 @@ export class UniverseConfigsComponent implements OnInit {
         })
       }
     })
+  }
+
+  copyName(event: Event, name: string) {
+    event.preventDefault();
+    this.clipboard.copy(name)
+    this.api.snackMessage('Name copied in clipboard!', 2)
   }
 }

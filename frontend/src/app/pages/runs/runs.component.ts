@@ -105,6 +105,8 @@ export class RunsComponent implements OnInit {
       value: this.filterValue.value,
     });
     this.getTests(existedFilters);
+    this.filterKey.setValue(null);
+    this.filterValue.setValue(null);
   }
 
   clearAllFilters() {
@@ -154,7 +156,7 @@ export class RunsComponent implements OnInit {
           if (res.status) {
             this.api.snackMessage('Deletion in progress! It\'s take a while', 3);
             this.selectedTests.next([]);
-            this.getTests(this.filters.getValue());
+            this.findTests();
           }
         });
       }
@@ -168,8 +170,16 @@ export class RunsComponent implements OnInit {
     ).afterClosed().subscribe(res => {
       this.selectedTests.next([]);
       if (res) {
-        this.getTests(this.filters.getValue());
+        this.findTests();
       }
     })
+  }
+
+  findTests() {
+    this.getTests(this.filters.getValue());
+  }
+
+  check(event: KeyboardEvent) {
+    console.log(event.key);
   }
 }

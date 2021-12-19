@@ -28,7 +28,7 @@ export class StressReportComponent implements OnInit {
   getReportTests() {
     this.getReportTestsSub = this.api.post('get_report_tests', {name: this.reportId}).subscribe(res => {
       if (res.status) {
-        this.tests.next(res.tests);
+        this.tests.next(res.tests.sort((a: any, b: any) => a.start_time - b.start_time));
       }
     })
   }

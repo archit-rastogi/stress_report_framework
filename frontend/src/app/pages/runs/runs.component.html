@@ -5,12 +5,14 @@
       <mat-label>Enter a date range</mat-label>
       <mat-date-range-input (click)="picker.open()" [formGroup]="range" [rangePicker]="picker">
         <input matStartDate formControlName="start" placeholder="Start date">
-        <input matEndDate (dateChange)="getTests()" formControlName="end" placeholder="End date">
+        <input matEndDate (dateChange)="findTests()" formControlName="end" placeholder="End date">
       </mat-date-range-input>
       <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
       <mat-date-range-picker #picker></mat-date-range-picker>
     </mat-form-field>
-    <button class="refresh" mat-icon-button (click)="getTests(this.filters.getValue())"><mat-icon svgIcon="fas:sync"></mat-icon></button>
+    <button class="refresh" mat-icon-button (click)="findTests()">
+      <mat-icon svgIcon="fas:sync"></mat-icon>
+    </button>
   </div>
   <!--  Add filters  -->
   <div>
@@ -20,7 +22,7 @@
     </mat-form-field>
     <mat-form-field>
       <mat-label>Value</mat-label>
-      <input matInput [formControl]="filterValue">
+      <input matInput [formControl]="filterValue" (keydown)="$event.key === 'Enter' ? addFilter() : null">
     </mat-form-field>
     <button class="add-filter" mat-button (click)="addFilter()">Add filter</button>
   </div>
