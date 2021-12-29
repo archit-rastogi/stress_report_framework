@@ -1,0 +1,15 @@
+<div class="flex">
+  <table>
+    <col [style]="getColspan(result.data[0])" *ngFor="let _ of result.data[0]" style="width:5%">
+    <tr class="headers">
+      <th *ngFor="let column of result.data[0]">
+        {{ column }}
+      </th>
+    </tr>
+    <tr *ngFor="let columns of getTableBody(result.data)">
+      <td [ngStyle]="getCellStyle(cell)" *ngFor="let cell of columns">
+        {{ getCell(cell) }}
+      </td>
+    </tr>
+  </table>
+</div>

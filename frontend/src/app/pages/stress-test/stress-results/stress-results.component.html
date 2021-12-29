@@ -1,18 +1,9 @@
-<div *ngFor="let results of results | async">
-  <h2>{{results.name}}</h2>
-  <div class="flex">
-    <table>
-      <col [style]="getColspan(results.data[0])" *ngFor="let _ of results.data[0]" style="width:5%">
-      <tr class="headers">
-        <th *ngFor="let column of results.data[0]">
-          {{ column }}
-        </th>
-      </tr>
-      <tr *ngFor="let columns of getTableBody(results.data)">
-        <td [ngStyle]="getCellStyle(cell)" *ngFor="let cell of columns">
-          {{ getCell(cell) }}
-        </td>
-      </tr>
-    </table>
-  </div>
+<div *ngFor="let result of results | async">
+  <h2>{{result.name}}</h2>
+  <ng-container *ngIf="result.type == 'table'">
+    <app-result-table [result]="result"></app-result-table>
+  </ng-container>
+  <ng-container *ngIf="result.type == 'exception'">
+    <app-result-exception [result]="result"></app-result-exception>
+  </ng-container>
 </div>

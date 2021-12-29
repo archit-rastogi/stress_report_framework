@@ -83,6 +83,7 @@ create table if not exists stress_results
 (
     result_id text primary key,
     data      jsonb,
+    type      text,
     name      text,
     test_id   text,
 

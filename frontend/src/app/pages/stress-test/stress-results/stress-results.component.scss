@@ -1,36 +1,4 @@
-.flex {
-  display: flex;
-  justify-content: center;
-  flex-wrap: wrap;
-}
-
-table {
-  table-layout: fixed;
-  margin-top: 20px;
-  margin-bottom: 20px;
-  border-collapse: collapse;
-
-}
-
-th, td {
-  border-bottom: 1px solid #ddd;
-  white-space: nowrap;
-  padding: 6px;
-}
-
-button {
-  width: 300px;
-}
-
-.headers {
-  font-weight: bold;
-  background-color: rgba(60, 0, 190, 0.15);
-}
-
-.text-center {
-  text-align: center;
-}
-
 h2 {
   text-align: center;
 }
+

@@ -1,0 +1,44 @@
+@media only screen and (max-width: 1200px) {
+}
+
+@media (min-width: 1200px) and (max-width: 1600px) {
+  .exception-wrapper {
+    margin-left: 15%;
+    margin-right: 15%;
+  }
+}
+
+@media (min-width: 1600px) and (max-width: 2400px) {
+  .exception-wrapper {
+    margin-left: 20%;
+    margin-right: 20%;
+  }
+}
+
+@media (min-width: 2400px) {
+  .exception-wrapper {
+    margin-left: 25%;
+    margin-right: 25%;
+  }
+}
+
+.exception-wrapper {
+  padding: 5px 10px 5px 10px;
+  background-color: rgba(255,0,0,0.1);
+  border-radius: 5px;
+}
+
+.exception-text {
+  color: black;
+  margin: 10px 20px 10px 20px;
+  white-space: pre-wrap;       /* Since CSS 2.1 */
+  white-space: -moz-pre-wrap;  /* Mozilla, since 1999 */
+  white-space: -pre-wrap;      /* Opera 4-6 */
+  white-space: -o-pre-wrap;    /* Opera 7 */
+  word-wrap: break-word;       /* Internet Explorer 5.5+ */
+}
+
+.short-info:hover {
+  background-color: rgba(255,0,0,0.1);
+  border-radius: 5px;
+}

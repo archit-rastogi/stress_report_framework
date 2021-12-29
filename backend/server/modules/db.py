@@ -271,26 +271,16 @@ class QueryExecute:
     async def delete_universe_config(self, config_id: str):
         return await self.execute(f"delete from universe_configs where universe_config_id = '{config_id}'")
 
-    async def add_results(self, test_id: str, name: str, data):
-        await self.execute(f"insert into stress_results(result_id, data, name, test_id) "
-                           f"values ('{uuid4()}', '{dumps(data)}', '{name}', '{test_id}')")
+    async def add_results(self, test_id: str, name: str, data, result_type: str):
+        await self.execute(f"insert into stress_results(result_id, data, name, test_id, type) "
+                           f"values ('{uuid4()}', '{dumps(data)}', '{name}', '{test_id}', '{result_type}')")
 
     async def get_results(self, test_id: str) -> list[dict]:
-        rows = await self.execute(f"select result_id, data, name, test_id from stress_results "
-                                  f"where test_id = '{test_id}'")
+        rows = await self.execute(f"select result_id, data, name, test_id, type "
+                                  f"from stress_results where test_id = '{test_id}'")
         for row in rows:
             row['data'] = loads(row['data'])
         return rows
-
-    async def get_result(self, name: str, test_id: str) -> dict or None:
-        rows = await self.execute(f"select result_id, data, name, test_id from stress_results "
-                                  f"where test_id = '{test_id}' and name = '{name}'")
-        if rows:
-            doc = rows[0]
-            doc['data'] = loads(doc['data'])
-            return doc
-        else:
-            return None
 
     async def update_result(self, result_id: str, data):
         await self.execute(f"update stress_results set data = '{dumps(data)}' where result_id = '{result_id}'")

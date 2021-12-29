@@ -44,6 +44,8 @@ import { StressBuildInfoComponent } from './pages/stress-test/stress-build-info/
 import { StressResultsComponent } from './pages/stress-test/stress-results/stress-results.component';
 import {AttachmentsSyncService} from './pages/stress-test/stress-attachments/services/attachments.service';
 import { EditRunInfoDialogComponent } from './components/edit-run-info-dialog/edit-run-info-dialog.component';
+import { ResultTableComponent } from './pages/stress-test/stress-results/result-table/result-table.component';
+import { ResultExceptionComponent } from './pages/stress-test/stress-results/result-exception/result-exception.component';
 
 @NgModule({
   declarations: [
@@ -67,6 +69,8 @@ import { EditRunInfoDialogComponent } from './components/edit-run-info-dialog/ed
     StressBuildInfoComponent,
     StressResultsComponent,
     EditRunInfoDialogComponent,
+    ResultTableComponent,
+    ResultExceptionComponent,
   ],
   imports: [
     BrowserModule,

@@ -27,6 +27,8 @@ def dict_through(tree):
 
 r = Random()
 
+add_files = True
+
 base_url = 'http://localhost:9999/back'
 
 
@@ -85,7 +87,7 @@ for i in range(3):
         handle_res(end_step_res)
 
     ts = datetime.now()
-    for m in range(r.randint(100, 200)):
+    for m in range(r.randint(100, 130)):
         ts += timedelta(seconds=30)
         m_data = {}
         for line_name, symbol, round_val in [
@@ -115,24 +117,26 @@ for i in range(3):
         }).json()
         handle_res(add_metric_res)
 
-    for a in range(r.randint(10, 30)):
-        path = choice(["a/s/d/f/", 'a/s/d/', 'a/s/', 'a/', ''])
-        file_name = f'{str(uuid4())}-test.log'
-        print(f'add file {file_name}')
-        file_add_res = post("http://localhost:9998/files/add", files={
-            "file": b'asdasdasd\ntesttest\testtest\ntsadsda'
-        }, headers={"name": file_name})
-        assert file_add_res.status_code == 200, f'Cant add file {file_name}'
-        print(f'add attachment {a}')
-        att_res = post(f'{base_url}/add_attachment', json={
-            'name': f"{path}Attachment {str(uuid4())[:6]}",
-            'source': file_name,
-            'type': 'file',
-            'test_id': test_id
-        })
-        handle_res(att_res.json())
+    if add_files:
+        for a in range(r.randint(10, 30)):
+            path = choice(["a/s/d/f/", 'a/s/d/', 'a/s/', 'a/', ''])
+            file_name = f'{str(uuid4())}-test.log'
+            print(f'add file {file_name}')
+            file_add_res = post("http://localhost:9998/files/add", files={
+                "file": b'asdasdasd\ntesttest\testtest\ntsadsda'
+            }, headers={"name": file_name})
+            assert file_add_res.status_code == 200, f'Cant add file {file_name}'
+            print(f'add attachment {a}')
+            att_res = post(f'{base_url}/add_attachment', json={
+                'name': f"{path}Attachment {str(uuid4())[:6]}",
+                'source': file_name,
+                'type': 'file',
+                'test_id': test_id
+            })
+            handle_res(att_res.json())
 
-    for _ in range(r.randint(1, 5)):
+    for res_idx in range(r.randint(1, 5)):
+        print(f'add result {res_idx + 1}')
         data = []
         columns = [f'Column #{c}' for c in range(r.randint(3, 10))]
         data.append(columns)
@@ -144,9 +148,22 @@ for i in range(3):
         att_res = post(f'{base_url}/add_test_results', json={
             'name': f"Result {str(uuid4())[:6]}",
             'data': data,
+            'type': 'table',
             'test_id': test_id
         })
         handle_res(att_res.json())
+
+        att_res = post(f'{base_url}/add_test_results', json={
+            'name': f"Result {str(uuid4())[:6]}",
+            'data': {
+                'message': f'Failed some workload {uuid4()}',
+                'exception': ' '.join([choice([*('failed here message something going bad'.split(' ')), '\n', '\t']) for i in range(r.randint(10, 300))])
+            },
+            'type': 'exception',
+            'test_id': test_id
+        })
+        handle_res(att_res.json())
+
 
     if r.randint(1, 10) == 5:
         continue

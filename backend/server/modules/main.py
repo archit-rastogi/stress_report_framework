@@ -182,10 +182,12 @@ class MainModule(AbstractModule):
         test_id = params['test_id']
         data = params['data']
         name = params['name']
-        if result := await self.db.get_results(test_id):
-            await self.db.update_result(result['result_id'], data)
+        result_type = params.get('type', 'table')
+        results = await self.db.get_results(test_id)
+        if results and (same_results := [r for r in results if r['name'] == name]):
+            await self.db.update_result(same_results[0]['result_id'], data)
         else:
-            await self.db.add_results(test_id, name, data)
+            await self.db.add_results(test_id, name, data, result_type)
 
     @request_handler()
     async def get_test_results(self, params: dict):

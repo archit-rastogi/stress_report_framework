@@ -19,42 +19,8 @@ export class StressResultsComponent implements OnInit {
   ngOnInit(): void {
     this.getTestResults = this.api.post('get_test_results', {test_id: this.testId}).subscribe(res => {
       if (res.status) {
-        this.results.next(res.results);
+        this.results.next(res.results.sort((a: any, b: any) => a.name.localeCompare(b.name)));
       }
     })
-  }
-
-  getTableBody(rows: any[]): any[] {
-    return rows.filter((_: any, idx: number) => idx > 0)
-  }
-
-  getColspan(rows: any[]): any {
-    return {width: `${Math.round(100 / rows.length)}%`};
-  }
-
-  getCell(column: any | string | number): any {
-    if (typeof column == 'string' || typeof column == 'number') {
-      return column;
-    } else {
-      return column.value
-    }
-  }
-
-  getCellStyle(cell: any): any {
-    if (typeof cell == 'string' || typeof cell == 'number') {
-      return {};
-    } else {
-      switch (cell.status) {
-        case 'passed': {
-          return {backgroundColor: 'rgba(38,134,0,0.2)'}
-        }
-        case 'failed': {
-          return {backgroundColor: 'rgba(255,0,0,0.2)'}
-        }
-        default: {
-          return {}
-        }
-      }
-    }
   }
 }

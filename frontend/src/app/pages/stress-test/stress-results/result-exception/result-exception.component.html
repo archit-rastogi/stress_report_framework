@@ -1,0 +1,6 @@
+<div class="exception-wrapper">
+  <div class="short-info" (click)="toggleException(result.name)">
+    <pre class="exception-text">{{'\n' + result.data.message + '\n\n'}}</pre>
+  </div>
+  <pre class="exception-text" *ngIf="showContentNames.includes(result.name)">{{result.data.exception}}</pre>
+</div>
