@@ -46,6 +46,7 @@ import {AttachmentsSyncService} from './pages/stress-test/stress-attachments/ser
 import { EditRunInfoDialogComponent } from './components/edit-run-info-dialog/edit-run-info-dialog.component';
 import { ResultTableComponent } from './pages/stress-test/stress-results/result-table/result-table.component';
 import { ResultExceptionComponent } from './pages/stress-test/stress-results/result-exception/result-exception.component';
+import { ExceptionComponent } from './components/exception/exception.component';
 
 @NgModule({
   declarations: [
@@ -71,6 +72,7 @@ import { ResultExceptionComponent } from './pages/stress-test/stress-results/res
     EditRunInfoDialogComponent,
     ResultTableComponent,
     ResultExceptionComponent,
+    ExceptionComponent,
   ],
   imports: [
     BrowserModule,

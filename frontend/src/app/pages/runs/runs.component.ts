@@ -172,14 +172,10 @@ export class RunsComponent implements OnInit {
       if (res) {
         this.findTests();
       }
-    })
+    });
   }
 
   findTests() {
     this.getTests(this.filters.getValue());
-  }
-
-  check(event: KeyboardEvent) {
-    console.log(event.key);
   }
 }

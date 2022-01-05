@@ -7,7 +7,13 @@
     </div>
     <div>
       <div class="time">{{ getTimeFormat(test) }}</div>
-      <div class="status" [ngStyle]="getStatusStyle(test.status)">{{test.status}}</div>
+      <div class="status-wrapper">
+        <button mat-button class="status" [ngStyle]="getStatusStyle(test.status)" (click)="openException()">{{test.status}}</button>
+      </div>
     </div>
   </mat-card-title-group>
 </mat-card>
+<ng-container *ngFor="let exception of ((exceptions | async) ?? [])">
+  <h3>{{ exception.name }}</h3>
+  <app-exception [result]="exception"></app-exception>
+</ng-container>

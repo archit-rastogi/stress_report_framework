@@ -12,6 +12,7 @@ export class StressAttachmentItemComponent implements OnInit, OnChanges {
 
   @Input() attachments: Array<any> | undefined
   @Input() name: string | undefined;
+  @Input() parentItem: boolean | undefined;
 
   open = false;
   items = new BehaviorSubject<Array<any>>([]);

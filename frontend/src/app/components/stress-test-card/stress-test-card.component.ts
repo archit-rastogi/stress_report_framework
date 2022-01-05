@@ -1,23 +1,31 @@
-import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
+import {Component, EventEmitter, Input, OnDestroy, OnInit, Output} from '@angular/core';
 import {Router} from '@angular/router';
 import * as moment from 'moment';
+import {ApiService} from '../../services/api.service';
+import {BehaviorSubject, Subject} from 'rxjs';
 
 @Component({
   selector: 'app-stress-test-card',
   templateUrl: './stress-test-card.component.html',
   styleUrls: ['./stress-test-card.component.scss']
 })
-export class StressTestCardComponent implements OnInit {
+export class StressTestCardComponent implements OnDestroy {
 
   @Input() test: any;
   @Input() selected: boolean = false;
   @Output() onToggle = new EventEmitter<boolean>();
   @Output() onClick = new EventEmitter();
 
-  constructor(private router: Router) {
+  private allowToOpen = true;
+  private getResultsSub: any;
+  exceptions = new BehaviorSubject<any[]>([]);
+
+  constructor(private router: Router,
+              private api: ApiService) {
   }
 
-  ngOnInit(): void {
+  ngOnDestroy() {
+    this.api.unsub(this.getResultsSub);
   }
 
   getStatusStyle(status: string): any {
@@ -35,6 +43,9 @@ export class StressTestCardComponent implements OnInit {
   }
 
   openTest(testId: string) {
+    if (!this.allowToOpen) {
+      return
+    }
     this.onClick.emit();
     this.router.navigate(['stress_test', testId])
   }
@@ -67,5 +78,21 @@ export class StressTestCardComponent implements OnInit {
 
   getCardColor(): any {
     return this.selected ? {backgroundColor: 'rgba(5, 0, 255, 0.2)'} : {};
+  }
+
+  openException() {
+    this.allowToOpen = false;
+    setTimeout(() => this.allowToOpen = true, 300);
+    if (this.exceptions.getValue().length > 0) {
+      this.exceptions.next([]);
+      return;
+    }
+    this.getResultsSub = this.api.post('get_test_results', {
+      test_id: this.test.test_id
+    }).subscribe(res => {
+      if (res.status) {
+        this.exceptions.next(res.results.filter((result: any) => result.type == 'exception'));
+      }
+    })
   }
 }

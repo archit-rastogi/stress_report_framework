@@ -1,7 +1,6 @@
 import {Component, Input, OnInit} from '@angular/core';
 import * as moment from 'moment';
 import {BehaviorSubject} from 'rxjs';
-import {ActivatedRoute, Router} from '@angular/router';
 import {ApiService} from '../../../services/api.service';
 
 @Component({
@@ -20,6 +19,10 @@ export class StressBuildInfoComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    const savedState = localStorage.getItem("openedBuildInfo");
+    if (savedState !== null) {
+      this.showInfo = savedState === "true"
+    }
     this.getTestInfoSub = this.api.post('get_test_info', {test_id: this.testId}).subscribe(res => {
       if (res.status) {
         this.testInfo.next(res.test_info);
@@ -57,4 +60,8 @@ export class StressBuildInfoComponent implements OnInit {
     return {backgroundColor: color};
   }
 
+  toggleInfo() {
+    this.showInfo = !this.showInfo;
+    localStorage.setItem("openedBuildInfo", this.showInfo ? "true" : "false");
+  }
 }

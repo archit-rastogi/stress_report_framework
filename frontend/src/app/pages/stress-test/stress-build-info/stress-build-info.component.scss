@@ -16,10 +16,6 @@ th, td {
   border-bottom: 1px solid #ddd;
 }
 
-button {
-  width: 300px;
-}
-
 .text-center {
   text-align: center;
 }
@@ -38,4 +34,11 @@ button {
   display: block;
   text-align: center;
   font-size: larger;
+}
+
+.opener {
+  width: 100%;
+  padding: 8px;
+  font-weight: bold;
+  font-size: x-large;
 }

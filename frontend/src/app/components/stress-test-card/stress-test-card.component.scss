@@ -1,4 +1,3 @@
-
 .time {
   margin-left: auto;
 }
@@ -14,9 +13,13 @@ mat-card:hover {
 
 .status {
   margin-top: 10px;
-  text-align: right;
   font-size: x-large;
   font-weight: bold;
+}
+
+.status-wrapper {
+  display: flex;
+  justify-content: right
 }
 
 mat-card-title-group {

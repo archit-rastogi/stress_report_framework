@@ -1,5 +1,9 @@
 <app-stress-build-info [testId]="testId"></app-stress-build-info>
-<app-stress-steps [testId]="testId"></app-stress-steps>
-<app-stress-attachments [testId]="testId"></app-stress-attachments>
-<app-stress-metrics [testId]="testId"></app-stress-metrics>
-<app-stress-results [testId]="testId"></app-stress-results>
+<button mat-button (click)="toggleSection('steps')">Steps</button>
+<app-stress-steps *ngIf="openedSections.includes('steps')" [testId]="testId"></app-stress-steps>
+<button mat-button (click)="toggleSection('attachments')">Attachments</button>
+<app-stress-attachments *ngIf="openedSections.includes('attachments')" [testId]="testId"></app-stress-attachments>
+<button mat-button (click)="toggleSection('results')">Results</button>
+<app-stress-results *ngIf="openedSections.includes('results')" [testId]="testId"></app-stress-results>
+<button mat-button (click)="toggleSection('metrics')">Metrics</button>
+<app-stress-metrics *ngIf="openedSections.includes('metrics')" [testId]="testId"></app-stress-metrics>

@@ -1,23 +1,22 @@
 <div class="status"
-     [ngStyle]="getStatusStyle(testInfo.getValue().status)"
-     *ngIf="getKeys((testInfo | async) ?? {}).length > 0">
-  {{testInfo.getValue().status}}
+     [ngStyle]="getStatusStyle(((testInfo | async) ?? {}).status)"
+     *ngIf="getKeys(((testInfo | async) ?? {}).length > 0)">
+  {{ ((testInfo | async) ?? {}).status }}
 </div>
 <div class="flex">
-  <button mat-button (click)="showInfo = !showInfo">
-    <mat-icon [svgIcon]="showInfo ? 'fas:angle-down' : 'fas:angle-right'"></mat-icon>
+  <button class="opener" mat-button (click)="toggleInfo()">
     Build info
   </button>
 </div>
 <ng-container *ngIf="showInfo">
   <span class="time">
-    {{format(testInfo.getValue().start_time)}} - {{testInfo.getValue().end_time ? format(testInfo.getValue().end_time) : 'running'}}
+    {{format(((testInfo | async) ?? {}).start_time)}} - {{((testInfo | async) ?? {}).end_time ? format(((testInfo | async) ?? {}).end_time) : 'running'}}
   </span>
   <div class="flex">
     <table>
-      <tr *ngFor="let propKey of getKeys(((testInfo | async) ?? {config: {}}).config)">
+      <tr *ngFor="let propKey of getKeys((((testInfo | async) ?? {}) ?? {config: {}}).config)">
         <td>{{ propKey }}</td>
-        <td>{{ testInfo.getValue().config[propKey] }}</td>
+        <td>{{ ((testInfo | async) ?? {}).config[propKey] }}</td>
       </tr>
     </table>
   </div>

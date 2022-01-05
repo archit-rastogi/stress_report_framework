@@ -3,5 +3,5 @@
     <button mat-button color="warn" (click)="delete()">Delete selected attachment</button>
     <button mat-button (click)="cancelSelection()">Cancel</button>
   </div>
-  <app-stress-attachment-item [name]="'Attachments'" [attachments]="(attachments | async) ?? []"></app-stress-attachment-item>
+  <app-stress-attachment-item [name]="'Attachments'" [parentItem]="true" [attachments]="(attachments | async) ?? []"></app-stress-attachment-item>
 </div>
