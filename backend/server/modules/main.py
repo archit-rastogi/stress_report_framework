@@ -201,3 +201,14 @@ class MainModule(AbstractModule):
         attachments = params['attachments']
         for attachment in attachments:
             await self.remove_file(attachment['source'])
+
+    @request_handler()
+    async def add_test_known_issue(self, params: dict):
+        for test_id in params['tests_ids']:
+            await self.db.update_test_config(test_id, 'known_issues', params['known_issue'])
+
+    @request_handler()
+    async def remove_test_known_issue(self, params: dict):
+        for test_id in params['tests_ids']:
+            await self.db.remove_test_config_key(test_id, 'known_issues')
+

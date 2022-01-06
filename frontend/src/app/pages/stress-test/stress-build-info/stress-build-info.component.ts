@@ -64,4 +64,12 @@ export class StressBuildInfoComponent implements OnInit {
     this.showInfo = !this.showInfo;
     localStorage.setItem("openedBuildInfo", this.showInfo ? "true" : "false");
   }
+
+  getValue(propKey: any): string {
+    return this.testInfo.getValue().config[propKey];
+  }
+
+  openLink(link: string) {
+    window.open(link, '_blank');
+  }
 }

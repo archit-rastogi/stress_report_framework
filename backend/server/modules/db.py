@@ -288,3 +288,14 @@ class QueryExecute:
     async def edit_test_info(self, info: dict, test_id: str):
         await self.execute(f"update stress_tests set config = '{dumps(info)}' where test_id = '{test_id}'")
 
+    async def update_test_config(self, test_id: str, key: str, value: str):
+        await self.execute(f"update stress_tests set config = jsonb_set(config, '{{{key}}}', '\"{value}\"') where test_id = '{test_id}'")
+
+    async def remove_test_config_key(self, test_id: str, key: str):
+        found_reports = await self.get_test(test_id)
+        if not found_reports:
+            return
+        config = found_reports['config']
+        if config.get(key):
+            del config[key]
+            await self.execute(f"update stress_tests set config = '{dumps(config)}' where test_id = '{test_id}'")

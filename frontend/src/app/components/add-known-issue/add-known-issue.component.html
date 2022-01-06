@@ -1,0 +1,6 @@
+<mat-form-field class="width">
+  <mat-label>Known issue</mat-label>
+  <input matInput [formControl]="knownIssueUrl">
+</mat-form-field>
+<button mat-button class="width" color="primary" (click)="submit()">Add known issue</button>
+<button mat-button class="width" color="warn" (click)="dialogRef.close(false)">Cancel</button>

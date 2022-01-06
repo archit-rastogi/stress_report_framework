@@ -27,7 +27,7 @@ def dict_through(tree):
 
 r = Random()
 
-add_files = True
+add_files = False
 
 base_url = 'http://localhost:9999/back'
 
@@ -43,7 +43,10 @@ for i in range(3):
     start_test_res = post(f'{base_url}/start_test', json={
         'config': {
             "name": f"test {i}",
-            **{f'key {i}': f'value {i}' for i in range(r.randint(0, 10))}
+            **{f'key {i}': f'value {i}' for i in range(r.randint(0, 10))},
+            **({'known_issues': ','.join(
+                [f'https://github.com/yugabyte/yugabyte-db/issues/{r.randint(1, 10000)}' for ki in range(r.randint(1, 3))]
+            )} if r.randint(0, 5) == 4 else {})
         },
         'start_time': datetime.now().timestamp()
     }).json()
@@ -164,12 +167,11 @@ for i in range(3):
         })
         handle_res(att_res.json())
 
-
     if r.randint(1, 10) == 5:
         continue
     end_test_res = post(f'{base_url}/end_test', json={
         'test_id': test_id,
         'status': choice(["passed", 'failed']),
-        'end_time': (datetime.now() + timedelta(minutes=r.randint(20, 50))).timestamp()
+        'end_time': (datetime.now() + timedelta(minutes=r.randint(20, 180))).timestamp()
     }).json()
     handle_res(end_test_res)

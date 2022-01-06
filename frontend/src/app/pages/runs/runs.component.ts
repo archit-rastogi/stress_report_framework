@@ -6,6 +6,7 @@ import {ApiService} from '../../services/api.service';
 import {MatDialog} from '@angular/material/dialog';
 import {AcceptDialogComponent, AcceptOptions} from '../../components/accept-dialog/accept-dialog.component';
 import {EditRunInfoDialogComponent} from '../../components/edit-run-info-dialog/edit-run-info-dialog.component';
+import {AddKnownIssueComponent} from '../../components/add-known-issue/add-known-issue.component';
 
 @Component({
   selector: 'app-runs',
@@ -22,10 +23,12 @@ export class RunsComponent implements OnInit {
   filterValue = new FormControl();
   searchSub: number | null = null;
   loading = false;
-  selectedTests = new BehaviorSubject<any[]>([]);
+  selectedTests = new BehaviorSubject<string[]>([]);
   acceptDialogSub: any;
   deleteTestSub: any;
   editDialogSub: any;
+  addDialogSub: any;
+  removeTestKISub: any;
 
   constructor(private api: ApiService,
               private dialog: MatDialog) {
@@ -177,5 +180,34 @@ export class RunsComponent implements OnInit {
 
   findTests() {
     this.getTests(this.filters.getValue());
+  }
+
+  openAddKnownIssue() {
+    this.addDialogSub = this.dialog.open(
+      AddKnownIssueComponent,
+      {data: this.selectedTests.getValue()}
+    ).afterClosed().subscribe(res => {
+      this.selectedTests.next([]);
+      if (res) {
+        this.findTests();
+      }
+    });
+  }
+
+  removeKnownIssues() {
+    this.acceptDialogSub = this.dialog.open(
+      AcceptDialogComponent,
+      {data: new AcceptOptions(`Delete known issues for ${this.selectedTests.getValue().length} tests`)}
+    ).afterClosed().subscribe(res => {
+      if (res) {
+        this.removeTestKISub = this.api.post('remove_test_known_issue', {tests_ids: this.selectedTests.getValue()}).subscribe(res => {
+          if (res.status) {
+            this.api.snackMessage("Known issues removed successfully!", 2);
+            this.selectedTests.next([]);
+            this.findTests();
+          }
+        })
+      }
+    })
   }
 }

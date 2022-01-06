@@ -16,7 +16,15 @@
     <table>
       <tr *ngFor="let propKey of getKeys((((testInfo | async) ?? {}) ?? {config: {}}).config)">
         <td>{{ propKey }}</td>
-        <td>{{ ((testInfo | async) ?? {}).config[propKey] }}</td>
+        <td>
+          <ng-container *ngIf="propKey !== 'known_issues'">{{ getValue(propKey) }}</ng-container>
+          <ng-container *ngIf="propKey === 'known_issues'">
+            <div *ngFor="let link of getValue(propKey).split(',')">
+              <a (click)="openLink(link)">{{link}}</a>
+              <br/>
+            </div>
+          </ng-container>
+        </td>
       </tr>
     </table>
   </div>

@@ -47,6 +47,7 @@ import { EditRunInfoDialogComponent } from './components/edit-run-info-dialog/ed
 import { ResultTableComponent } from './pages/stress-test/stress-results/result-table/result-table.component';
 import { ResultExceptionComponent } from './pages/stress-test/stress-results/result-exception/result-exception.component';
 import { ExceptionComponent } from './components/exception/exception.component';
+import { AddKnownIssueComponent } from './components/add-known-issue/add-known-issue.component';
 
 @NgModule({
   declarations: [
@@ -73,6 +74,7 @@ import { ExceptionComponent } from './components/exception/exception.component';
     ResultTableComponent,
     ResultExceptionComponent,
     ExceptionComponent,
+    AddKnownIssueComponent,
   ],
   imports: [
     BrowserModule,

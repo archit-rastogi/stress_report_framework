@@ -6,7 +6,8 @@
       </div>
     </div>
     <div>
-      <div class="time">{{ getTimeFormat(test) }}</div>
+      <div class="time">{{ getTimeFormat() }}</div>
+      <div class="time">{{ getTimeDiff() }}</div>
       <div class="status-wrapper">
         <button mat-button class="status" [ngStyle]="getStatusStyle(test.status)" (click)="openException()">{{test.status}}</button>
       </div>

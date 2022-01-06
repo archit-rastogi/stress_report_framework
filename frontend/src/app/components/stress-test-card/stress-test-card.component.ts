@@ -54,17 +54,33 @@ export class StressTestCardComponent implements OnDestroy {
     return moment(time * 1000).format('HH:mm:ss DD.MM');
   }
 
-  getTimeFormat(test: any): string {
-    if (!test.hasOwnProperty('start_pretty')) {
-      test['start_pretty'] = this.formatData(test.start_time);
+  getTimeFormat(): string {
+    if (!this.test.hasOwnProperty('start_pretty')) {
+      this.test['start_pretty'] = this.formatData(this.test.start_time);
     }
-    if (test.hasOwnProperty('start_time') && !test.hasOwnProperty('end_pretty')) {
-      test['end_pretty'] = this.formatData(test.end_time);
+    if (this.test.hasOwnProperty('start_time') && !this.test.hasOwnProperty('end_pretty')) {
+      this.test['end_pretty'] = this.formatData(this.test.end_time);
     }
-    if (test.end_time !== null) {
-      return `${test.start_pretty} - ${test.end_pretty}`
+    if (this.test.end_time !== null) {
+      return `${this.test.start_pretty} - ${this.test.end_pretty}`
     }
-    return test.start_pretty;
+    return this.test.start_pretty;
+  }
+
+  getTimeDiff() {
+    if (this.test.end_time !== null) {
+      const diff = this.test.end_time - this.test.start_time;
+      let result = ''
+      if (diff > 60) {
+        if (diff/60 > 60) {
+          result = `${Math.round(diff/60/60)}h `
+        }
+        result = `${result} ${Math.round(diff/60) % 60}m `
+      }
+      return `${result} ${Math.round(diff) % 60}s `
+    } else {
+      return '';
+    }
   }
 
   getKeys(config: any): Array<string> {

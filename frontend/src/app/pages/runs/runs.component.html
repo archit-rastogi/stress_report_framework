@@ -52,6 +52,8 @@
     <button mat-button (click)="selectedTests.next([])">
       Cancel
     </button>
+    <button mat-button (click)="openAddKnownIssue()">Add issues</button>
+    <button mat-button (click)="removeKnownIssues()">Remove issues</button>
     <button mat-button (click)="openEditModal()">
       <mat-icon svgIcon="fas:edit"></mat-icon>
     </button>
@@ -64,5 +66,6 @@
     (onToggle)="onTestToggle(test)"
     [test]="test"
     [selected]="((selectedTests | async) ?? []).includes(test.test_id)"
-    *ngFor="let test of showTests | async"></app-stress-test-card>
+    *ngFor="let test of showTests | async">
+  </app-stress-test-card>
 </div>

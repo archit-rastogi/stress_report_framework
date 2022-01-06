@@ -5,6 +5,11 @@
     </button>
     <button mat-button (click)="selectedTests.next([])">Cancel selection</button>
   </div>
+  <mat-chip-list>
+    <mat-chip [ngStyle]="getChipStyle(stat)" *ngFor="let stat of stats | async">
+      {{stat.name}} - {{stat.count}}
+    </mat-chip>
+  </mat-chip-list>
   <app-stress-test-card
     [selected]="isSelected(test)"
     [test]="test"
