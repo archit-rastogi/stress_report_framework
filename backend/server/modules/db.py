@@ -64,7 +64,7 @@ class QueryExecute:
             failed_connection = True
         except ConnectionDoesNotExistError or SerializationError:
             failed_connection = True
-            if trycount < 10:
+            if trycount < 11:
                 await connection.close()
                 return await self.execute(query, params, trycount + 1)
 
