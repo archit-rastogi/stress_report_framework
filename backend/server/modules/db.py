@@ -7,7 +7,7 @@ from re import sub
 from typing import List
 from uuid import uuid4
 
-from asyncpg import Connection, Record, InterfaceError, connect, UndefinedTableError, ConnectionDoesNotExistError
+from asyncpg import Connection, Record, InterfaceError, connect, UndefinedTableError, ConnectionDoesNotExistError, SerializationError
 
 
 class QueryExecute:
@@ -41,7 +41,7 @@ class QueryExecute:
             self.open_connections.append(await connect(**self.connection_params))
         self.log.info('opened new 5 connections')
 
-    async def execute(self, query: str, params: list or tuple = None, trycount=0):
+    async def execute(self, query: str, params: list or tuple = None, trycount=10):
         if not self.open_connections:
             await self.connect()
             if self.first_query and self.setup_file_path:
@@ -62,8 +62,10 @@ class QueryExecute:
             res: List[Record] = await connection.fetch(query, *params)
         except InterfaceError:
             failed_connection = True
-        except ConnectionDoesNotExistError:
-            if trycount < 100:
+        except ConnectionDoesNotExistError or SerializationError:
+            failed_connection = True
+            if trycount < 10:
+                await connection.close()
                 return await self.execute(query, params, trycount + 1)
 
         if not failed_connection:
