@@ -60,19 +60,17 @@ class QueryExecute:
         res = []
         try:
             res: List[Record] = await connection.fetch(query, *params)
-        except InterfaceError:
-            failed_connection = True
-        except ConnectionDoesNotExistError or SerializationError:
-            failed_connection = True
-            if trycount < 11:
+        except:
+            if trycount > 0:
                 await connection.close()
-                return await self.execute(query, params, trycount + 1)
-
-        if not failed_connection:
-            if len(self.open_connections) < 5:
-                self.open_connections.append(connection)
-        else:
-            await connection.close()
+                return await self.execute(query, params, trycount - 1)
+            raise
+        finally:
+            if not failed_connection:
+                if len(self.open_connections) < 5:
+                    self.open_connections.append(connection)
+            else:
+                await connection.close()
         rows = []
         for record_row in res:
             rows.append(dict(record_row.items()))
