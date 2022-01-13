@@ -108,7 +108,8 @@ class MainModule(AbstractModule):
     async def add_report(self, params: dict):
         name: str = params['name']
         config: dict = params['config']
-        return {'report_id': await self.db.add_report(name, config)}
+        reports = await self.db.get_reports(names=[name])
+        return {'report_id': reports[0]['report_id'] if reports else await self.db.add_report(name, config)}
 
     @request_handler(post_params=False)
     async def get_reports(self):
@@ -211,4 +212,3 @@ class MainModule(AbstractModule):
     async def remove_test_known_issue(self, params: dict):
         for test_id in params['tests_ids']:
             await self.db.remove_test_config_key(test_id, 'known_issues')
-
