@@ -16,11 +16,12 @@ import {AddKnownIssueComponent} from '../../components/add-known-issue/add-known
 export class RunsComponent implements OnInit {
   range = RunsComponent.initDates();
   sourceTests = new BehaviorSubject<Array<any>>([]);
-  showTests = new Subject<Array<any>>();
+  showTests = new BehaviorSubject<Array<any>>([]);
   filters = new BehaviorSubject<Array<any>>([]);
   testsSub: any;
   filterKey = new FormControl();
   filterValue = new FormControl();
+  contextSearch = new FormControl();
   searchSub: number | null = null;
   loading = false;
   selectedTests = new BehaviorSubject<string[]>([]);
@@ -42,6 +43,10 @@ export class RunsComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    const runsContextSearch = localStorage.getItem('runsContextSearch')
+    if (runsContextSearch !== null) {
+      this.contextSearch.setValue(runsContextSearch);
+    }
     this.loading = false;
     const localDates = localStorage.getItem('runs_dates');
     if (localDates !== null) {
@@ -87,6 +92,10 @@ export class RunsComponent implements OnInit {
           });
         this.sourceTests.next(tests);
         this.showTests.next(tests);
+        const contextSearchText = localStorage.getItem('runsContextSearch')
+        if (contextSearchText !== null) {
+          this.filterByContext(contextSearchText);
+        }
       }
     })
   }
@@ -116,23 +125,28 @@ export class RunsComponent implements OnInit {
     this.getTests();
   }
 
-  contextSearch(change: any) {
+  filterByContext(text: string) {
+    this.showTests.next(this.sourceTests.getValue().filter(test =>
+      Object.keys(test.config).find(k => test.config[k].includes(text)
+        || k.includes(text)
+        || test.status.includes(text)
+        || (test.start_pretty ? test.start_pretty.includes(text) : false)
+        || (test.hasOwnProperty('end_pretty') && test.end_pretty.includes(text)))
+    ));
+  }
+
+  searchContext(change: any) {
     if (change.target.value === '') {
       this.showTests.next(this.sourceTests.getValue());
+      localStorage.removeItem("runsContextSearch");
     }
     if (this.searchSub !== null) {
       clearTimeout(this.searchSub);
     }
 
     this.searchSub = setTimeout(() => {
-      const searchingValue = change.target.value;
-      this.showTests.next(this.sourceTests.getValue().filter(test =>
-        Object.keys(test.config).find(k => test.config[k].includes(searchingValue)
-          || k.includes(searchingValue)
-          || test.status.includes(searchingValue)
-          || test.start_pretty.includes(searchingValue)
-          || (test.hasOwnProperty('end_pretty') && test.end_pretty.includes(searchingValue)))
-      ));
+      this.filterByContext(change.target.value);
+      localStorage.setItem("runsContextSearch", change.target.value);
       this.searchSub = null;
     }, 300);
   }
@@ -209,5 +223,15 @@ export class RunsComponent implements OnInit {
         })
       }
     })
+  }
+
+  selectAllShown() {
+    const selectedTests = this.selectedTests.getValue();
+    this.showTests.getValue().forEach((test: any) => {
+      if (!selectedTests.includes(test.test_id)) {
+        selectedTests.push(test.test_id);
+      }
+    })
+    this.selectedTests.next(selectedTests);
   }
 }

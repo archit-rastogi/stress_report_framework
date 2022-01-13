@@ -10,9 +10,14 @@
       <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
       <mat-date-range-picker #picker></mat-date-range-picker>
     </mat-form-field>
-    <button class="refresh" mat-icon-button (click)="findTests()">
-      <mat-icon svgIcon="fas:sync"></mat-icon>
-    </button>
+    <div class="additional-actions">
+      <button class="icon" mat-icon-button (click)="selectAllShown()">
+        <mat-icon svgIcon="fas:check-double"></mat-icon>
+      </button>
+      <button class="icon" mat-icon-button (click)="findTests()">
+        <mat-icon svgIcon="fas:sync"></mat-icon>
+      </button>
+    </div>
   </div>
   <!--  Add filters  -->
   <div>
@@ -42,7 +47,7 @@
   <!--  Context search  -->
   <mat-form-field class="context-filter">
     <mat-label>Search by context</mat-label>
-    <input matInput (keydown)="contextSearch($event)">
+    <input matInput [formControl]="contextSearch" (keydown)="searchContext($event)">
   </mat-form-field>
   <mat-progress-bar *ngIf="loading" mode="indeterminate"></mat-progress-bar>
 

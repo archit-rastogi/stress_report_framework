@@ -11,6 +11,7 @@ import {definition as faPlus} from '@fortawesome/free-solid-svg-icons/faPlus';
 import {definition as faTrash} from '@fortawesome/free-solid-svg-icons/faTrashAlt';
 import {definition as faSync} from '@fortawesome/free-solid-svg-icons/faSync';
 import {definition as faEdit} from '@fortawesome/free-solid-svg-icons/faEdit';
+import {definition as faCheckDouble} from '@fortawesome/free-solid-svg-icons/faCheckDouble';
 
 export const iconsAppInitializer = {
   provide: APP_INITIALIZER,
@@ -27,7 +28,8 @@ export const iconsAppInitializer = {
       faPlus,
       faTrash,
       faSync,
-      faEdit
+      faEdit,
+      faCheckDouble,
     ];
     const registerFaIcon = (i: IconDefinition) => {
       icons.addSvgIconLiteralInNamespace(

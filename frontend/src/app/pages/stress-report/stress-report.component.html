@@ -1,18 +1,36 @@
 <div class="container">
-  <div *ngIf="((selectedTests | async) ?? []).length > 0">
+  <div class="actions" *ngIf="((selectedTests | async) ?? []).length > 0">
     <button mat-button color="warn" (click)="excludeTests()">
       Exclude {{ ((selectedTests | async) ?? []).length }} cases
+    </button>
+    <button mat-button color="warn" (click)="deleteSelectedTests()">
+      Delete tests
     </button>
     <button mat-button (click)="selectedTests.next([])">Cancel selection</button>
   </div>
   <mat-chip-list>
-    <mat-chip [ngStyle]="getChipStyle(stat)" *ngFor="let stat of stats | async">
+    <mat-chip (click)="filterChips(stat.name)" [ngStyle]="getChipStyle(stat)" *ngFor="let stat of stats | async">
       {{stat.name}} - {{stat.count}}
     </mat-chip>
   </mat-chip-list>
+  <div style="display: flex">
+    <div class="additional-actions">
+      <button class="icon" mat-icon-button (click)="selectAllShown()">
+        <mat-icon svgIcon="fas:check-double"></mat-icon>
+      </button>
+      <button class="icon" mat-icon-button (click)="getReportTests()">
+        <mat-icon svgIcon="fas:sync"></mat-icon>
+      </button>
+    </div>
+  </div>
+  <mat-form-field class="width">
+    <mat-label>Search by context</mat-label>
+    <input matInput [formControl]="contextSearch" (keydown)="searchContext($event)">
+  </mat-form-field>
+  <mat-progress-bar *ngIf="loading" mode="indeterminate"></mat-progress-bar>
   <app-stress-test-card
     [selected]="isSelected(test)"
     [test]="test"
     (onToggle)="testSelected(test)"
-    *ngFor="let test of tests | async"></app-stress-test-card>
+    *ngFor="let test of showTests | async"></app-stress-test-card>
 </div>

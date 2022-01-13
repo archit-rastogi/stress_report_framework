@@ -53,9 +53,12 @@ export class StressStepsComponent implements OnInit {
         highest = step.end_time;
       }
     });
+    if (highest == 0) {
+      highest = lowestTime + 60 * 3;
+    }
     newSteps.forEach((step: any) => {
       if (step.end_time === null) {
-        step.start_time = step.start_time + 60 * 3
+        step.end_time = +new Date()
       }
       data.push({
         name: step.properties.name,
@@ -107,7 +110,11 @@ export class StressStepsComponent implements OnInit {
           const rows = Object.keys(step.properties)
             .filter(key => key !== 'name')
             .map(key => `<tr><td>${key}</td><td>${step.properties[key]}</td></tr>`)
-          return `${params.marker} <span style="font-weight: bold">${step.properties.name}</span></br>${time}</br><span style="font-weight: bold">Properties</span><table>${rows.join('')}</table>`;
+          let properties = '';
+          if (rows.length > 0) {
+            properties = `<span style="font-weight: bold">Properties</span><table>${rows.join('')}</table>`
+          }
+          return `${params.marker} <span style="font-weight: bold">${step.properties.name}</span> ${step.status}</br>${time}</br>${properties}`;
         }
       },
       title: {
@@ -204,11 +211,12 @@ export class StressStepsComponent implements OnInit {
         return 'rgb(196,0,0)';
       }
       case 'running': {
-        return 'rgb(185,121,1)';
+        return 'rgb(255,166,0)';
       }
       default: {
         return 'rgb(1,1,1,1)';
       }
     }
+
   }
 }

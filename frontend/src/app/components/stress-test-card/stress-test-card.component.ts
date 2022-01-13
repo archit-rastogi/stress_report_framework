@@ -1,8 +1,8 @@
-import {Component, EventEmitter, Input, OnDestroy, OnInit, Output} from '@angular/core';
+import {Component, EventEmitter, Input, OnDestroy, Output} from '@angular/core';
 import {Router} from '@angular/router';
 import * as moment from 'moment';
 import {ApiService} from '../../services/api.service';
-import {BehaviorSubject, Subject} from 'rxjs';
+import {BehaviorSubject} from 'rxjs';
 
 @Component({
   selector: 'app-stress-test-card',
@@ -15,10 +15,9 @@ export class StressTestCardComponent implements OnDestroy {
   @Input() selected: boolean = false;
   @Output() onToggle = new EventEmitter<boolean>();
   @Output() onClick = new EventEmitter();
-
+  exceptions = new BehaviorSubject<any[]>([]);
   private allowToOpen = true;
   private getResultsSub: any;
-  exceptions = new BehaviorSubject<any[]>([]);
 
   constructor(private router: Router,
               private api: ApiService) {
@@ -68,19 +67,19 @@ export class StressTestCardComponent implements OnDestroy {
   }
 
   getTimeDiff() {
-    if (this.test.end_time !== null) {
-      const diff = this.test.end_time - this.test.start_time;
-      let result = ''
-      if (diff > 60) {
-        if (diff/60 > 60) {
-          result = `${Math.round(diff/60/60)}h `
-        }
-        result = `${result} ${Math.round(diff/60) % 60}m `
-      }
-      return `${result} ${Math.round(diff) % 60}s `
-    } else {
-      return '';
+    let endTime = this.test.end_time;
+    if (endTime === null) {
+      endTime = +new Date() / 1000;
     }
+    const diff = endTime - this.test.start_time;
+    let result = ''
+    if (diff > 60) {
+      if (diff / 60 > 60) {
+        result = `${Math.round(diff / 60 / 60)}h `
+      }
+      result = `${result} ${Math.round(diff / 60) % 60}m `
+    }
+    return `${result} ${Math.round(diff) % 60}s `
   }
 
   getKeys(config: any): Array<string> {
@@ -111,4 +110,5 @@ export class StressTestCardComponent implements OnDestroy {
       }
     })
   }
+
 }
