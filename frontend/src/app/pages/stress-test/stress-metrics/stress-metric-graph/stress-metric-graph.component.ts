@@ -89,7 +89,6 @@ export class StressMetricGraphComponent implements OnInit, OnDestroy {
               formatter: this.format
             }
           }],
-
           grid: {
             bottom: manyLines ? 150 : 50
           },

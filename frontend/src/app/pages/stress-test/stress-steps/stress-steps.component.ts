@@ -1,7 +1,7 @@
 import {Component, Input, OnInit} from '@angular/core';
 import {ApiService} from '../../../services/api.service';
 import * as moment from 'moment';
-import {EChartsOption} from 'echarts';
+import * as echarts from 'echarts';
 import {BehaviorSubject, Subject} from 'rxjs';
 
 @Component({
@@ -11,7 +11,7 @@ import {BehaviorSubject, Subject} from 'rxjs';
 })
 export class StressStepsComponent implements OnInit {
 
-  chartOptions = new Subject<EChartsOption>();
+  chartOptions = new Subject<echarts.EChartsOption>();
   @Input() testId: string | undefined | null;
   steps = new BehaviorSubject<any[]>([]);
   minTime = 0;
@@ -34,116 +34,112 @@ export class StressStepsComponent implements OnInit {
   format = (timestamp: number) => moment(timestamp * 1000).format('DD.MM HH:mm:ss');
 
   drawGraph(newSteps: Array<any>) {
-    if (!newSteps) {
-      return;
-    }
-    let stepsGroups: any = {}
-    if (newSteps.length === 1) {
-      stepsGroups[newSteps[0].properties.name] = [newSteps[0]]
-    } else if (newSteps.length > 1) {
-      stepsGroups = newSteps.reduce((prev, next) => {
-        if (!prev.hasOwnProperty('status')) {
-          if (Object.keys(prev).includes(next.properties.name)) {
-            prev[next.properties.name].push(next);
-            prev[next.properties.name] = prev[next.properties.name].sort((a: any, b: any) => a.start_time - b.start_time)
-          } else {
-            prev[next.properties.name] = [next]
-          }
-        } else {
-          const res: any = {}
-          res[next.properties.name] = [next]
-          res[prev.properties.name] = [prev]
-          return res
-        }
-        return prev
-      });
-    }
 
-    this.minTime = Math.min(...newSteps.map(step => step.start_time))
-    const stepsNames = Object.keys(stepsGroups).sort((a, b) => stepsGroups[b][0].start_time - stepsGroups[a][0].start_time)
-    const stepLastTime: any = {}
-    const series: Array<any> = []
-    const steps = []
-    stepsNames.forEach((stepKey, skIdx) => {
-      stepsGroups[stepKey].forEach((step: any, _: number) => {
-        steps.push(step);
-        if (step.status === 'running') {
-          step.end_time = step.start_time + 60 * 5;
-        }
-        const stepName = step.properties.name;
-        if (!stepLastTime.hasOwnProperty(stepName)) {
-          stepLastTime[stepName] = {
-            diff: step.start_time - this.minTime,
-            point: step.start_time
-          };
-        } else {
-          stepLastTime[stepName] = {
-            diff: step.start_time - stepLastTime[stepName].point,
-            point: step.start_time
-          };
-        }
-        series.push({
-          type: 'bar',
-          name: 'test',
-          stack: 'test',
-          emphasis: {
-            itemStyle: {
-              borderColor: 'rgba(0,0,0,0)',
-              color: 'rgba(0,0,0,0)'
-            }
-          },
-          itemStyle: {
-            borderColor: 'rgba(0,0,0,0)',
-            color: 'rgba(0,0,0,0)'
-          },
-          data: [...Array(skIdx).keys()].map(_ => '-')
-            .concat([stepLastTime[stepName].diff])
-            .concat([...Array(stepsNames.length - skIdx - 1).keys()].map(_ => '-'))
-        });
-
-
-        stepLastTime[stepName] = {
-          diff: step.end_time - stepLastTime[stepName].point,
-          point: step.end_time
-        };
-        series.push({
-          type: 'bar',
-          name: stepName,
-          stack: 'test',
-          itemStyle: {
-            color: step.status === 'passed' ? 'rgba(1,215,19,0.4)' : step.status === 'failed' ? 'rgba(215,1,1,0.4)' : 'rgba(241,186,4,0.53)'
-          },
-          data: [...Array(skIdx).keys()].map(_ => '-')
-            .concat([stepLastTime[stepName].diff])
-            .concat([...Array(stepsNames.length - skIdx - 1).keys()].map(_ => '-'))
-        });
-      })
+    const data: any[] = [];
+    let categories: string[] = []
+    new Set(newSteps.map(step => step.properties.name)).forEach(i => {
+      categories.push(i);
     })
-    const red = 'rgb(196,0,0)';
-    const green = 'rgb(46,185,1)';
-    const yellow = 'rgb(185,121,1)';
-    const formatCursor = (params: any) => {
-      const foundParam = params.find((param: any) => param.value !== '-' && param.seriesName !== 'test');
-      if (!foundParam) {
-        return '';
+    categories = categories.sort((a: any, b: any) => a.localeCompare(b));
+
+    let lowestTime = +new Date() + 10000;
+    let highest = 0;
+
+    newSteps.forEach((step: any) => {
+      if (step.start_time < lowestTime) {
+        lowestTime = step.start_time;
       }
-      const dates = stepsGroups[foundParam.seriesName].map((step: any) => {
-        return `<span style="color: ${step.status == 'passed' ? green : step.status == 'running' ? yellow : red}">${this.format(step.start_time)} - ${this.format(step.end_time)}</span>`
-      }).join('<br/>')
-      return `${foundParam.seriesName}<br/>${dates}`;
-    }
-    const timeFormat = (data: number) => {
-      return this.format(this.minTime + data);
+      if (step.end_time > highest) {
+        highest = step.end_time;
+      }
+    });
+    newSteps.forEach((step: any) => {
+      if (step.end_time === null) {
+        step.start_time = step.start_time + 60 * 3
+      }
+      data.push({
+        name: step.properties.name,
+        value: [categories.indexOf(step.properties.name), step.start_time, step.end_time, step.end_time - step.start_time],
+        step,
+        itemStyle: {
+          normal: {
+            color: this.getColorByStatus(step.status)
+          }
+        }
+      });
+    });
+    const render: echarts.CustomSeriesRenderItem = (params: any, api: any) => {
+      const categoryIndex = api.value(0);
+      const start = api.coord([api.value(1), categoryIndex]);
+      const end = api.coord([api.value(2), categoryIndex]);
+      const height = api.size([0, 1])[1] * 0.6;
+      const rectShape = echarts.graphic.clipRectByRect(
+        {
+          x: start[0],
+          y: start[1] - height / 2,
+          width: end[0] - start[0],
+          height
+        },
+        {
+          x: params.coordSys.x,
+          y: params.coordSys.y,
+          width: params.coordSys.width,
+          height: params.coordSys.height
+        }
+      );
+      return (
+        rectShape && {
+          type: 'rect',
+          transition: ['shape'],
+          shape: rectShape,
+          style: api.style()
+        }
+      );
     }
     this.chartOptions.next({
+      tooltip: {
+        formatter: (params: any) => {
+          const step = params.data.step
+          let time = this.format(step.start_time)
+          if (step.end_time) {
+            time = `${time} - ${this.format(step.end_time)}`
+          }
+          const rows = Object.keys(step.properties)
+            .filter(key => key !== 'name')
+            .map(key => `<tr><td>${key}</td><td>${step.properties[key]}</td></tr>`)
+          return `${params.marker} <span style="font-weight: bold">${step.properties.name}</span></br>${time}</br><span style="font-weight: bold">Properties</span><table>${rows.join('')}</table>`;
+        }
+      },
       title: {
-        text: ''
+        text: 'Profile',
+        left: 'center'
+      },
+      dataZoom: [
+        {
+          type: 'slider',
+          filterMode: 'weakFilter',
+          showDataShadow: false,
+          top: 400,
+          labelFormatter: ''
+        },
+        {
+          type: 'inside',
+          filterMode: 'weakFilter'
+        }
+      ],
+      grid: {
+        height: 300
       },
       xAxis: {
         type: 'value',
+        min: lowestTime,
+        max: highest,
         axisLabel: {
-          formatter: timeFormat
+          formatter: this.format
         }
+      },
+      yAxis: {
+        data: categories
       },
       toolbox: {
         feature: {
@@ -155,55 +151,31 @@ export class StressStepsComponent implements OnInit {
         },
         z: 0
       },
-      yAxis: {
-        type: 'category',
-        data: stepsNames
-      },
-      tooltip: {
-        trigger: 'axis',
-        axisPointer: {
-          type: 'shadow'
-        },
-        formatter: formatCursor
-      },
-      grid: {
-        containLabel: true,
-      },
-      series
+      series: [
+        {
+          type: 'custom',
+          renderItem: render,
+          itemStyle: {
+            opacity: 0.6
+          },
+          encode: {
+            x: [1, 2],
+            y: 0
+          },
+          data
+        }
+      ]
     });
   }
 
   click(event: any) {
-    let selectedSteps = this.steps.getValue()
-      .filter(step => step.properties.name === event.seriesName)
-      .map(step => {
-        step.value = step.end_time - step.start_time;
-        return step;
-      });
-    const step = selectedSteps.find(step => event.value === step.value);
-    if (step !== undefined) {
-      const steps = this.openedSteps.getValue();
-      if (steps.find(oStep => oStep.step_id === step.step_id)) {
-        this.openedSteps.next(steps.filter(oStep => oStep.step_id !== step.step_id));
-      } else {
-        steps.push(step);
-        this.openedSteps.next(steps);
-      }
+    let selectedSteps = this.openedSteps.getValue();
+    const step = event.data.step;
+    if (selectedSteps.find(s => s.step_id === step.step_id)) {
+      this.openedSteps.next(selectedSteps.filter(s => s.step_id !== step.step_id));
     } else {
-      selectedSteps = this.steps.getValue().filter(step => step.properties.name === event.name)
-      const openedSteps = this.openedSteps.getValue();
-      const canFindInSelected = (step_id: string) => selectedSteps.find(ss => ss.step_id === step_id) !== undefined
-      if (openedSteps.find(s => canFindInSelected(s.step_id))) {
-        this.openedSteps.next(openedSteps.filter(s => !canFindInSelected(s.step_id)));
-      } else {
-        selectedSteps
-          .filter(os => openedSteps.find(ss => ss.step_id === os.step_id) === undefined)
-          .forEach(os => {
-            openedSteps.push(os);
-          })
-        this.openedSteps.next(openedSteps);
-      }
-
+      selectedSteps.push(step);
+      this.openedSteps.next(selectedSteps);
     }
   }
 
@@ -220,21 +192,23 @@ export class StressStepsComponent implements OnInit {
   }
 
   getStepStatus(status: string) {
-    let color = '';
+    return {color: this.getColorByStatus(status)}
+  }
+
+  getColorByStatus(status: string): string {
     switch (status) {
       case 'passed': {
-        color = 'rgb(46,185,1)';
-        break;
+        return 'rgb(46,185,1)';
       }
       case 'failed': {
-        color = 'rgb(196,0,0)';
-        break
+        return 'rgb(196,0,0)';
       }
       case 'running': {
-        color = 'rgb(185,121,1)';
-        break
+        return 'rgb(185,121,1)';
+      }
+      default: {
+        return 'rgb(1,1,1,1)';
       }
     }
-    return {color}
   }
 }

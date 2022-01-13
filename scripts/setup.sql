@@ -93,8 +93,3 @@ create table if not exists stress_results
         on delete cascade
         on update restrict
 );
-
-update stress_tests set config = jsonb_set(config, '{test_1}', '"test value"') where test_id = '223c6e6c-922e-4d6a-98c3-72b9fe7c6b1f';
-
-select *
-from stress_tests where test_id = '223c6e6c-922e-4d6a-98c3-72b9fe7c6b1f';

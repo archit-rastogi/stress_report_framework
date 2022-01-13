@@ -8,6 +8,7 @@ import {Component, Input} from '@angular/core';
 export class ExceptionComponent {
 
   @Input() result: any;
+  @Input() stateByDefault: boolean = false;
   showContentNames: Array<string> = [];
 
   toggleException(name: string) {
