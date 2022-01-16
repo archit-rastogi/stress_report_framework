@@ -19,31 +19,6 @@
       </button>
     </div>
   </div>
-  <!--  Add filters  -->
-  <div>
-    <mat-form-field>
-      <mat-label>Property</mat-label>
-      <input matInput [formControl]="filterKey">
-    </mat-form-field>
-    <mat-form-field>
-      <mat-label>Value</mat-label>
-      <input matInput [formControl]="filterValue" (keydown)="$event.key === 'Enter' ? addFilter() : null">
-    </mat-form-field>
-    <button class="add-filter" mat-button (click)="addFilter()">Add filter</button>
-  </div>
-  <!--  Filters  -->
-  <div class="active-filters" *ngIf="((filters | async) ?? []).length > 0">
-    <mat-chip-list *ngFor="let filter of filters | async">
-      <mat-chip>
-        {{ filter.key }} = {{ filter.value }}
-        <button matChipRemove (click)="removeFilter(filter)">
-          <mat-icon svgIcon="fas:times"></mat-icon>
-        </button>
-      </mat-chip>
-    </mat-chip-list>
-    <button mat-button (click)="clearAllFilters()">Clear</button>
-  </div>
-
   <!--  Context search  -->
   <mat-form-field class="context-filter">
     <mat-label>Search by context</mat-label>
@@ -52,17 +27,42 @@
   <mat-progress-bar *ngIf="loading" mode="indeterminate"></mat-progress-bar>
 
   <!--  Actions  -->
-  <div class="actions" *ngIf="((selectedTests | async) ?? []).length > 0">
-    {{((selectedTests | async) ?? []).length}} tests selected
-    <button mat-button (click)="selectedTests.next([])">
-      Cancel
+  <div class="actions" *ngIf="((actionsService.selectedTests | async) ?? []).length > 0">
+    {{((actionsService.selectedTests | async) ?? []).length}} tests selected
+    <button mat-button
+            (click)="actionsService.selectedTests.next([])"
+            matTooltip="Cancel selection"
+            matTooltipShowDelay="300">
+      <mat-icon svgIcon="fas:times"></mat-icon>
     </button>
-    <button mat-button (click)="openAddKnownIssue()">Add issues</button>
-    <button mat-button (click)="removeKnownIssues()">Remove issues</button>
-    <button mat-button (click)="openEditModal()">
+    <button mat-button (click)="actionsService.openAddKnownIssue()"
+            matTooltip="Add known issue"
+            matTooltipShowDelay="300">
+      <mat-icon svgIcon="fas:virus"></mat-icon>
+    </button>
+    <button mat-button (click)="actionsService.removeKnownIssues()"
+            matTooltip="Remove all known issues"
+            matTooltipShowDelay="300">
+      <mat-icon svgIcon="fas:virus-slash"></mat-icon>
+    </button>
+    <button mat-button (click)="actionsService.openRemoveProperties()"
+            matTooltip="Remove properties"
+            matTooltipShowDelay="300">
+      <mat-icon svgIcon="fas:minus"></mat-icon>
+    </button>
+    <button mat-button (click)="actionsService.openAddProperties()"
+            matTooltip="Add properties"
+            matTooltipShowDelay="300">
+      <mat-icon svgIcon="fas:plus"></mat-icon>
+    </button>
+    <button mat-button (click)="actionsService.openEditModal()"
+            matTooltip="Edit first selected test"
+            matTooltipShowDelay="300">
       <mat-icon svgIcon="fas:edit"></mat-icon>
     </button>
-    <button mat-button color="warn" (click)="deleteSelectedTests()">
+    <button mat-button color="warn" (click)="actionsService.deleteSelectedTests()"
+            matTooltip="Remove tests and attached files"
+            matTooltipShowDelay="300">
       <mat-icon svgIcon="fas:trash-alt"></mat-icon>
     </button>
   </div>
@@ -70,7 +70,7 @@
   <app-stress-test-card
     (onToggle)="onTestToggle(test)"
     [test]="test"
-    [selected]="((selectedTests | async) ?? []).includes(test.test_id)"
+    [selected]="((actionsService.selectedTests | async) ?? []).includes(test.test_id)"
     *ngFor="let test of showTests | async">
   </app-stress-test-card>
 </div>

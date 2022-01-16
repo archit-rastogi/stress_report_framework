@@ -26,7 +26,16 @@ mat-card-title-group {
   display: flex;
 }
 
+mat-card-actions {
+  margin-left: 20px;
+}
+
+.ki-text {
+  font-weight: bold;
+}
+
 .configs {
+  width: 60%;
   margin-left: 20px;
   margin-right: auto;
 }

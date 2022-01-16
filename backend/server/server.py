@@ -46,6 +46,9 @@ app.add_routes([
 
     web.post('/back/get_reports', main_module.get_reports),
     web.post('/back/get_report_tests', main_module.get_report_tests),
+    web.post('/back/get_report_pages', main_module.get_report_pages),
+    web.post('/back/add_test_properties', main_module.add_test_properties),
+    web.post('/back/remove_test_properties', main_module.remove_test_properties),
     web.post('/back/update_report', main_module.update_report),
     web.post('/back/add_report', main_module.add_report),
     web.post('/back/add_exclude_tests', main_module.add_exclude_tests),

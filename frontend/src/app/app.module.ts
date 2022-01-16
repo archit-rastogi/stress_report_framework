@@ -48,6 +48,11 @@ import { ResultTableComponent } from './pages/stress-test/stress-results/result-
 import { ResultExceptionComponent } from './pages/stress-test/stress-results/result-exception/result-exception.component';
 import { ExceptionComponent } from './components/exception/exception.component';
 import { AddKnownIssueComponent } from './components/add-known-issue/add-known-issue.component';
+import { PagesHitmapComponent } from './pages/stress-report/pages-hitmap/pages-hitmap.component';
+import { AddPropertiesComponent } from './components/add-properties/add-properties.component';
+import { RemovePropertiesComponent } from './components/remove-properties/remove-properties.component';
+import {MatTooltipModule} from '@angular/material/tooltip';
+import {ActionsService} from './services/actions.service';
 
 @NgModule({
   declarations: [
@@ -75,6 +80,9 @@ import { AddKnownIssueComponent } from './components/add-known-issue/add-known-i
     ResultExceptionComponent,
     ExceptionComponent,
     AddKnownIssueComponent,
+    PagesHitmapComponent,
+    AddPropertiesComponent,
+    RemovePropertiesComponent,
   ],
   imports: [
     BrowserModule,
@@ -98,11 +106,13 @@ import { AddKnownIssueComponent } from './components/add-known-issue/add-known-i
     MatProgressBarModule,
     MatChipsModule,
     MatCheckboxModule,
+    MatTooltipModule,
     NgxEchartsModule.forRoot({echarts: () => import('echarts')}),
   ],
   providers: [
     ApiService,
     AttachmentsSyncService,
+    ActionsService,
     iconsAppInitializer
   ],
   bootstrap: [AppComponent]

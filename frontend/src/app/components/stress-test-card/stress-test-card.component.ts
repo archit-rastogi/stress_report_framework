@@ -27,6 +27,11 @@ export class StressTestCardComponent implements OnDestroy {
     this.api.unsub(this.getResultsSub);
   }
 
+  blockOpen() {
+    this.allowToOpen = false;
+    setTimeout(() => this.allowToOpen = true, 300);
+  }
+
   getStatusStyle(status: string): any {
     switch (status) {
       case 'passed': {
@@ -83,7 +88,9 @@ export class StressTestCardComponent implements OnDestroy {
   }
 
   getKeys(config: any): Array<string> {
-    return Object.keys(config).sort((a, b) => a.localeCompare(b) ? 0 : 1);
+    return Object.keys(config)
+      .sort((a, b) => a.localeCompare(b) ? 0 : 1)
+      .filter(k => k !== 'known_issues');
   }
 
   selectCard(event: Event) {
@@ -96,8 +103,7 @@ export class StressTestCardComponent implements OnDestroy {
   }
 
   openException() {
-    this.allowToOpen = false;
-    setTimeout(() => this.allowToOpen = true, 300);
+    this.blockOpen();
     if (this.exceptions.getValue().length > 0) {
       this.exceptions.next([]);
       return;
@@ -111,4 +117,8 @@ export class StressTestCardComponent implements OnDestroy {
     })
   }
 
+  openLink(ki: string) {
+    this.blockOpen();
+    window.open(ki, '_blank');
+  }
 }

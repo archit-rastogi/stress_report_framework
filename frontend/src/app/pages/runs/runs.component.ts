@@ -1,38 +1,34 @@
-import {Component, OnInit} from '@angular/core';
+import {Component, OnDestroy, OnInit} from '@angular/core';
 import {FormControl, FormGroup} from '@angular/forms';
-import {BehaviorSubject, Subject} from 'rxjs';
+import {BehaviorSubject} from 'rxjs';
 import * as moment from 'moment';
 import {ApiService} from '../../services/api.service';
-import {MatDialog} from '@angular/material/dialog';
-import {AcceptDialogComponent, AcceptOptions} from '../../components/accept-dialog/accept-dialog.component';
-import {EditRunInfoDialogComponent} from '../../components/edit-run-info-dialog/edit-run-info-dialog.component';
-import {AddKnownIssueComponent} from '../../components/add-known-issue/add-known-issue.component';
+import {ActionsService} from '../../services/actions.service';
 
 @Component({
   selector: 'app-runs',
   templateUrl: './runs.component.html',
   styleUrls: ['./runs.component.scss']
 })
-export class RunsComponent implements OnInit {
+export class RunsComponent implements OnInit, OnDestroy {
+  open = false;
   range = RunsComponent.initDates();
   sourceTests = new BehaviorSubject<Array<any>>([]);
   showTests = new BehaviorSubject<Array<any>>([]);
-  filters = new BehaviorSubject<Array<any>>([]);
   testsSub: any;
-  filterKey = new FormControl();
-  filterValue = new FormControl();
   contextSearch = new FormControl();
   searchSub: number | null = null;
   loading = false;
-  selectedTests = new BehaviorSubject<string[]>([]);
-  acceptDialogSub: any;
-  deleteTestSub: any;
-  editDialogSub: any;
-  addDialogSub: any;
-  removeTestKISub: any;
+
+  private acceptDialogSub: any;
 
   constructor(private api: ApiService,
-              private dialog: MatDialog) {
+              public actionsService: ActionsService) {
+    actionsService.refresh.subscribe(refresh => {
+      if (refresh && this.open) {
+        this.getTests();
+      }
+    })
   }
 
   private static initDates(): FormGroup {
@@ -42,7 +38,14 @@ export class RunsComponent implements OnInit {
     });
   }
 
+  ngOnDestroy() {
+    this.actionsService.selectedTests.next([]);
+    this.open = false;
+    this.api.unsub(this.acceptDialogSub);
+  }
+
   ngOnInit(): void {
+    this.open = true;
     const runsContextSearch = localStorage.getItem('runsContextSearch')
     if (runsContextSearch !== null) {
       this.contextSearch.setValue(runsContextSearch);
@@ -58,12 +61,10 @@ export class RunsComponent implements OnInit {
     } else {
       this.range = RunsComponent.initDates();
     }
-    const localFilters = localStorage.getItem('runs_filters');
-    this.getTests(localFilters !== null ? JSON.parse(localFilters) : []);
+    this.getTests();
   }
 
-  getTests(filters: any[] = []) {
-    this.filters.next(filters);
+  getTests() {
     if (this.range.value.end === null) {
       return;
     }
@@ -72,10 +73,6 @@ export class RunsComponent implements OnInit {
       start: moment(start).startOf('day').unix(),
       end: moment(end).endOf('day').unix()
     }
-    if (filters.length > 0) {
-      requestData['filters'] = filters
-    }
-    localStorage.setItem('runs_filters', JSON.stringify(filters));
     localStorage.setItem('runs_dates', JSON.stringify({start: requestData.start, end: requestData.end}));
     this.loading = true;
     this.testsSub = this.api.post('get_tests', requestData).subscribe(res => {
@@ -104,30 +101,9 @@ export class RunsComponent implements OnInit {
     return moment(time * 1000).format('HH:mm:ss DD.MM');
   }
 
-  removeFilter(filter: any) {
-    const newFilters = this.filters.getValue().filter(f => f.key != filter.key);
-    this.getTests(newFilters);
-  }
-
-  addFilter() {
-    let existedFilters: any[] = this.filters.getValue();
-    existedFilters = existedFilters.filter(f => f.key !== this.filterKey.value)
-    existedFilters.push({
-      key: this.filterKey.value,
-      value: this.filterValue.value,
-    });
-    this.getTests(existedFilters);
-    this.filterKey.setValue(null);
-    this.filterValue.setValue(null);
-  }
-
-  clearAllFilters() {
-    this.getTests();
-  }
-
   filterByContext(text: string) {
     this.showTests.next(this.sourceTests.getValue().filter(test =>
-      Object.keys(test.config).find(k => test.config[k].includes(text)
+      Object.keys(test.config).find(k => test.config[k].toString().includes(text)
         || k.includes(text)
         || test.status.includes(text)
         || (test.start_pretty ? test.start_pretty.includes(text) : false)
@@ -138,7 +114,7 @@ export class RunsComponent implements OnInit {
   searchContext(change: any) {
     if (change.target.value === '') {
       this.showTests.next(this.sourceTests.getValue());
-      localStorage.removeItem("runsContextSearch");
+      localStorage.removeItem('runsContextSearch');
     }
     if (this.searchSub !== null) {
       clearTimeout(this.searchSub);
@@ -146,92 +122,35 @@ export class RunsComponent implements OnInit {
 
     this.searchSub = setTimeout(() => {
       this.filterByContext(change.target.value);
-      localStorage.setItem("runsContextSearch", change.target.value);
+      localStorage.setItem('runsContextSearch', change.target.value);
       this.searchSub = null;
     }, 300);
   }
 
   onTestToggle(test: any): void {
-    if (this.selectedTests.getValue().includes(test.test_id)) {
-      this.selectedTests.next(this.selectedTests.getValue().filter(t => t !== test.test_id));
+    if (this.actionsService.selectedTests.getValue().includes(test.test_id)) {
+      this.actionsService.selectedTests.next(
+        this.actionsService.selectedTests.getValue().filter(t => t !== test.test_id)
+      );
     } else {
-      const selectedTests = this.selectedTests.getValue();
+      const selectedTests = this.actionsService.selectedTests.getValue();
       selectedTests.push(test.test_id);
-      this.selectedTests.next(selectedTests);
+      this.actionsService.selectedTests.next(selectedTests);
     }
   }
 
-  deleteSelectedTests() {
-    this.acceptDialogSub = this.dialog.open(
-      AcceptDialogComponent,
-      {data: new AcceptOptions(`Delete all selected ${this.selectedTests.getValue().length} tests`)}
-    ).afterClosed().subscribe(res => {
-      if (res) {
-        this.deleteTestSub = this.api.post('delete_test', {
-          test_ids: this.selectedTests.getValue()
-        }).subscribe(res => {
-          if (res.status) {
-            this.api.snackMessage('Deletion in progress! It\'s take a while', 3);
-            this.selectedTests.next([]);
-            this.findTests();
-          }
-        });
-      }
-    });
-  }
-
-  openEditModal() {
-    this.editDialogSub = this.dialog.open(
-      EditRunInfoDialogComponent,
-      {data: this.selectedTests.getValue()[0]}
-    ).afterClosed().subscribe(res => {
-      this.selectedTests.next([]);
-      if (res) {
-        this.findTests();
-      }
-    });
-  }
-
   findTests() {
-    this.getTests(this.filters.getValue());
-  }
-
-  openAddKnownIssue() {
-    this.addDialogSub = this.dialog.open(
-      AddKnownIssueComponent,
-      {data: this.selectedTests.getValue()}
-    ).afterClosed().subscribe(res => {
-      this.selectedTests.next([]);
-      if (res) {
-        this.findTests();
-      }
-    });
-  }
-
-  removeKnownIssues() {
-    this.acceptDialogSub = this.dialog.open(
-      AcceptDialogComponent,
-      {data: new AcceptOptions(`Delete known issues for ${this.selectedTests.getValue().length} tests`)}
-    ).afterClosed().subscribe(res => {
-      if (res) {
-        this.removeTestKISub = this.api.post('remove_test_known_issue', {tests_ids: this.selectedTests.getValue()}).subscribe(res => {
-          if (res.status) {
-            this.api.snackMessage("Known issues removed successfully!", 2);
-            this.selectedTests.next([]);
-            this.findTests();
-          }
-        })
-      }
-    })
+    this.getTests();
   }
 
   selectAllShown() {
-    const selectedTests = this.selectedTests.getValue();
+    const selectedTests = this.actionsService.selectedTests.getValue();
     this.showTests.getValue().forEach((test: any) => {
       if (!selectedTests.includes(test.test_id)) {
         selectedTests.push(test.test_id);
       }
     })
-    this.selectedTests.next(selectedTests);
+    this.actionsService.selectedTests.next(selectedTests);
   }
+
 }

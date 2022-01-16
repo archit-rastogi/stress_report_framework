@@ -47,4 +47,11 @@
     </mat-chip>
   </mat-chip-list>
 </div>
+<h3>Pages</h3>
+<div class="section">
+  <mat-form-field class="width">
+    <mat-label>Page property</mat-label>
+    <input matInput [formControl]="pageProperty">
+  </mat-form-field>
+</div>
 <button class="width create" color="primary" mat-button (click)="create()">Create</button>

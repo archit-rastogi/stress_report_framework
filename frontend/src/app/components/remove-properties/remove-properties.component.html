@@ -1,0 +1,17 @@
+<div class="section">
+  <mat-form-field>
+    <mat-label>Key to remove</mat-label>
+    <input matInput [formControl]="key">
+  </mat-form-field>
+  <button mat-button (click)="add()">Add</button>
+</div>
+<div *ngIf="((properties | async) ?? []).length > 0">
+  <div class="width">Keys to remove</div>
+  <mat-chip-list class="width">
+    <mat-chip *ngFor="let property of ((properties | async) ?? [])">
+      {{property}}
+    </mat-chip>
+  </mat-chip-list>
+</div>
+<button mat-button color="primary" class="width" (click)="submit()">Add</button>
+<button mat-button color="warn" class="width" (click)="cancel()">Cancel</button>

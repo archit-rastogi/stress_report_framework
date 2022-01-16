@@ -8,10 +8,13 @@ import {definition as faAngleRight} from '@fortawesome/free-solid-svg-icons/faAn
 import {definition as faFileAlt} from '@fortawesome/free-regular-svg-icons/faFileAlt';
 import {definition as faTimes} from '@fortawesome/free-solid-svg-icons/faTimes';
 import {definition as faPlus} from '@fortawesome/free-solid-svg-icons/faPlus';
+import {definition as faMinus} from '@fortawesome/free-solid-svg-icons/faMinus';
 import {definition as faTrash} from '@fortawesome/free-solid-svg-icons/faTrashAlt';
 import {definition as faSync} from '@fortawesome/free-solid-svg-icons/faSync';
 import {definition as faEdit} from '@fortawesome/free-solid-svg-icons/faEdit';
 import {definition as faCheckDouble} from '@fortawesome/free-solid-svg-icons/faCheckDouble';
+import {definition as faVirus} from '@fortawesome/free-solid-svg-icons/faVirus';
+import {definition as faVirusSlash} from '@fortawesome/free-solid-svg-icons/faVirusSlash';
 
 export const iconsAppInitializer = {
   provide: APP_INITIALIZER,
@@ -26,10 +29,13 @@ export const iconsAppInitializer = {
       faFileAlt,
       faTimes,
       faPlus,
+      faMinus,
       faTrash,
       faSync,
       faEdit,
       faCheckDouble,
+      faVirus,
+      faVirusSlash,
     ];
     const registerFaIcon = (i: IconDefinition) => {
       icons.addSvgIconLiteralInNamespace(

@@ -24,6 +24,8 @@ export class CreateReportComponent implements OnInit {
   filters = new BehaviorSubject<any[]>([]);
   dateRanges = new BehaviorSubject<any[]>([]);
 
+  pageProperty = new FormControl('');
+
   constructor(private api: ApiService,
               private dialogRef: MatDialogRef<CreateReportComponent>) {
   }
@@ -44,6 +46,10 @@ export class CreateReportComponent implements OnInit {
 
     if (this.dateRanges.getValue()) {
       config['dates'] = this.dateRanges.getValue()
+    }
+
+    if (this.pageProperty.value.length > 0) {
+      config['page_property'] = this.pageProperty.value;
     }
 
     this.api.post('add_report', {

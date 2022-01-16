@@ -3,11 +3,12 @@ import logging
 from datetime import datetime
 from json import dumps, loads
 from pathlib import Path
+from random import Random
 from re import sub
 from typing import List
 from uuid import uuid4
 
-from asyncpg import Connection, Record, InterfaceError, connect, UndefinedTableError, ConnectionDoesNotExistError, SerializationError
+from asyncpg import Connection, Record, connect, UndefinedTableError
 
 
 class QueryExecute:
@@ -101,7 +102,8 @@ class QueryExecute:
                            f"values ('{uuid4()}', $1, '{dumps(data)}', '{test_id}')", [m_time])
 
     async def get_test(self, test_id: str):
-        rows = await self.execute(f"select test_id, config, start_time, end_time, status from stress_tests where test_id = '{test_id}'")
+        rows = await self.execute(
+            f"select test_id, config, start_time, end_time, status from stress_tests where test_id = '{test_id}'")
         test = rows[0]
         await self.format_test(test)
         return test
@@ -110,7 +112,8 @@ class QueryExecute:
         filter_condition = ''
         if filters:
             filter_condition += ' and '
-            filter_condition += ' and '.join([f"config->'{f['key']}' is not null and config->>'{f['key']}' ~ '{f['value']}'" for f in filters])
+            filter_condition += ' and '.join(
+                [f"config->'{f['key']}' is not null and config->>'{f['key']}' ~ '{f['value']}'" for f in filters])
         rows = await self.execute('select test_id, config, start_time, end_time, status from stress_tests '
                                   f'where start_time between $1 and $2 {filter_condition} '
                                   'order by start_time desc', [start_date, end_date])
@@ -201,20 +204,69 @@ class QueryExecute:
 
         return rows
 
-    async def update_reports(self, report_id: str, new_config: dict):
+    async def update_report(self, report_id: str, new_config: dict):
         await self.execute(f"update stress_report set config = '{dumps(new_config)}' where report_id = '{report_id}'")
 
     async def find_report_by_name(self, report_name) -> dict:
         rows = await self.execute(f"select name, config, report_id from stress_report where name = '{report_name}'")
-        rows[0]['config'] = loads(rows[0]['config'])
-        return rows[0]
+        if rows:
+            rows[0]['config'] = loads(rows[0]['config'])
+            return rows[0]
+        else:
+            return None
 
     async def format_test(self, case: dict):
         case['start_time'] = case['start_time'].timestamp()
         case['end_time'] = case['end_time'].timestamp() if case.get('end_time') else None
         case['config'] = loads(case['config'])
 
-    async def get_report_cases(self, report_id) -> list[dict]:
+    async def get_pages(self, report_config: dict, page_property='page') -> dict[str, dict[str, int]]:
+        filters_condition = []
+        if filters := report_config.get('filters'):
+            filters_condition.append(
+                ' and '.join(
+                    [f"config->'{f['key']}' is not null and config->>'{f['key']}' ~ '{f['value']}'" for f in filters]
+                )
+            )
+        args = []
+        if dates := report_config.get('dates', []):
+            dates_condition = []
+            for condition_date in dates:
+                dates_condition.append(f'start_time between ${len(args) + 1} and ${len(args) + 2} ')
+                args.append(datetime.fromtimestamp(condition_date['start']))
+                args.append(datetime.fromtimestamp(condition_date['end']))
+            filters_condition.append(f'({"or".join(dates_condition)}) ')
+
+        filters_condition_str = 'and '.join(filters_condition)
+        rows = await self.execute(
+            f"select "
+            f"      count(*), "
+            f"      config->>'{page_property}' as page, "
+            f"      config ->> '{page_property}_order' as page_order, "
+            f"      status "
+            f"from stress_tests "
+            f"{f'where {filters_condition_str}' if filters_condition_str else ''}"
+            f"group by config->>'{page_property}', config ->> '{page_property}_order', status"
+        )
+
+        pages = {}
+        r = Random()
+        for row in rows:
+            try:
+                page_order = int(row['page_order'])
+            except:
+                page_order = r.randint(1, 100)
+            name = row['page']
+            status = row['status']
+            count = row['count']
+            if page := pages.get(name):
+                page['statuses'][status] = page['statuses'].get(status, 0) + count
+                pages[name] = page
+            else:
+                pages[name] = {'order': page_order, 'statuses': {status: count}}
+        return pages
+
+    async def get_report_cases(self, report_id, custom_filters: list[dict[str, str]] = None) -> list[dict]:
         rows = await self.execute(f"select config from stress_report where report_id = '{report_id}'")
         config: dict = loads(rows[0]['config'])
         cases_data = []
@@ -227,11 +279,16 @@ class QueryExecute:
             await self.format_test(case_data)
             cases_data.append(case_data)
 
+        filters = config.get('filters', [])
+        if custom_filters:
+            filters += custom_filters
         filters_condition = []
-        if config.get('filters', []):
+        if filters:
             filters_condition.append(
-                ' and '.join([f"config->'{f['key']}' is not null and config->>'{f['key']}' ~ '{f['value']}'" for f in config.get('filters', [])]))
-
+                ' and '.join(
+                    [f"config->'{f['key']}' is not null and config->>'{f['key']}' {f['comparator'] if f.get('comparator') else '~'} '{f['value']}'" for f in filters]
+                )
+            )
         args = []
         if config.get('dates', []):
             dates_condition = []
@@ -289,7 +346,8 @@ class QueryExecute:
         await self.execute(f"update stress_tests set config = '{dumps(info)}' where test_id = '{test_id}'")
 
     async def update_test_config(self, test_id: str, key: str, value: str):
-        await self.execute(f"update stress_tests set config = jsonb_set(config, '{{{key}}}', '\"{value}\"') where test_id = '{test_id}'")
+        await self.execute(
+            f"update stress_tests set config = jsonb_set(config, '{{{key}}}', '\"{value}\"') where test_id = '{test_id}'")
 
     async def remove_test_config_key(self, test_id: str, key: str):
         found_reports = await self.get_test(test_id)

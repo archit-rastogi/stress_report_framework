@@ -1,10 +1,32 @@
 import {Component, OnDestroy, OnInit} from '@angular/core';
-import {ActivatedRoute} from '@angular/router';
+import {ActivatedRoute, Router} from '@angular/router';
 import {ApiService} from '../../services/api.service';
 import {BehaviorSubject} from 'rxjs';
 import {FormControl} from '@angular/forms';
 import {AcceptDialogComponent, AcceptOptions} from '../../components/accept-dialog/accept-dialog.component';
 import {MatDialog} from '@angular/material/dialog';
+import {AddKnownIssueComponent} from '../../components/add-known-issue/add-known-issue.component';
+import {ActionsService} from '../../services/actions.service';
+
+export class PageData {
+  order: number;
+  statuses: any;
+
+  constructor(order: number, statuses: any) {
+    this.order = order;
+    this.statuses = statuses;
+  }
+}
+
+export class Page {
+  name: string;
+  data: PageData;
+
+  constructor(name: string, data: PageData) {
+    this.name = name;
+    this.data = data;
+  }
+}
 
 @Component({
   selector: 'app-stress-report',
@@ -12,25 +34,38 @@ import {MatDialog} from '@angular/material/dialog';
   styleUrls: ['./stress-report.component.scss']
 })
 export class StressReportComponent implements OnInit, OnDestroy {
+  open = false;
   reportId: string | null = null;
 
   tests = new BehaviorSubject<any[]>([])
   showTests = new BehaviorSubject<any[]>([])
   stats = new BehaviorSubject<any[]>([])
-  selectedTests = new BehaviorSubject<any[]>([]);
+  pages = new BehaviorSubject<Page[]>([]);
+
+  activePage: string | null = null;
   contextSearch = new FormControl('');
   loading = false;
   activeChip = new BehaviorSubject<string>('all');
 
+  private getReportPagesSub: any;
   private excludeTestsSub: any;
   private getReportTestsSub: any;
   private acceptDialogSub: any;
   private deleteTestSub: any;
+
   private searchSub: number | null = null;
 
+  dialogSub: any;
+
   constructor(private activatedRoute: ActivatedRoute,
+              private router: Router,
               private api: ApiService,
-              private dialog: MatDialog) {
+              public actionsService: ActionsService) {
+    actionsService.refresh.subscribe(refresh => {
+      if (refresh && this.open) {
+        this.getReportTests();
+      }
+    })
   }
 
   filterChips(chipName: string) {
@@ -62,15 +97,23 @@ export class StressReportComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
+    this.open = true;
+    this.activePage = null;
     const contextSearchText = localStorage.getItem('reportContextSearch')
     if (contextSearchText !== null) {
       this.contextSearch.setValue(contextSearchText);
     }
     this.reportId = this.activatedRoute.snapshot.paramMap.get('id');
-    this.getReportTests();
+    const params: any = this.activatedRoute.snapshot.url[this.activatedRoute.snapshot.url.length - 1].parameters;
+    if (params.page !== null && params.page !== undefined) {
+      this.setActivePage(params.page);
+    }
+    this.getReportPages();
   }
 
   ngOnDestroy() {
+    this.actionsService.selectedTests.next([]);
+    this.open = false;
     [
       this.excludeTestsSub,
       this.getReportTestsSub,
@@ -80,9 +123,37 @@ export class StressReportComponent implements OnInit, OnDestroy {
     ].forEach((sub: any) => this.api.unsub(sub));
   }
 
+  setActivePage(page: string) {
+    this.activePage = page;
+    this.router.navigate(['stress_report', this.reportId, {page}]);
+  }
+
+  getReportPages() {
+    this.getReportPagesSub = this.api.post('get_report_pages', {name: this.reportId}).subscribe(res => {
+      if (res.status) {
+        if (res.hasOwnProperty('pages') && Object.keys(res.pages).length > 0) {
+          const listPages = Object.keys(res.pages).map(pageName => {
+            return {
+              name: pageName,
+              data: res.pages[pageName]
+            } as Page
+          }).sort((a: any, b: any) => a.data.order - b.data.order);
+          this.pages.next(listPages)
+          if (this.activePage === null) {
+            this.setActivePage(listPages[listPages.length - 1].name)
+          }
+        }
+        this.getReportTests();
+      }
+    })
+  }
+
   getReportTests() {
     this.loading = true;
-    this.getReportTestsSub = this.api.post('get_report_tests', {name: this.reportId}).subscribe(res => {
+    this.getReportTestsSub = this.api.post('get_report_tests', {
+      name: this.reportId,
+      page: this.activePage
+    }).subscribe(res => {
       if (res.status) {
         const tests = res.tests.sort((a: any, b: any) => a.start_time - b.start_time);
         const statuses: any = {};
@@ -114,27 +185,27 @@ export class StressReportComponent implements OnInit, OnDestroy {
   }
 
   isSelected(test: any): boolean {
-    return this.selectedTests.getValue().includes(test.test_id);
+    return this.actionsService.selectedTests.getValue().includes(test.test_id);
   }
 
   testSelected(test: any) {
-    const selected = this.selectedTests.getValue();
+    const selected = this.actionsService.selectedTests.getValue();
     if (this.isSelected(test)) {
-      this.selectedTests.next(selected.filter(t => t !== test.test_id));
+      this.actionsService.selectedTests.next(selected.filter(t => t !== test.test_id));
     } else {
       selected.push(test.test_id);
-      this.selectedTests.next(selected);
+      this.actionsService.selectedTests.next(selected);
     }
   }
 
   excludeTests() {
     this.excludeTestsSub = this.api.post('add_exclude_tests', {
-      tests: this.selectedTests.getValue(),
+      tests: this.actionsService.selectedTests.getValue(),
       name: this.reportId
     }).subscribe(res => {
       if (res.status) {
-        this.api.snackMessage(`${this.selectedTests.getValue().length} tests excluded from report!`, 2);
-        this.selectedTests.next([]);
+        this.api.snackMessage(`${this.actionsService.selectedTests.getValue().length} tests excluded from report!`, 2);
+        this.actionsService.selectedTests.next([]);
         this.getReportTests();
       }
     })
@@ -151,7 +222,7 @@ export class StressReportComponent implements OnInit, OnDestroy {
 
   testContainedText(test: any, text: string): boolean {
     return !!Object.keys(test.config)
-      .find(k => test.config[k].includes(text)
+      .find(k => test.config[k].toString().includes(text)
         || k.includes(text)
         || test.status.includes(text)
         || (test.start_pretty ? test.start_pretty.includes(text) : false)
@@ -188,32 +259,18 @@ export class StressReportComponent implements OnInit, OnDestroy {
   }
 
 
-  deleteSelectedTests() {
-    this.acceptDialogSub = this.dialog.open(
-      AcceptDialogComponent,
-      {data: new AcceptOptions(`Delete all selected ${this.selectedTests.getValue().length} tests`)}
-    ).afterClosed().subscribe(res => {
-      if (res) {
-        this.deleteTestSub = this.api.post('delete_test', {
-          test_ids: this.selectedTests.getValue()
-        }).subscribe(res => {
-          if (res.status) {
-            this.api.snackMessage('Deletion in progress! It\'s take a while', 3);
-            this.selectedTests.next([]);
-            this.getReportTests();
-          }
-        });
-      }
-    });
-  }
-
   selectAllShown() {
-    const selectedTests = this.selectedTests.getValue();
+    const selectedTests = this.actionsService.selectedTests.getValue();
     this.showTests.getValue().forEach((test: any) => {
       if (!selectedTests.includes(test.test_id)) {
         selectedTests.push(test.test_id);
       }
     })
-    this.selectedTests.next(selectedTests);
+    this.actionsService.selectedTests.next(selectedTests);
+  }
+
+  onSelectPage(page: Page) {
+    this.setActivePage(page.name);
+    this.getReportTests();
   }
 }

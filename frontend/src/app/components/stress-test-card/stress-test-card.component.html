@@ -12,10 +12,18 @@
       <div class="time">{{ getTimeFormat() }}</div>
       <div class="time">{{ getTimeDiff() }}</div>
       <div class="status-wrapper">
-        <button mat-button class="status" [ngStyle]="getStatusStyle(test.status)" (click)="openException()">{{test.status}}</button>
+        <button mat-button class="status" [ngStyle]="getStatusStyle(test.status)"
+                (click)="openException()">{{test.status}}</button>
       </div>
     </div>
   </mat-card-title-group>
+  <mat-card-actions *ngIf="test.config.hasOwnProperty('known_issues')">
+    <span class="ki-text">Known issues</span>
+    <ng-container *ngFor="let ki of test.config.known_issues.split(',')">
+      <br/>
+      <button mat-button (click)="openLink(ki)">{{ki}}</button>
+    </ng-container>
+  </mat-card-actions>
 </mat-card>
 <ng-container *ngFor="let exception of ((exceptions | async) ?? [])">
   <h3>{{ exception.name }}</h3>

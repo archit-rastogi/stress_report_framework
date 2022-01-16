@@ -22,6 +22,8 @@ export class EditReportComponent implements OnInit {
     end: new FormControl()
   })
 
+  pageProperty = new FormControl('');
+
   filters = new BehaviorSubject<any[]>([]);
   dateRanges = new BehaviorSubject<any[]>([]);
   excludedTests = new BehaviorSubject<any[]>([]);
@@ -41,6 +43,9 @@ export class EditReportComponent implements OnInit {
     }
     if (this.report.config.hasOwnProperty('dates')) {
       this.dateRanges.next(this.report.config.dates);
+    }
+    if (this.report.config.hasOwnProperty('page_property')) {
+      this.pageProperty.setValue(this.report.config.page_property);
     }
     this.getExcludedTestsSub = this.api.post('get_excluded_tests', {report_id: this.report.report_id}).subscribe(res => {
       if (res.status) {
@@ -85,6 +90,9 @@ export class EditReportComponent implements OnInit {
     this.report.config['filters'] = this.filters.getValue();
     this.report.config['dates'] = this.dateRanges.getValue();
     this.report.config['excludes'] = this.excludedTests.getValue().map(t => t.test_id);
+    if (this.pageProperty.value.length > 0) {
+      this.report.config['page_property'] = this.pageProperty.value;
+    }
     this.updateReportSub = this.api.post('update_report', {
       config: this.report.config,
       report_id: this.report.report_id

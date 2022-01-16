@@ -59,5 +59,12 @@
       [test]="exclude"
       *ngFor="let exclude of excludedTests | async"></app-stress-test-card>
   </div>
+  <h3>Pages</h3>
+  <div class="section flex">
+    <mat-form-field>
+      <mat-label>Page property</mat-label>
+      <input matInput [formControl]="pageProperty">
+    </mat-form-field>
+  </div>
   <button mat-button class="update width" color="primary" (click)="update()">Update</button>
 </div>

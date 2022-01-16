@@ -118,14 +118,60 @@ class MainModule(AbstractModule):
     @request_handler()
     async def get_report_tests(self, params: dict):
         name = params['name']
+        selected_page = params.get('page')
         report = await self.db.find_report_by_name(name)
-        return {'tests': await self.db.get_report_cases(report['report_id'])}
+        filters = []
+        if page_property := report['config'].get('page_property'):
+            if (pages := report['config'].get('pages', None)) is None:
+                return {'tests': [], 'wait_pages': True}
+            elif pages:
+                if selected_page in pages.keys():
+                    filters.append({
+                        'key': page_property,
+                        'value': selected_page,
+                        'comparator': '='
+                    })
+                else:
+                    pages_list = [[k, v]for k, v in pages.items()]
+                    sorted_pages_list = sorted(pages_list, key=lambda k: k[1]['order'])
+                    filters.append({
+                        'key': page_property,
+                        'value': sorted_pages_list[-1][0],
+                        'comparator': '='
+                    })
+        return {'tests': await self.db.get_report_cases(report['report_id'], custom_filters=filters)}
+
+    @request_handler()
+    async def get_report_pages(self, params: dict):
+        update_pages_every = 1
+        name = params['name']
+        report = await self.db.find_report_by_name(name)
+        if not report:
+            return {'status': False, 'reason': 'Failed to find report'}
+
+        config = report['config']
+
+        if page_property := config.get('page_property'):
+            last_update = config.get('update_pages')
+            if last_update is None:
+                update_pages = True
+            else:
+                update_pages = (datetime.now().timestamp() - last_update) > update_pages_every
+            if update_pages:
+                pages = await self.db.get_pages(report['config'], page_property=page_property)
+                config['pages'] = pages
+                config['update_pages'] = datetime.now().timestamp()
+                await self.db.update_report(report['report_id'], config)
+                return {'pages': pages}
+            else:
+                return {'pages': config['pages']}
+
 
     @request_handler()
     async def update_report(self, params: dict):
         new_config = params['config']
         report_id = params['report_id']
-        await self.db.update_reports(report_id, new_config)
+        await self.db.update_report(report_id, new_config)
 
     @request_handler()
     async def add_exclude_tests(self, params: dict):
@@ -134,7 +180,7 @@ class MainModule(AbstractModule):
         report = await self.db.find_report_by_name(name)
         config = report['config']
         config['excludes'] = config.get('excludes', []) + tests
-        await self.db.update_reports(report['report_id'], config)
+        await self.db.update_report(report['report_id'], config)
 
     @request_handler()
     async def get_excluded_tests(self, params: dict):
@@ -212,3 +258,24 @@ class MainModule(AbstractModule):
     async def remove_test_known_issue(self, params: dict):
         for test_id in params['tests_ids']:
             await self.db.remove_test_config_key(test_id, 'known_issues')
+
+    @request_handler()
+    async def add_test_properties(self, params: dict):
+        test_ids: list[str] = params['test_ids']
+        properties: list[dict[str, str]] = params['properties']
+        for test_id in test_ids:
+            test = await self.db.get_test(test_id)
+            for entry in properties:
+                test['config'][entry['key']] = entry['value']
+            await self.db.edit_test_info(test['config'], test_id)
+
+    @request_handler()
+    async def remove_test_properties(self, params: dict):
+        test_ids: list[str] = params['test_ids']
+        properties: list[str] = params['properties']
+        for test_id in test_ids:
+            test = await self.db.get_test(test_id)
+            for k in properties:
+                if test['config'].get(k) is not None:
+                    del test['config'][k]
+            await self.db.edit_test_info(test['config'], test_id)
