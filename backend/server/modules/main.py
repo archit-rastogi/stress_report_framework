@@ -143,7 +143,7 @@ class MainModule(AbstractModule):
 
     @request_handler()
     async def get_report_pages(self, params: dict):
-        update_pages_every = 1
+        update_pages_every = 60 * 4
         name = params['name']
         report = await self.db.find_report_by_name(name)
         if not report:

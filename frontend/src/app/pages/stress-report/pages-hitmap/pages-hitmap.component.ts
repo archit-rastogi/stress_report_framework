@@ -33,8 +33,8 @@ export class PagesHitmapComponent implements OnInit {
     }
     const pageNames: string[] = []
     let rows = 1;
-    const rowMax = 10
-    let x = -1
+    const rowMax = this.pages.length < 7 ? this.pages.length : 7;
+    let x = -1;
     this.pageCoord = [];
     const data = this.pages
       .sort((a: Page, b: Page) => a.data.order - b.data.order)
@@ -52,8 +52,11 @@ export class PagesHitmapComponent implements OnInit {
         }
 
         this.pageCoord.push([x, rows - 1, page]);
-        return [x, rows - 1, Math.round(failedCount/passedCount * 100)]
+        const failedState = failedCount/passedCount * 100;
+        console.log(failedState);
+        return [x, rows - 1, Math.round(failedCount == 0 && passedCount == 0 ? 0 : failedState)]
       });
+    console.log(data);
     this.options.next({
       tooltip: {
         position: 'bottom',
@@ -100,7 +103,10 @@ export class PagesHitmapComponent implements OnInit {
         orient: 'horizontal',
         left: 'center',
         inRange : {
-          color: ['rgba(8,178,0,0.6)', 'rgba(190,0,0,0.6)' ]
+          color: [
+            'rgba(4,141,0,0.6)',
+            'rgba(155,0,0,0.6)'
+          ]
         },
         borderWidth: 0
       },
