@@ -14,7 +14,6 @@ export class StressStepsComponent implements OnInit {
   chartOptions = new Subject<echarts.EChartsOption>();
   @Input() testId: string | undefined | null;
   steps = new BehaviorSubject<any[]>([]);
-  minTime = 0;
   getStepsSub: any;
 
   openedSteps = new BehaviorSubject<any[]>([]);
@@ -40,7 +39,8 @@ export class StressStepsComponent implements OnInit {
     new Set(newSteps.map(step => step.properties.name)).forEach(i => {
       categories.push(i);
     })
-    categories = categories.sort((a: any, b: any) => a.localeCompare(b));
+    const findTime = (name: string) => newSteps.find(s => s.properties.name === name).start_time
+    categories = categories.sort((a: string, b: string) => findTime(b) - findTime(a));
 
     let lowestTime = +new Date() + 10000;
     let highest = 0;

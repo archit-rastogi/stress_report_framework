@@ -53,10 +53,8 @@ export class PagesHitmapComponent implements OnInit {
 
         this.pageCoord.push([x, rows - 1, page]);
         const failedState = failedCount/passedCount * 100;
-        console.log(failedState);
         return [x, rows - 1, Math.round(failedCount == 0 && passedCount == 0 ? 0 : failedState)]
       });
-    console.log(data);
     this.options.next({
       tooltip: {
         position: 'bottom',
