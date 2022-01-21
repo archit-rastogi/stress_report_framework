@@ -132,13 +132,21 @@ class MainModule(AbstractModule):
                         'comparator': '='
                     })
                 else:
-                    pages_list = [[k, v]for k, v in pages.items()]
-                    sorted_pages_list = sorted(pages_list, key=lambda k: k[1]['order'])
-                    filters.append({
-                        'key': page_property,
-                        'value': sorted_pages_list[-1][0],
-                        'comparator': '='
-                    })
+                    pages = await self._update_report(report)
+                    if selected_page in pages.keys():
+                        filters.append({
+                            'key': page_property,
+                            'value': selected_page,
+                            'comparator': '='
+                        })
+                    else:
+                        pages_list = [[k, v] for k, v in pages.items()]
+                        sorted_pages_list = sorted(pages_list, key=lambda k: k[1]['order'])
+                        filters.append({
+                            'key': page_property,
+                            'value': sorted_pages_list[-1][0],
+                            'comparator': '='
+                        })
         return {'tests': await self.db.get_report_cases(report['report_id'], custom_filters=filters)}
 
     @request_handler()
@@ -151,21 +159,24 @@ class MainModule(AbstractModule):
 
         config = report['config']
 
-        if page_property := config.get('page_property'):
+        if config.get('page_property'):
             last_update = config.get('update_pages')
             if last_update is None:
                 update_pages = True
             else:
                 update_pages = (datetime.now().timestamp() - last_update) > update_pages_every
             if update_pages:
-                pages = await self.db.get_pages(report['config'], page_property=page_property)
-                config['pages'] = pages
-                config['update_pages'] = datetime.now().timestamp()
-                await self.db.update_report(report['report_id'], config)
-                return {'pages': pages}
+                return {'pages': await self._update_report(report)}
             else:
                 return {'pages': config['pages']}
 
+    async def _update_report(self, report: dict) -> dict[str, dict[str, int]]:
+        config = report['config']
+        pages = await self.db.get_pages(config, page_property=config['page_property'])
+        config['pages'] = pages
+        config['update_pages'] = datetime.now().timestamp()
+        await self.db.update_report(report['report_id'], config)
+        return pages
 
     @request_handler()
     async def update_report(self, params: dict):
