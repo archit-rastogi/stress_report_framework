@@ -15,6 +15,8 @@ export class PagesHitmapComponent implements OnInit {
   options = new BehaviorSubject<EChartsOption>({} as EChartsOption);
   pageCoord: any[] = [];
 
+  maxRowWidth = 7;
+
   constructor() {
   }
 
@@ -33,7 +35,7 @@ export class PagesHitmapComponent implements OnInit {
     }
     const pageNames: string[] = []
     let rows = 1;
-    const rowMax = this.pages.length < 7 ? this.pages.length : 7;
+    const rowMax = this.pages.length < this.maxRowWidth ? this.pages.length : this.maxRowWidth;
     let x = -1;
     this.pageCoord = [];
     const data = this.pages
@@ -44,7 +46,7 @@ export class PagesHitmapComponent implements OnInit {
         if (!pageNames.includes(page.name)) {
           pageNames.push(page.name);
         }
-        if (x > rowMax) {
+        if (x == rowMax - 1) {
           rows++;
           x = 0;
         } else {
@@ -133,7 +135,7 @@ export class PagesHitmapComponent implements OnInit {
 
   getHeight() {
     return {
-      height: this.pages === null ? '30px' : this.pages.length > 10 ? '100px' : '30px'
+      height: this.pages === null ? '30px' : this.pages.length > this.maxRowWidth ? `${Math.ceil(this.pages.length/this.maxRowWidth) * 30}px` : '30px'
     };
   }
 
