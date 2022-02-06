@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"fmt"
 	"github.com/google/uuid"
+	"log"
 	"time"
 )
 
@@ -63,4 +64,30 @@ func dbRemoveFile(name string) error {
 	}
 	_, err = connection.Exec("DELETE FROM FILES WHERE name = $1", name)
 	return err
+}
+
+func dbGetAttachmentsBatch(attachmentId string, pattern string) ([][]string, error) {
+	err := checkConnection()
+	var result [][]string
+	if err != nil {
+		return result, err
+	}
+	rows, err := connection.Query("select source, name from attachments where type = 'file' and name ~ $1 and test_id = $2;", pattern, attachmentId)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer rows.Close()
+	for rows.Next() {
+		var source string
+		var name string
+		err = rows.Scan(&source, &name)
+		if err != nil {
+			return result, err
+		}
+		var row []string
+		row = append(row, source)
+		row = append(row, name)
+		result = append(result, row)
+	}
+	return result, nil
 }

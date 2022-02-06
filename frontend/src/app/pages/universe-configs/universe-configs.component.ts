@@ -32,7 +32,7 @@ export class UniverseConfigsComponent implements OnInit {
   getConfigs() {
     this.getUniverseConfigsSub = this.api.post('get_universe_configs', {}).subscribe(res => {
       if (res.status) {
-        this.configs.next(res.configs);
+        this.configs.next(res.configs.sort((a: any, b: any) => a.name.localeCompare(b.name)));
       }
     })
   }

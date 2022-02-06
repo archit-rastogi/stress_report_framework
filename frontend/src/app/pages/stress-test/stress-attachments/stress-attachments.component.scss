@@ -26,6 +26,10 @@
   }
 }
 
-.flex {
+.actions {
   display: flex;
+  background-color: rgba(255, 0, 22, 0.05);
+  justify-content: right;
+  padding: 10px;
+  margin-left: auto;
 }

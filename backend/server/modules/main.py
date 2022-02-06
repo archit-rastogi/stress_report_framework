@@ -99,10 +99,34 @@ class MainModule(AbstractModule):
         test_id = params['test_id']
         return {'metrics': await self.db.get_metrics(test_id)}
 
+    async def _set_value(self, ats: list, key, value, previous_key: str):
+        key_path = key.split('/')
+        if len(key_path) == 1:
+            ats.append(value)
+            return ats
+        else:
+            first_key = key_path[0]
+            found_at = [at for at in ats if at["name"] == first_key]
+            if found_at:
+                found_at[0]["children"] = await self._set_value(
+                    found_at[0]["children"], '/'.join(key_path[1:]), value, first_key
+                )
+            else:
+                ats.append({
+                    "name": key_path[0],
+                    'source_key': f'{previous_key}{first_key}',
+                    "children": await self._set_value([], '/'.join(key_path[1:]), value, f'{first_key}/')
+                })
+            return ats
+
     @request_handler()
     async def get_attachments(self, params: dict):
         test_id = params['test_id']
-        return {'attachments': await self.db.get_attachments(test_id)}
+        attachments = await self.db.get_attachments(test_id)
+        result = []
+        for attachment in attachments:
+            await self._set_value(result, attachment['name'], attachment, "")
+        return {'attachments': result}
 
     @request_handler()
     async def add_report(self, params: dict):
@@ -254,10 +278,26 @@ class MainModule(AbstractModule):
             'results': await self.db.get_results(test_id)
         }
 
+    async def _get_attachments_data(self, attachments: list[dict]):
+        result = []
+        for attachment in attachments:
+            if attachment.get('attachment_id'):
+                result.append(attachment)
+            else:
+                result.extend(await self._get_attachments_data(attachment['children']))
+        added_id = []
+        clean_result = []
+        for result_attachment in result:
+            if result_attachment['attachment_id'] not in added_id:
+                added_id.append(result_attachment['attachment_id'])
+                clean_result.append(result_attachment)
+        return clean_result
+
     @request_handler()
     async def delete_attachments(self, params: dict):
         attachments = params['attachments']
-        for attachment in attachments:
+        attachments_list = await self._get_attachments_data(attachments)
+        for attachment in attachments_list:
             await self.remove_file(attachment['source'])
 
     @request_handler()

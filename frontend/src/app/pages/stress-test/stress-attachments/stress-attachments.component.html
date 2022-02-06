@@ -1,7 +1,31 @@
 <div class="container">
-  <div class="flex" *ngIf="((attachmentsSync.selectedAttachments | async) ?? []).length > 0">
-    <button mat-button color="warn" (click)="delete()">Delete selected attachment</button>
-    <button mat-button (click)="cancelSelection()">Cancel</button>
+  <div class="actions">
+    <button mat-button (click)="downloadAll()"
+            matTooltip="Download all"
+            matTooltipShowDelay="300">
+      <mat-icon svgIcon="fas:file-archive"></mat-icon>
+    </button>
+    <button mat-button color="warn" *ngIf="attachmentsExists()"
+            matTooltip="Delete selected files"
+            matTooltipShowDelay="300"
+            (click)="delete()">
+      <mat-icon svgIcon="fas:trash-alt"></mat-icon>
+    </button>
+    <button mat-button *ngIf="attachmentsExists()"
+            matTooltip="Cancel selection"
+            matTooltipShowDelay="300"
+            (click)="cancelSelection()">
+      <mat-icon svgIcon="fas:times"></mat-icon>
+    </button>
+    <button mat-button *ngIf="attachmentsExists()"
+            matTooltip="Download archive (last selected)"
+            matTooltipShowDelay="300"
+            (click)="downloadLastSelectedItem()">
+      <mat-icon svgIcon="fas:download"></mat-icon>
+    </button>
   </div>
-  <app-stress-attachment-item [name]="'Attachments'" [parentItem]="true" [attachments]="(attachments | async) ?? []"></app-stress-attachment-item>
+  <ng-container *ngIf="(attachments | async) ?? []">
+    <app-stress-attachment-item *ngFor="let attachment of (attachments | async) ?? []" [attachment]="attachment">
+    </app-stress-attachment-item>
+  </ng-container>
 </div>

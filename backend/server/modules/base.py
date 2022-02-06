@@ -85,6 +85,6 @@ class AbstractModule:
                 new_doc[k] = v
         return new_doc
 
-    async def remove_file(self, file_id):
-        res = post(f"http://{self.config.files_url}/files/remove?name={file_id}")
+    async def remove_file(self, source):
+        res = post(f"http://{self.config.files_url}/files/remove?name={source}")
         return res.status_code == 200

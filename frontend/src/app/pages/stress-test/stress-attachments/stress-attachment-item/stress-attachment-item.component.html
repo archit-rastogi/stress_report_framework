@@ -1,26 +1,19 @@
-<button mat-button (click)="clickBlock ? null : open = !open" class="opener width">
-  <mat-icon [svgIcon]="open ? 'fas:angle-down' : 'fas:angle-right'"></mat-icon>
-  {{name}}
+<button mat-button
+        [ngStyle]="getStyle()"
+        (click)="isRealAttachment() ? openAttachment() : open = !open"
+        (contextmenu)="selectAttachment($event)"
+        class="opener width">
+  <mat-icon *ngIf="!isRealAttachment()" [svgIcon]="open ? 'fas:angle-down' : 'fas:angle-right'"></mat-icon>
+  <mat-icon *ngIf="isRealAttachment()" svgIcon="far:file-alt"></mat-icon>
+  {{attachment.prettyName}}
+  <mat-icon *ngIf="isRealAttachment() && attachment.file_id === null"
+            matTooltip="File deleted"
+            svgIcon="fas:trash-alt"></mat-icon>
 </button>
 <ng-container *ngIf="open">
   <ul>
     <app-stress-attachment-item
-      [name]="parent.name"
-      [attachments]="parent.parents"
-      *ngFor="let parent of parents | async"
-    ></app-stress-attachment-item>
-    <button mat-button
-            *ngIf="((attachmentsSync.selectedAttachments | async) ?? []).length > 0"
-            (click)="selectAllList()"
-            color="primary">Select all list</button>
-    <button class="width attachment" mat-button
-            [ngStyle]="getStyle(item)"
-            (click)="openAttachment(item)"
-            *ngFor="let item of items | async"
-            (contextmenu)="selectAttachment($event, item)">
-      <mat-icon svgIcon="far:file-alt"></mat-icon>
-      {{item.name}}
-      <mat-icon *ngIf="item.file_id === null" svgIcon="fas:trash-alt"></mat-icon>
-    </button>
+      *ngFor="let attach of attachment.children"
+      [attachment]="attach"></app-stress-attachment-item>
   </ul>
 </ng-container>

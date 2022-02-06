@@ -27,7 +27,7 @@ def dict_through(tree):
 
 r = Random()
 
-add_files = False
+add_files = True
 
 base_url = 'http://localhost:9999/back'
 
@@ -38,7 +38,7 @@ def handle_res(_res):
 
 all_steps_names = [f'Step #{i}' for i in range(15)]
 
-for page_ord, page in enumerate([f'day {i}' for i in range(30)]):
+for page_ord, page in enumerate([f'day {i}' for i in range(2)]):
     for i in range(r.randint(1, 10)):
         print(f"insert test {i}")
         test_config = {

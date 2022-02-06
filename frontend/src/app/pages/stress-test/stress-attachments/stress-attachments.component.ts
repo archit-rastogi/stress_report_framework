@@ -1,6 +1,6 @@
 import {Component, Input, OnInit} from '@angular/core';
 import {ApiService} from '../../../services/api.service';
-import {Subject} from 'rxjs';
+import {BehaviorSubject, Subject} from 'rxjs';
 import {AttachmentsSyncService} from './services/attachments.service';
 import {MatDialog} from '@angular/material/dialog';
 import {AcceptDialogComponent, AcceptOptions} from '../../../components/accept-dialog/accept-dialog.component';
@@ -13,7 +13,7 @@ import {AcceptDialogComponent, AcceptOptions} from '../../../components/accept-d
 export class StressAttachmentsComponent implements OnInit {
 
   @Input() testId: string | undefined | null;
-  attachments = new Subject<Array<any>>();
+  attachments = new BehaviorSubject<Array<any>>([]);
   show = new Subject<boolean>();
   getAttachmentsSub: any;
   deleteAttachmentSub: any;
@@ -55,10 +55,23 @@ export class StressAttachmentsComponent implements OnInit {
         });
       }
     })
-
   }
 
   cancelSelection() {
     this.attachmentsSync.selectedAttachments.next([]);
+  }
+
+  attachmentsExists() {
+    return this.attachmentsSync.selectedAttachments.getValue().length > 0;
+  }
+
+  downloadAll() {
+    window.open(`${this.api.getBaseLink()}/files/build_archive?test_id=${this.testId}&pattern=.+`, '_blank')
+  }
+
+  downloadLastSelectedItem() {
+    const at = this.attachmentsSync.selectedAttachments.getValue()[this.attachmentsSync.selectedAttachments.getValue().length - 1]
+    const pattern = at.hasOwnProperty('source_key') ? `${at.source_key}/.+` : at.name;
+    window.open(`${this.api.getBaseLink()}/files/build_archive?test_id=${this.testId}&pattern=${pattern}`, '_blank')
   }
 }

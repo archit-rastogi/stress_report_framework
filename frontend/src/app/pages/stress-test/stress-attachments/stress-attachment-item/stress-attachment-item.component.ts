@@ -1,5 +1,4 @@
 import {Component, Input, OnChanges, OnInit} from '@angular/core';
-import {BehaviorSubject} from 'rxjs';
 import {ApiService} from '../../../../services/api.service';
 import {AttachmentsSyncService} from '../services/attachments.service';
 
@@ -10,93 +9,45 @@ import {AttachmentsSyncService} from '../services/attachments.service';
 })
 export class StressAttachmentItemComponent implements OnInit, OnChanges {
 
-  @Input() attachments: Array<any> | undefined
-  @Input() name: string | undefined;
-  @Input() parentItem: boolean | undefined;
+  @Input() attachment: any | undefined
 
   open = false;
-  items = new BehaviorSubject<Array<any>>([]);
-  parents = new BehaviorSubject<Array<any>>([]);
-  clickBlock = false;
 
   constructor(private api: ApiService,
               public attachmentsSync: AttachmentsSyncService) {
   }
 
   ngOnChanges(changes: any) {
-    this.setData();
+    this.open = false;
   }
 
   ngOnInit(): void {
-    this.clickBlock = false;
-  }
-
-  setData() {
+    const nameParts = this.attachment.name.split("/")
+    this.attachment.prettyName = nameParts[nameParts.length - 1]
     this.open = false;
-    const items: any[] = [];
-    const toParents: any[] = [];
-    this.attachments?.forEach(attachment => {
-      const newAttachment = Object.assign({}, attachment);
-      const attachmentName = newAttachment.name;
-      if (attachmentName.includes('/')) {
-        newAttachment.parentName = attachmentName.slice(0, attachmentName.indexOf('/'));
-        newAttachment.name = attachmentName.slice(attachmentName.indexOf('/') + 1);
-        toParents.push(newAttachment);
-      } else {
-        items.push(newAttachment)
-      }
-    });
-    const parents: any = {}
-    toParents.forEach(toParent => {
-      if (Object.keys(parents).includes(toParent.parentName)) {
-        parents[toParent.parentName].push(toParent);
-      } else {
-        parents[toParent.parentName] = [toParent]
-      }
-    });
-    this.items.next(items);
-    this.parents.next(Object.keys(parents)
-      .sort((a: string, b: string) => a.localeCompare(b))
-      .map(k => {
-        return {name: k, parents: parents[k]}
-      }));
   }
 
-  openAttachment(item: any) {
-    if (!this.clickBlock) {
-      window.open(`${this.api.getBaseLink()}/files/get?name=${item.source}`, '_blank')
-    }
+  isRealAttachment() {
+    return !this.attachment.hasOwnProperty('children')
   }
 
-  selectAttachment(event: Event, attachment: any) {
+  openAttachment() {
+    window.open(`${this.api.getBaseLink()}/files/get?name=${this.attachment.source}`, '_blank')
+  }
+
+  selectAttachment(event: Event) {
     event.preventDefault();
     const oldSelected = this.attachmentsSync.selectedAttachments.getValue();
-    if (oldSelected.map(os => os.attachment_id).includes(attachment.attachment_id)) {
-      this.attachmentsSync.selectedAttachments.next(oldSelected.filter(selectedId => selectedId.attachment_id !== attachment.attachment_id));
+    if (oldSelected.map(os => os.name).includes(this.attachment.name)) {
+      this.attachmentsSync.selectedAttachments.next(oldSelected.filter(selectedId => selectedId.name !== this.attachment.name));
     } else {
-      oldSelected.push(attachment);
+      oldSelected.push(this.attachment);
       this.attachmentsSync.selectedAttachments.next(oldSelected);
     }
   }
 
-  getStyle(item: any) {
-    return this.attachmentsSync.selectedAttachments.getValue().map(os => os.attachment_id).includes(item.attachment_id) ? {backgroundColor: 'rgba(5, 0, 255, 0.2)'} : {};
-  }
-
-  selectAllList() {
-    const items = this.items.getValue()
-    const selected = this.attachmentsSync.selectedAttachments.getValue();
-    const itemsIds = items.map(i => i.attachment_id)
-    const selectedIds = selected.map(os => os.attachment_id)
-    if (selectedIds.filter(atId => itemsIds.includes(atId)).length > 0 && selected.length > 1) {
-      this.attachmentsSync.selectedAttachments.next(selected.filter(os => !itemsIds.includes(os.attachment_id)))
-    } else {
-      items.forEach(i => {
-        if (!selectedIds.includes(i.attachment_id)) {
-          selected.push(i);
-        }
-      });
-      this.attachmentsSync.selectedAttachments.next(selected);
-    }
+  getStyle() {
+    const contain = this.attachmentsSync.selectedAttachments.getValue().map(sa => sa.name).includes(this.attachment.name);
+    return contain ? {backgroundColor: 'rgba(5, 0, 255, 0.2)'} : {};
   }
 }
