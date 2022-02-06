@@ -60,18 +60,22 @@ func collectArchive(taskId string, pattern string, testId string) {
 		attachmentName := file[1]
 		zipFileName := fmt.Sprintf("%s.xz", fileName)
 		fillZipFilePath := getAbsoluteFilePath(zipFileName)
+
+		zipFilePath := "archive/"
+		clearAttachmentName := strings.ReplaceAll(attachmentName, " ", "_")
+		parts := strings.Split(attachmentName, "/")
+		lastPart := parts[len(parts)-1]
+		if strings.Contains(fileName, lastPart) {
+			zipFilePath = zipFilePath + clearAttachmentName
+		} else {
+			zipFilePath = zipFilePath + fmt.Sprintf("%s/%s", clearAttachmentName, fileName)
+		}
+
 		readBytes, err := ioutil.ReadFile(fillZipFilePath)
 		if err != nil {
 			continue
 		}
 
-		zipFilePath := "archive/"
-		clearAttachmentName := strings.ReplaceAll(attachmentName, " ", "_")
-		if strings.Contains(attachmentName, fileName) {
-			zipFilePath = zipFilePath + clearAttachmentName
-		} else {
-			zipFilePath = zipFilePath + fmt.Sprintf("%s/%s", clearAttachmentName, fileName)
-		}
 		zipFileWriter, err := zipWriter.Create(zipFilePath)
 		readBuffer := bytes.NewBuffer(readBytes)
 		xzReader, err := xz.NewReader(readBuffer)
