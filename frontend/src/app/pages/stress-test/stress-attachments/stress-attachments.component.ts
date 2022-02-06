@@ -71,7 +71,7 @@ export class StressAttachmentsComponent implements OnInit {
 
   downloadLastSelectedItem() {
     const at = this.attachmentsSync.selectedAttachments.getValue()[this.attachmentsSync.selectedAttachments.getValue().length - 1]
-    const pattern = at.hasOwnProperty('source_key') ? `${at.source_key}/.+` : at.name;
+    const pattern = at.hasOwnProperty('source_key') ? `${at.source_key}/` : at.name;
     window.open(`${this.api.getBaseLink()}/files/build_archive?test_id=${this.testId}&pattern=${pattern}`, '_blank')
   }
 }

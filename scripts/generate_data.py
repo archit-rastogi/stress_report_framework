@@ -132,7 +132,7 @@ for page_ord, page in enumerate([f'day {i}' for i in range(2)]):
 
         if add_files:
             for a in range(r.randint(10, 30)):
-                path = choice(["a/s/d/f/", 'a/s/d/', 'a/s/', 'a/', ''])
+                path = choice(["a/s/d asd asd/f/", 'a/sasd asd/d/', 'a/asd s/', 'a/', ''])
                 file_name = f'{str(uuid4())}-test.log'
                 print(f'add file {file_name}')
                 file_add_res = post("http://localhost:9998/files/add", files={
