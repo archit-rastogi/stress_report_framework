@@ -97,10 +97,6 @@ func get(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		if len(realName) > 37 && string(realName[36]) == "-" {
-			realName = realName[37:]
-		}
-		w.Header().Add("Content-Disposition", fmt.Sprintf("attachment;filename=%s", realName))
 		_, err = io.Copy(w, xzReader)
 		if err != nil {
 			response(w, 500, "Failed to write file in ")
