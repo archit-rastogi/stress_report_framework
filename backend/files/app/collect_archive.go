@@ -51,7 +51,7 @@ func collectArchive(taskId string, pattern string, testId string) {
 	runningCollectTasks[taskId] = task
 	task = runningCollectTasks[taskId]
 
-	archiveFilePath := fmt.Sprintf("%s/%s.tar", tempDir, taskId)
+	archiveFilePath := fmt.Sprintf("%s/%s.zip", tempDir, taskId)
 	createArchiveWriter, err := os.Create(archiveFilePath)
 	zipWriter := zip.NewWriter(createArchiveWriter)
 
@@ -96,51 +96,7 @@ func collectArchive(taskId string, pattern string, testId string) {
 	zipWriter.Close()
 	createArchiveWriter.Close()
 
-	var compressedBytes bytes.Buffer
-	writer, err := xz.NewWriter(&compressedBytes)
-	defer writer.Close()
-	if err != nil {
-		task.Failed = true
-		task.FailedReason = fmt.Sprintf("Failed to create compress writer\n%v", err)
-		runningCollectTasks[taskId] = task
-		os.Remove(archiveFilePath)
-		return
-	}
-
-	zipArchiveFilePath := fmt.Sprintf("%s.xz", archiveFilePath)
-	archiveReader, err := os.Open(archiveFilePath)
-	defer archiveReader.Close()
-	_, err = io.Copy(writer, archiveReader)
-	err = writer.Close()
-	if err != nil {
-		task.Failed = true
-		task.FailedReason = fmt.Sprintf("Failed to copy archive data in compress stream\n%v", err)
-		runningCollectTasks[taskId] = task
-		os.Remove(archiveFilePath)
-		return
-	}
-
-	err = ioutil.WriteFile(
-		zipArchiveFilePath,
-		(&compressedBytes).Bytes(),
-		0777,
-	)
-	if err != nil {
-		task.Failed = true
-		task.FailedReason = fmt.Sprintf("Failed to write compressed .tar.xz file\n%v", err)
-		runningCollectTasks[taskId] = task
-		os.Remove(archiveFilePath)
-		return
-	}
-	err = os.Remove(archiveFilePath)
-	if err != nil {
-		task.Failed = true
-		task.FailedReason = fmt.Sprintf("Failed to remove unzompressed archive\n%v", err)
-		runningCollectTasks[taskId] = task
-		os.Remove(zipArchiveFilePath)
-		return
-	}
 	task.Ready = true
-	task.ResultArchive = zipArchiveFilePath
+	task.ResultArchive = archiveFilePath
 	runningCollectTasks[taskId] = task
 }
