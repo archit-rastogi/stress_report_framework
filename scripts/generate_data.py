@@ -136,7 +136,7 @@ for page_ord, page in enumerate([f'day {i}' for i in range(2)]):
                 file_name = f'{str(uuid4())}-test.log'
                 print(f'add file {file_name}')
                 file_add_res = post("http://localhost:9998/files/add", files={
-                    "file": '\n'.join(['asdasdasd\ntesttest\testtest\ntsadsda' for i in range(100)]).encode('utf-8')
+                    "file": b'asdasdasd\ntesttest\testtest\ntsadsda'
                 }, headers={"name": file_name})
                 assert file_add_res.status_code == 200, f'Cant add file {file_name}'
                 print(f'add attachment {a}')
