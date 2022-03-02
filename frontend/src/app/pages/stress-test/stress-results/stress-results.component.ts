@@ -12,12 +12,15 @@ export class StressResultsComponent implements OnInit {
 
   results = new BehaviorSubject<any[]>([]);
   getTestResults: any;
+  loading = false;
 
   constructor(private api: ApiService) {
   }
 
   ngOnInit(): void {
+    this.loading = true;
     this.getTestResults = this.api.post('get_test_results', {test_id: this.testId}).subscribe(res => {
+      this.loading = false;
       if (res.status) {
         this.results.next(res.results.sort((a: any, b: any) => a.name.localeCompare(b.name)));
       }

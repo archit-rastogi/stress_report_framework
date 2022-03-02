@@ -153,4 +153,11 @@ export class RunsComponent implements OnInit, OnDestroy {
     this.actionsService.selectedTests.next(selectedTests);
   }
 
+  today() {
+    this.range = new FormGroup({
+      start: new FormControl(moment().subtract(0, 'days').toDate()),
+      end: new FormControl(new Date()),
+    });
+    this.getTests();
+  }
 }

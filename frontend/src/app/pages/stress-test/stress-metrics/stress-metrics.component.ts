@@ -1,6 +1,6 @@
 import {Component, Input, OnInit} from '@angular/core';
 import {ApiService} from '../../../services/api.service';
-import {BehaviorSubject, Subject} from 'rxjs';
+import {BehaviorSubject} from 'rxjs';
 
 
 @Component({
@@ -14,15 +14,22 @@ export class StressMetricsComponent implements OnInit {
   graphs = new BehaviorSubject<Array<string>>([]);
   openedGraphs = new BehaviorSubject<Array<string>>([]);
   getMetricsSub: any;
+  loading = false;
 
   constructor(private api: ApiService) {
   }
 
   ngOnInit(): void {
+    this.loading = true;
     this.openedGraphs.next([]);
     this.getMetricsSub = this.api
       .post('get_metrics', {test_id: this.testId})
-      .subscribe((res: any) => this.graphs.next(res.metrics.sort((a: any, b: any) => a.localeCompare(b))));
+      .subscribe((res: any) => {
+        this.loading = false;
+        if (res.status) {
+          this.graphs.next(res.metrics.sort((a: any, b: any) => a.localeCompare(b)));
+        }
+      });
   }
 
   graphIsOpen(graphName: string) {

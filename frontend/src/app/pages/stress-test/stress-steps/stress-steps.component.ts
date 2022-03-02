@@ -11,10 +11,12 @@ import {BehaviorSubject, Subject} from 'rxjs';
 })
 export class StressStepsComponent implements OnInit {
 
-  chartOptions = new Subject<echarts.EChartsOption>();
+  chartOptions = new BehaviorSubject<echarts.EChartsOption>({});
   @Input() testId: string | undefined | null;
   steps = new BehaviorSubject<any[]>([]);
   getStepsSub: any;
+  loading = false;
+  categories = 1;
 
   openedSteps = new BehaviorSubject<any[]>([]);
 
@@ -22,7 +24,9 @@ export class StressStepsComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    this.loading = true;
     this.getStepsSub = this.api.post('get_steps', {test_id: this.testId}).subscribe(res => {
+      this.loading = false;
       if (res.status) {
         this.steps.next(res.steps);
         this.drawGraph(res.steps);
@@ -41,6 +45,7 @@ export class StressStepsComponent implements OnInit {
     })
     const findTime = (name: string) => newSteps.find(s => s.properties.name === name).start_time
     categories = categories.sort((a: string, b: string) => findTime(b) - findTime(a));
+    this.categories = categories.length;
 
     let lowestTime = +new Date() + 10000;
     let highest = 0;
@@ -98,7 +103,9 @@ export class StressStepsComponent implements OnInit {
           style: api.style()
         }
       );
-    }
+    };
+    let graphHeight = categories.length * 50;
+    graphHeight = graphHeight > window.innerHeight - 200 ? window.innerHeight - 200 : graphHeight;
     this.chartOptions.next({
       tooltip: {
         formatter: (params: any) => {
@@ -126,7 +133,6 @@ export class StressStepsComponent implements OnInit {
           type: 'slider',
           filterMode: 'weakFilter',
           showDataShadow: false,
-          top: 400,
           labelFormatter: ''
         },
         {
@@ -135,7 +141,7 @@ export class StressStepsComponent implements OnInit {
         }
       ],
       grid: {
-        height: 300
+        height: graphHeight
       },
       xAxis: {
         type: 'value',
@@ -218,5 +224,13 @@ export class StressStepsComponent implements OnInit {
       }
     }
 
+  }
+
+  graphStyle() {
+    let height = (this.categories * 50) + 150;
+    const res: any = {
+      height: `${height > window.innerHeight - 200 ? window.innerHeight - 50 : height}px`
+    };
+    return res;
   }
 }

@@ -1,6 +1,9 @@
-<div echarts [options]="(chartOptions | async) ?? {}" (chartClick)="click($event)" class="chart width"></div>
+<mat-progress-bar *ngIf="loading" mode="indeterminate"></mat-progress-bar>
+<div echarts [options]="(chartOptions | async) ?? {}" (chartClick)="click($event)" [ngStyle]="graphStyle()" class="width"></div>
 <div class="flex">
-  <button class="close" mat-button (click)="openedSteps.next([])" *ngIf="((openedSteps | async) ?? []).length > 0">Close all</button>
+  <button class="close" mat-button (click)="openedSteps.next([])" *ngIf="((openedSteps | async) ?? []).length > 0">Close
+    all
+  </button>
   <ng-container *ngFor="let step of openedSteps | async">
     <h3 class="width" [ngStyle]="getStepStatus(step.status)">{{step.properties.name}}</h3>
     <span class="width time-range">{{getStepTime(step)}}</span>

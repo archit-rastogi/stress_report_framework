@@ -4,6 +4,7 @@
   >{{openedGraphs.getValue().length > 0 ? 'Close' : 'Open'}} all
   </button>
 </div>
+<mat-progress-bar *ngIf="loading" mode="indeterminate"></mat-progress-bar>
 <div class="width" *ngFor="let graph of graphs | async">
   <div class="flex-container">
     <button class="show-button" mat-button (click)="toggleShow(graph)">

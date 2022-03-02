@@ -1,5 +1,5 @@
 <div class="container">
-  <div class="actions">
+  <div class="actions" *ngIf="((attachments | async) ?? []).length > 0">
     <button mat-button (click)="downloadAll()"
             matTooltip="Download all"
             matTooltipShowDelay="300">
@@ -24,7 +24,8 @@
       <mat-icon svgIcon="fas:download"></mat-icon>
     </button>
   </div>
-  <ng-container *ngIf="(attachments | async) ?? []">
+  <mat-progress-bar *ngIf="loading" mode="indeterminate"></mat-progress-bar>
+  <ng-container *ngIf="((attachments | async) ?? []).length > 0">
     <app-stress-attachment-item *ngFor="let attachment of (attachments | async) ?? []" [attachment]="attachment">
     </app-stress-attachment-item>
   </ng-container>

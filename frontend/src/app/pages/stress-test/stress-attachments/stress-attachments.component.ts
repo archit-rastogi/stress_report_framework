@@ -18,6 +18,7 @@ export class StressAttachmentsComponent implements OnInit {
   getAttachmentsSub: any;
   deleteAttachmentSub: any;
   acceptDialogSub: any;
+  loading = false;
 
   constructor(private api: ApiService,
               public attachmentsSync: AttachmentsSyncService,
@@ -25,11 +26,14 @@ export class StressAttachmentsComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    this.loading = false;
     this.getAttachments();
   }
 
   getAttachments() {
+    this.loading = true;
     this.getAttachmentsSub = this.api.post('get_attachments', {test_id: this.testId}).subscribe(res => {
+      this.loading = false;
       if (res.status) {
         this.show.next(true);
         this.attachments.next(res.attachments);
