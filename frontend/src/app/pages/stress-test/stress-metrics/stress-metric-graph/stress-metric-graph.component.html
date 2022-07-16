@@ -5,4 +5,5 @@
     <mat-button-toggle value="sum">SUM</mat-button-toggle>
   </mat-button-toggle-group>
 </div>
+<mat-progress-bar *ngIf="loading" mode="indeterminate"></mat-progress-bar>
 <div echarts [options]="(echartsOptions | async) ?? {}" class="chart"></div>

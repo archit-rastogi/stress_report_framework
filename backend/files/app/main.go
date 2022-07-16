@@ -26,7 +26,10 @@ var runningCollectTasks = make(map[string]CollectTask)
 
 func add(w http.ResponseWriter, r *http.Request) {
 	data, _, err := r.FormFile("file")
-	if data != nil {
+	if data == nil {
+		response(w, 200, "Nothing is added, file is empty")
+		return
+	} else {
 		defer data.Close()
 	}
 	if err != nil {
@@ -50,7 +53,7 @@ func add(w http.ResponseWriter, r *http.Request) {
 		response(w, 500, fmt.Sprintf("Failed to open writer %v", err))
 	}
 
-	_, err = io.Copy(writer, data)
+	bytesWritten, err := io.Copy(writer, data)
 	err = writer.Close()
 	if err != nil {
 		response(w, 500, fmt.Sprintf("Failed to write compressed file %v", err))
@@ -65,7 +68,7 @@ func add(w http.ResponseWriter, r *http.Request) {
 		response(w, 500, fmt.Sprintf("Failed to write file. err: %v", zipName))
 		return
 	}
-	err = dbAddFile(realName)
+	err = dbAddFile(realName, bytesWritten)
 	if err != nil {
 		response(w, 500, fmt.Sprintf("Failed to add to DB. err: %v", err))
 		return

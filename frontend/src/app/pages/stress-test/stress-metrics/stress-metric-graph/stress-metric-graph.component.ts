@@ -12,6 +12,7 @@ import {FormControl} from '@angular/forms';
 })
 export class StressMetricGraphComponent implements OnInit, OnDestroy {
   echartsOptions = new BehaviorSubject<EChartsOption>({} as EChartsOption);
+  loading = false;
   @Input() graphName: any;
   @Input() testId: any;
 
@@ -22,6 +23,7 @@ export class StressMetricGraphComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
+    this.loading = false;
     this.drawGraph();
   }
 
@@ -34,13 +36,14 @@ export class StressMetricGraphComponent implements OnInit, OnDestroy {
   }
 
   drawGraph() {
+    this.loading = true;
     this.getMetricSub = this.api.post('get_metric', {
       test_id: this.testId,
       metric_name: this.graphName,
       graph_type: this.toggle.value,
     }).subscribe(res => {
       if (res.status) {
-
+        this.loading = false;
         const toRound = 10 ** res.round_value;
         const series: any[] = Object.keys(res.series).map(lineName => {
           return {

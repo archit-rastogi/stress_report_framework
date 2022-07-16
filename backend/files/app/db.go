@@ -29,14 +29,14 @@ func checkConnection() error {
 	return nil
 }
 
-func dbAddFile(name string) error {
+func dbAddFile(name string, bytesWritten int64) error {
 	err := checkConnection()
 	if err != nil {
 		return err
 	}
 	id := uuid.New()
 	_, err = connection.Exec(
-		"INSERT INTO files(file_id, time, name) values ($1, $2, $3)", id.String(), time.Now(), name,
+		"INSERT INTO files(file_id, time, name, size) values ($1, $2, $3, $4)", id.String(), time.Now(), name, bytesWritten,
 	)
 	if err != nil {
 		return err

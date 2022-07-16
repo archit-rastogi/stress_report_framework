@@ -23,6 +23,9 @@ create table IF NOT EXISTS steps
         on update restrict
 );
 
+create index test_id_steps ON steps(test_id asc);
+
+
 create table IF NOT EXISTS metrics
 (
     metric_id text primary key,
@@ -35,6 +38,8 @@ create table IF NOT EXISTS metrics
         on delete cascade
         on update restrict
 );
+
+create index test_id_metrics ON metrics(test_id asc);
 
 CREATE INDEX IF NOT EXISTS stress_idx ON stress_tests (start_time ASC, end_time ASC);
 
@@ -53,6 +58,8 @@ create table IF NOT EXISTS attachments
         on delete cascade
         on update restrict
 );
+
+create index test_id_attachments ON attachments(test_id asc);
 
 create table IF NOT EXISTS files
 (

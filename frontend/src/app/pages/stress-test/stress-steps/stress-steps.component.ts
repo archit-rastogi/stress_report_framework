@@ -229,7 +229,7 @@ export class StressStepsComponent implements OnInit {
   graphStyle() {
     let height = (this.categories * 50) + 150;
     const res: any = {
-      height: `${height > window.innerHeight - 200 ? window.innerHeight - 50 : height}px`
+      height: `${height > window.innerHeight - 100 ? window.innerHeight - 20 : height}px`
     };
     return res;
   }
