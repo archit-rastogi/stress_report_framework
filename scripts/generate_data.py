@@ -113,7 +113,8 @@ for page_ord, page in enumerate([f'day {i}' for i in range(2)]):
                 ["disk", 'Ops', 0],
                 ["disk bytes", 'MB', 3],
             ]:
-                m_data[line_name] = {
+
+                m_data[f'[{line_name[:1]}] {line_name}'] = {
                     'data': {
                         thr: {h: 0 if (metric := r.randint(-1000, 10000)) < 0 else metric for h in [f"172.25.1.{h}" for h in range(9)]}
                         for thr in choice([["system", 'user'], ["ss", 'qq', 'aa'], ["aa", "hh", 'zz']])

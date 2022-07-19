@@ -53,6 +53,7 @@ import { AddPropertiesComponent } from './components/add-properties/add-properti
 import { RemovePropertiesComponent } from './components/remove-properties/remove-properties.component';
 import {MatTooltipModule} from '@angular/material/tooltip';
 import {ActionsService} from './services/actions.service';
+import {MatTabsModule} from '@angular/material/tabs';
 
 @NgModule({
   declarations: [
@@ -92,6 +93,7 @@ import {ActionsService} from './services/actions.service';
     CommonModule,
     FormsModule,
     HttpClientModule,
+    MatTabsModule,
     MatFormFieldModule,
     ReactiveFormsModule,
     MatButtonModule,

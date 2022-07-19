@@ -1,19 +1,24 @@
 <div class="flex-container">
-  <button mat-button
-          (click)="openedGraphs.getValue().length > 0 ?  openedGraphs.next([]) : openedGraphs.next(graphs.getValue())"
+  <button mat-button (click)="toggleCloseOpen()"
   >{{openedGraphs.getValue().length > 0 ? 'Close' : 'Open'}} all
   </button>
 </div>
 <mat-progress-bar *ngIf="loading" mode="indeterminate"></mat-progress-bar>
-<div class="width" *ngFor="let graph of graphs | async">
-  <div class="flex-container">
-    <button class="show-button" mat-button (click)="toggleShow(graph)">
-      <mat-icon [svgIcon]="graphIsOpen(graph) ? 'fas:angle-down' : 'fas:angle-right'"></mat-icon>
-      {{ graph }}
-    </button>
-  </div>
-  <div *ngIf="graphIsOpen(graph)">
-    <app-stress-metric-graph [graphName]="graph" [testId]="testId"></app-stress-metric-graph>
-  </div>
-</div>
 
+<mat-tab-group dynamicHeight mat-align-tabs="center" animationDuration="100ms" color="warn">
+  <mat-tab [label]="section" *ngFor="let section of sections | async">
+    <ng-template matTabContent>
+      <div class="width" *ngFor="let graph of ((graphs | async) ?? {})[section]">
+        <div class="flex-container">
+          <button class="show-button" mat-button (click)="toggleShow(graph)">
+            <mat-icon [svgIcon]="graphIsOpen(graph) ? 'fas:angle-down' : 'fas:angle-right'"></mat-icon>
+            {{ graph }}
+          </button>
+        </div>
+        <div *ngIf="graphIsOpen(graph)">
+          <app-stress-metric-graph [graphName]="graph" [testId]="testId"></app-stress-metric-graph>
+        </div>
+      </div>
+    </ng-template>
+  </mat-tab>
+</mat-tab-group>
