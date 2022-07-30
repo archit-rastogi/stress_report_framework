@@ -33,8 +33,9 @@ export class StressMetricsComponent implements OnInit {
         const catSections = (s: string) => s.substr(1, s.length - 2);
         res.metrics.filter((metricName: string) => {
           const foundSections: Array<string> | null = metricName.match(pattern);
+          let modifiedMetricName = metricName;
           if (foundSections !== null) {
-            metricName = metricName.replace(foundSections[0], '').trim();
+            modifiedMetricName = metricName.replace(foundSections[0], '').trim();
             const section = catSections(foundSections[0]);
             if (!sections.includes(section)) {
               sections.push(section);
@@ -42,12 +43,18 @@ export class StressMetricsComponent implements OnInit {
           } else if (!sections.includes('default')) {
             sections.push('default');
           }
-          allGraphs.push({name: metricName, section: foundSections ? catSections(foundSections[0]) : 'default'});
+          allGraphs.push({
+            name: metricName,
+            modified: modifiedMetricName,
+            section: foundSections ? catSections(foundSections[0]) : 'default'
+          });
         })
         sections.forEach((section: string) => {
-          graphs[section] = allGraphs.filter(g => g.section === section).map(g => g.name);
+          graphs[section] = allGraphs
+            .filter(g => g.section === section)
+            .sort((a: any, b: any) => a.modified.localeCompare(b.modified));
         });
-        this.sections.next(sections);
+        this.sections.next(sections.sort((a: string, b: string) => a.localeCompare(b)));
         this.graphs.next(graphs);
         this.loading = false;
       });

@@ -10,13 +10,13 @@
     <ng-template matTabContent>
       <div class="width" *ngFor="let graph of ((graphs | async) ?? {})[section]">
         <div class="flex-container">
-          <button class="show-button" mat-button (click)="toggleShow(graph)">
-            <mat-icon [svgIcon]="graphIsOpen(graph) ? 'fas:angle-down' : 'fas:angle-right'"></mat-icon>
-            {{ graph }}
+          <button class="show-button" mat-button (click)="toggleShow(graph.name)">
+            <mat-icon [svgIcon]="graphIsOpen(graph.name) ? 'fas:angle-down' : 'fas:angle-right'"></mat-icon>
+            {{ graph.modified }}
           </button>
         </div>
-        <div *ngIf="graphIsOpen(graph)">
-          <app-stress-metric-graph [graphName]="graph" [testId]="testId"></app-stress-metric-graph>
+        <div *ngIf="graphIsOpen(graph.name)">
+          <app-stress-metric-graph [graphName]="graph.name" [testId]="testId"></app-stress-metric-graph>
         </div>
       </div>
     </ng-template>
