@@ -286,7 +286,9 @@ class QueryExecute:
         if filters:
             filters_condition.append(
                 ' and '.join(
-                    [f"config->'{f['key']}' is not null and config->>'{f['key']}' {f['comparator'] if f.get('comparator') else '~'} '{f['value']}'" for f in filters]
+                    [
+                        f"config->'{f['key']}' is not null and config->>'{f['key']}' {f['comparator'] if f.get('comparator') else '~'} '{f['value']}'"
+                        for f in filters]
                 )
             )
         args = []

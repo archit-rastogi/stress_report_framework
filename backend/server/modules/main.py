@@ -1,8 +1,5 @@
 import asyncio
 from datetime import datetime
-from json import dumps
-
-from requests import post
 
 from modules.base import AbstractModule, request_handler
 
