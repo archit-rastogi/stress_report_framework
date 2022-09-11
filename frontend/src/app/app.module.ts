@@ -38,8 +38,6 @@ import {CreateReportComponent} from './pages/stress-reports/create-report/create
 import {EditReportComponent} from './pages/stress-reports/edit-report/edit-report.component';
 import {MatCheckboxModule} from '@angular/material/checkbox';
 import {AcceptDialogComponent} from './components/accept-dialog/accept-dialog.component';
-import { UniverseConfigsComponent } from './pages/universe-configs/universe-configs.component';
-import { UniverseConfigUploadDialogComponent } from './pages/universe-configs/universe-config-upload-dialog/universe-config-upload-dialog.component';
 import { StressBuildInfoComponent } from './pages/stress-test/stress-build-info/stress-build-info.component';
 import { StressResultsComponent } from './pages/stress-test/stress-results/stress-results.component';
 import {AttachmentsSyncService} from './pages/stress-test/stress-attachments/services/attachments.service';
@@ -54,6 +52,7 @@ import { RemovePropertiesComponent } from './components/remove-properties/remove
 import {MatTooltipModule} from '@angular/material/tooltip';
 import {ActionsService} from './services/actions.service';
 import {MatTabsModule} from '@angular/material/tabs';
+import {MatAutocompleteModule} from '@angular/material/autocomplete';
 
 @NgModule({
   declarations: [
@@ -72,8 +71,6 @@ import {MatTabsModule} from '@angular/material/tabs';
     StressReportComponent,
     EditReportComponent,
     AcceptDialogComponent,
-    UniverseConfigsComponent,
-    UniverseConfigUploadDialogComponent,
     StressBuildInfoComponent,
     StressResultsComponent,
     EditRunInfoDialogComponent,
@@ -109,6 +106,7 @@ import {MatTabsModule} from '@angular/material/tabs';
     MatChipsModule,
     MatCheckboxModule,
     MatTooltipModule,
+    MatAutocompleteModule,
     NgxEchartsModule.forRoot({echarts: () => import('echarts')}),
   ],
   providers: [

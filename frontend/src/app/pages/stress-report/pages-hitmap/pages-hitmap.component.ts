@@ -104,8 +104,8 @@ export class PagesHitmapComponent implements OnInit {
         left: 'center',
         inRange : {
           color: [
-            'rgba(4,141,0,0.6)',
-            'rgba(155,0,0,0.6)'
+            'rgba(5,126,0, 0.8)',
+            'rgba(155,0,0, 0.8)'
           ]
         },
         borderWidth: 0

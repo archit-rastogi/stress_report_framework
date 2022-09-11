@@ -27,6 +27,7 @@
     "@fortawesome/free-regular-svg-icons": "^5.15.4",
     "@fortawesome/free-solid-svg-icons": "^5.15.4",
     "echarts": "^5.2.2",
+    "moment-timezone": "^0.5.37",
     "ngx-echarts": "^8.0.0",
     "rxjs": "~7.4.0",
     "tslib": "^2.3.0",

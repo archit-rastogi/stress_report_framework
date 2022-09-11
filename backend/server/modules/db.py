@@ -318,16 +318,6 @@ class QueryExecute:
             await self.format_test(test)
         return tests
 
-    async def get_universe_configs(self) -> list[dict[str]]:
-        return await self.execute('select universe_config_id, source, name from universe_configs')
-
-    async def add_universe_config(self, name, source):
-        return await self.execute('insert into universe_configs(universe_config_id, source, name) '
-                                  f"values('{uuid4()}', '{source}', '{name}')")
-
-    async def delete_universe_config(self, config_id: str):
-        return await self.execute(f"delete from universe_configs where universe_config_id = '{config_id}'")
-
     async def add_results(self, test_id: str, name: str, data, result_type: str):
         await self.execute(f"insert into stress_results(result_id, data, name, test_id, type) "
                            f"values ('{uuid4()}', '{dumps(data)}', '{name}', '{test_id}', '{result_type}')")

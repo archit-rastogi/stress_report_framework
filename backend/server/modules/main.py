@@ -239,27 +239,6 @@ class MainModule(AbstractModule):
         await self.db.delete_report(params['report_id'])
 
     @request_handler()
-    async def add_universe_config(self, params: dict):
-        config_data = params['config']
-        name = params['name']
-        post(f'http://{self.config.files_url}/files/add', files={
-            "file": dumps(config_data).encode('utf-8')
-        }, headers={"name": name})
-
-        await self.db.add_universe_config(name, name)
-
-    @request_handler()
-    async def get_universe_configs(self, params: dict):
-        return {
-            'configs': await self.db.get_universe_configs()
-        }
-
-    @request_handler()
-    async def delete_universe_config(self, params: dict):
-        await self.db.delete_universe_config(params['id'])
-        await self.remove_file(params['source'])
-
-    @request_handler()
     async def add_test_results(self, params: dict):
         test_id = params['test_id']
         data = params['data']

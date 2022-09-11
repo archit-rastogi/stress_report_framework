@@ -1,5 +1,31 @@
 <mat-progress-bar *ngIf="loading" mode="indeterminate"></mat-progress-bar>
-<div echarts [options]="(chartOptions | async) ?? {}" (chartClick)="click($event)" [ngStyle]="graphStyle()" class="width"></div>
+<div class="tz-block">
+  <div class="center-block">
+    <mat-button-toggle-group [value]="timezone" (change)="timezoneChange($event)">
+      <mat-button-toggle value="utc">UTC</mat-button-toggle>
+      <mat-button-toggle value="local">Local time</mat-button-toggle>
+      <mat-button-toggle value="custom">Custom</mat-button-toggle>
+    </mat-button-toggle-group>
+  </div>
+  <div class="center-block" *ngIf="timezone === 'custom'">
+    <mat-form-field class="tz-select-box">
+      <mat-label>timezone</mat-label>
+      <input type="text"
+             placeholder="- Select timezone -"
+             matInput
+             (change)="timezoneChange($event)"
+             [formControl]="timezoneFilterForm"
+             [matAutocomplete]="auto">
+      <mat-autocomplete #auto="matAutocomplete">
+        <mat-option *ngFor="let option of timezoneFilter | async" [value]="option">
+          {{option}}
+        </mat-option>
+      </mat-autocomplete>
+    </mat-form-field>
+  </div>
+</div>
+<div echarts [options]="(chartOptions | async) ?? {}" (chartClick)="click($event)" [ngStyle]="graphStyle()"
+     class="width"></div>
 <div class="flex">
   <button class="close" mat-button (click)="openedSteps.next([])" *ngIf="((openedSteps | async) ?? []).length > 0">Close
     all

@@ -1,10 +1,9 @@
-import { NgModule } from '@angular/core';
-import { RouterModule, Routes } from '@angular/router';
+import {NgModule} from '@angular/core';
+import {RouterModule, Routes} from '@angular/router';
 import {RunsComponent} from './pages/runs/runs.component';
 import {StressTestComponent} from './pages/stress-test/stress-test.component';
 import {StressReportsComponent} from './pages/stress-reports/stress-reports.component';
 import {StressReportComponent} from './pages/stress-report/stress-report.component';
-import {UniverseConfigsComponent} from './pages/universe-configs/universe-configs.component';
 
 const routes: Routes = [
   {
@@ -24,10 +23,6 @@ const routes: Routes = [
     component: StressReportComponent
   },
   {
-    path: 'universe_configs',
-    component: UniverseConfigsComponent
-  },
-  {
     path: '**',
     redirectTo: 'runs'
   },
@@ -37,4 +32,5 @@ const routes: Routes = [
   imports: [RouterModule.forRoot(routes)],
   exports: [RouterModule]
 })
-export class AppRoutingModule { }
+export class AppRoutingModule {
+}

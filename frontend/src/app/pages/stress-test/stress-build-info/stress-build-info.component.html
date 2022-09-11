@@ -10,14 +10,22 @@
 </div>
 <ng-container *ngIf="showInfo">
   <span class="time">
-    {{format(((testInfo | async) ?? {}).start_time)}} - {{((testInfo | async) ?? {}).end_time ? format(((testInfo | async) ?? {}).end_time) : 'running'}}
+    {{format(((testInfo | async) ?? {}).start_time)}}
+    - {{((testInfo | async) ?? {}).end_time ? format(((testInfo | async) ?? {}).end_time) : 'running'}}
   </span>
   <div class="flex">
     <table>
       <tr *ngFor="let propKey of getKeys((((testInfo | async) ?? {}) ?? {config: {}}).config)">
-        <td>{{ propKey }}</td>
+        <td style="font-weight: bold;">{{ propKey }}</td>
         <td>
-          <ng-container *ngIf="propKey !== 'known_issues'">{{ getValue(propKey) }}</ng-container>
+          <ng-container *ngIf="propKey !== 'known_issues'">
+            <ng-container *ngIf="getValue(propKey).includes('http')">
+              <a (click)="openLink(getValue(propKey))">{{ getValue(propKey) }}</a>
+            </ng-container>
+            <ng-container *ngIf="!getValue(propKey).includes('http')">
+              {{ getValue(propKey) }}
+            </ng-container>
+          </ng-container>
           <ng-container *ngIf="propKey === 'known_issues'">
             <div *ngFor="let link of getValue(propKey).split(',')">
               <a (click)="openLink(link)">{{link}}</a>
