@@ -19,7 +19,7 @@
       <mat-chip *ngFor="let filter of filters | async">
         {{filter.key}} = {{filter.value}}
         <button matChipRemove (click)="removeFilter(filter)">
-          <mat-icon svgIcon="fas:times"></mat-icon>
+          <mat-icon svgIcon="fas:xmark"></mat-icon>
         </button>
       </mat-chip>
     </mat-chip-list>
@@ -42,7 +42,7 @@
       <mat-chip *ngFor="let dateRange of dateRanges | async">
         {{formatData(dateRange.start)}} - {{formatData(dateRange.end)}}
         <button matChipRemove (click)="removeDateRange(dateRange)">
-          <mat-icon svgIcon="fas:times"></mat-icon>
+          <mat-icon svgIcon="fas:xmark"></mat-icon>
         </button>
       </mat-chip>
     </mat-chip-list>

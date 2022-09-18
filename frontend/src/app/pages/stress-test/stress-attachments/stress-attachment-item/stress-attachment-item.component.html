@@ -4,11 +4,11 @@
         (contextmenu)="selectAttachment($event)"
         class="opener width">
   <mat-icon *ngIf="!isRealAttachment()" [svgIcon]="open ? 'fas:angle-down' : 'fas:angle-right'"></mat-icon>
-  <mat-icon *ngIf="isRealAttachment()" svgIcon="far:file-alt"></mat-icon>
+  <mat-icon *ngIf="isRealAttachment()" svgIcon="far:file"></mat-icon>
   {{attachment.prettyName}}
   <mat-icon *ngIf="isRealAttachment() && attachment.file_id === null"
             matTooltip="File deleted"
-            svgIcon="fas:trash-alt"></mat-icon>
+            svgIcon="fas:trash-can"></mat-icon>
 </button>
 <ng-container *ngIf="open">
   <ul>

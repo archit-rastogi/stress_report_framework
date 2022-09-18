@@ -3,21 +3,23 @@ import {MatIconRegistry} from '@angular/material/icon';
 import {DomSanitizer} from '@angular/platform-browser';
 import {icon, IconDefinition} from '@fortawesome/fontawesome-svg-core';
 // Solid icons
-import {definition as faAngleDown} from '@fortawesome/free-solid-svg-icons/faAngleDown';
-import {definition as faAngleUp} from '@fortawesome/free-solid-svg-icons/faAngleUp';
-import {definition as faAngleRight} from '@fortawesome/free-solid-svg-icons/faAngleRight';
-import {definition as faFileAlt} from '@fortawesome/free-regular-svg-icons/faFileAlt';
-import {definition as faTimes} from '@fortawesome/free-solid-svg-icons/faTimes';
-import {definition as faPlus} from '@fortawesome/free-solid-svg-icons/faPlus';
-import {definition as faMinus} from '@fortawesome/free-solid-svg-icons/faMinus';
-import {definition as faTrash} from '@fortawesome/free-solid-svg-icons/faTrashAlt';
-import {definition as faSync} from '@fortawesome/free-solid-svg-icons/faSync';
-import {definition as faEdit} from '@fortawesome/free-solid-svg-icons/faEdit';
-import {definition as faCheckDouble} from '@fortawesome/free-solid-svg-icons/faCheckDouble';
-import {definition as faVirus} from '@fortawesome/free-solid-svg-icons/faVirus';
-import {definition as faVirusSlash} from '@fortawesome/free-solid-svg-icons/faVirusSlash';
-import {definition as faFileArchive} from '@fortawesome/free-solid-svg-icons/faFileArchive';
-import {definition as faDownload} from '@fortawesome/free-solid-svg-icons/faDownload';
+import {
+  faAngleDown,
+  faAngleRight,
+  faAngleUp,
+  faCheckDouble,
+  faDownload,
+  faPen,
+  faBoxArchive,
+  faMinus,
+  faPlus,
+  faArrowsRotate,
+  faXmark,
+  faTrashCan,
+  faVirus,
+  faVirusSlash
+} from '@fortawesome/free-solid-svg-icons';
+import {faFile as faFileR} from '@fortawesome/free-regular-svg-icons';
 
 export const iconsAppInitializer = {
   provide: APP_INITIALIZER,
@@ -30,17 +32,17 @@ export const iconsAppInitializer = {
       faAngleDown,
       faAngleUp,
       faAngleRight,
-      faFileAlt,
-      faTimes,
+      faFileR,
+      faXmark,
       faPlus,
       faMinus,
-      faTrash,
-      faSync,
-      faEdit,
+      faTrashCan,
+      faArrowsRotate,
+      faPen,
       faCheckDouble,
       faVirus,
       faVirusSlash,
-      faFileArchive,
+      faBoxArchive,
       faDownload,
     ];
     const registerFaIcon = (i: IconDefinition) => {

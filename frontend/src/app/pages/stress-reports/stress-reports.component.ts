@@ -13,7 +13,6 @@ import {AcceptDialogComponent, AcceptOptions} from '../../components/accept-dial
   styleUrls: ['./stress-reports.component.scss']
 })
 export class StressReportsComponent implements OnInit {
-
   reports = new BehaviorSubject<any[]>([])
   getReportsSub: any
   dialogSub: any;

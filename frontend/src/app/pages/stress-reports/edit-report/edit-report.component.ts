@@ -90,7 +90,7 @@ export class EditReportComponent implements OnInit {
     this.report.config['filters'] = this.filters.getValue();
     this.report.config['dates'] = this.dateRanges.getValue();
     this.report.config['excludes'] = this.excludedTests.getValue().map(t => t.test_id);
-    if (this.pageProperty.value.length > 0) {
+    if (this.pageProperty.value !== null && this.pageProperty.value.length > 0) {
       this.report.config['page_property'] = this.pageProperty.value;
     }
     this.updateReportSub = this.api.post('update_report', {

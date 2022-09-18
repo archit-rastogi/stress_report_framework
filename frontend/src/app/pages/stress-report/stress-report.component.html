@@ -14,7 +14,7 @@
         <mat-icon svgIcon="fas:check-double"></mat-icon>
       </button>
       <button class="icon" mat-icon-button (click)="getReportTests()">
-        <mat-icon svgIcon="fas:sync"></mat-icon>
+        <mat-icon svgIcon="fas:arrows-rotate"></mat-icon>
       </button>
     </div>
   </div>
@@ -31,7 +31,7 @@
     <button mat-button (click)="actionsService.selectedTests.next([])"
             matTooltip="Cancel selection"
             matTooltipShowDelay="300">
-      <mat-icon svgIcon="fas:times"></mat-icon>
+      <mat-icon svgIcon="fas:xmark"></mat-icon>
     </button>
     <button mat-button (click)="actionsService.openAddKnownIssue()"
             matTooltip="Add known issue"
@@ -56,12 +56,12 @@
     <button mat-button (click)="actionsService.openEditModal()"
             matTooltip="Edit first selected test"
             matTooltipShowDelay="300">
-      <mat-icon svgIcon="fas:edit"></mat-icon>
+      <mat-icon svgIcon="fas:pen"></mat-icon>
     </button>
     <button mat-button color="warn" (click)="actionsService.deleteSelectedTests()"
             matTooltip="Remove tests and attached files"
             matTooltipShowDelay="300">
-      <mat-icon svgIcon="fas:trash-alt"></mat-icon>
+      <mat-icon svgIcon="fas:trash-can"></mat-icon>
     </button>
   </div>
   <!-- Cards -->

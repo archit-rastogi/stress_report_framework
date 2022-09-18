@@ -92,7 +92,9 @@ export class StressReportComponent implements OnInit, OnDestroy {
 
     this.showTests.next(
       this.tests.getValue()
-        .filter((test: any) => filter(test) && this.testContainedText(test, this.contextSearch.value))
+        .filter((test: any) => filter(test) && this.testContainedText(
+          test, this.contextSearch.value === null ? "" : this.contextSearch.value
+        ))
     );
   }
 

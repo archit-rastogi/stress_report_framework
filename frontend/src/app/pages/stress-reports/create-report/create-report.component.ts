@@ -48,7 +48,7 @@ export class CreateReportComponent implements OnInit {
       config['dates'] = this.dateRanges.getValue()
     }
 
-    if (this.pageProperty.value.length > 0) {
+    if (this.pageProperty.value !== null && this.pageProperty.value.length > 0) {
       config['page_property'] = this.pageProperty.value;
     }
 

@@ -37,7 +37,9 @@ export class RemovePropertiesComponent implements OnDestroy {
 
   add(): void {
     const props = this.properties.getValue();
-    props.push(this.key.value);
+    if (this.key.value != null) {
+      props.push(this.key.value);
+    }
     this.properties.next(props);
     this.key.setValue('');
   }
