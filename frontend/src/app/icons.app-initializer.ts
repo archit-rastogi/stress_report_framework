@@ -4,6 +4,7 @@ import {DomSanitizer} from '@angular/platform-browser';
 import {icon, IconDefinition} from '@fortawesome/fontawesome-svg-core';
 // Solid icons
 import {definition as faAngleDown} from '@fortawesome/free-solid-svg-icons/faAngleDown';
+import {definition as faAngleUp} from '@fortawesome/free-solid-svg-icons/faAngleUp';
 import {definition as faAngleRight} from '@fortawesome/free-solid-svg-icons/faAngleRight';
 import {definition as faFileAlt} from '@fortawesome/free-regular-svg-icons/faFileAlt';
 import {definition as faTimes} from '@fortawesome/free-solid-svg-icons/faTimes';
@@ -27,6 +28,7 @@ export const iconsAppInitializer = {
   ) => () => {
     const faIcons = [
       faAngleDown,
+      faAngleUp,
       faAngleRight,
       faFileAlt,
       faTimes,

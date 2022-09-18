@@ -2,6 +2,22 @@
   <button mat-button (click)="openCreateDialog()">
     <mat-icon color="primary" svgIcon="fas:plus"></mat-icon>
   </button>
+  <span style="margin-left: 20px">
+    Sort by:
+    <button mat-button (click)="changeSort('name')">
+      name
+      <mat-icon *ngIf="orderByCategory === 'name'"
+                color="primary"
+                [svgIcon]="orderByCategoryOrder == 'up' ? 'fas:angle-down': 'fas:angle-up'"></mat-icon>
+    </button>
+    <button mat-button (click)="changeSort('date')">
+      date
+      <mat-icon *ngIf="orderByCategory === 'date'"
+                color="primary"
+                [svgIcon]="orderByCategoryOrder == 'up' ? 'fas:angle-down': 'fas:angle-up'"></mat-icon>
+    </button>
+  </span>
+  <mat-progress-bar *ngIf="loading" mode="indeterminate"></mat-progress-bar>
   <mat-card
     class="width"
     (click)="openReport(report)"

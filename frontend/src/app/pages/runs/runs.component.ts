@@ -79,7 +79,7 @@ export class RunsComponent implements OnInit, OnDestroy {
       if (res.status) {
         this.loading = false;
         const tests = res.tests
-          .sort((a: any, b: any) => a.start > b.start)
+          .sort((a: any, b: any) => a.start - b.start)
           .map((test: any) => {
             test['start_pretty'] = this.formatData(test.start_time);
             if (test.hasOwnProperty('end_time') && test.end_time !== null) {

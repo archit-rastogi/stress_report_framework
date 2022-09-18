@@ -1,6 +1,6 @@
 import {Component, OnInit} from '@angular/core';
 import {ApiService} from '../../services/api.service';
-import {Subject} from 'rxjs';
+import {BehaviorSubject} from 'rxjs';
 import {MatDialog} from '@angular/material/dialog';
 import {Router} from '@angular/router';
 import {CreateReportComponent} from './create-report/create-report.component';
@@ -13,10 +13,14 @@ import {AcceptDialogComponent, AcceptOptions} from '../../components/accept-dial
   styleUrls: ['./stress-reports.component.scss']
 })
 export class StressReportsComponent implements OnInit {
-  reports = new Subject<any[]>()
+
+  reports = new BehaviorSubject<any[]>([])
   getReportsSub: any
   dialogSub: any;
   allowToOpen = true;
+  loading = false;
+  orderByCategory: string = 'name';
+  orderByCategoryOrder: string = 'up';
 
   constructor(private api: ApiService,
               private router: Router,
@@ -24,13 +28,27 @@ export class StressReportsComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    let sortCategory = localStorage.getItem('reports_sort_category')
+    let sortOrder = localStorage.getItem('reports_sort_order')
+    if (sortCategory !== null && sortOrder !== null) {
+      this.orderByCategory = sortCategory;
+      this.orderByCategoryOrder = sortOrder;
+    } else {
+      this.orderByCategory = 'name'
+      this.orderByCategoryOrder = 'up'
+      localStorage.setItem('reports_sort_category', 'name');
+      localStorage.setItem('reports_sort_order', 'up');
+    }
+    this.loading = false;
     this.getReports();
   }
 
   getReports(): void {
+    this.loading = true;
     this.getReportsSub = this.api.post('get_reports', {}).subscribe(res => {
       if (res.status) {
-        this.reports.next(res.reports);
+        this.loading = false;
+        this.reports.next(this.getResults(res.reports));
       }
     })
   }
@@ -74,8 +92,36 @@ export class StressReportsComponent implements OnInit {
     })
   }
 
+  changeSort(name: string) {
+    if (name === this.orderByCategory) {
+      this.orderByCategoryOrder = this.orderByCategoryOrder === 'up' ? 'down' : 'up'
+    }
+    this.orderByCategory = name;
+    localStorage.setItem('reports_sort_category', this.orderByCategory)
+    localStorage.setItem('reports_sort_order', this.orderByCategoryOrder)
+    this.reports.next(this.getResults(this.reports.getValue()));
+  }
+
   private disableOpen() {
     this.allowToOpen = false;
     setTimeout(() => this.allowToOpen = true, 200);
+  }
+
+  private getResults(reports: any[]): any[] {
+    return reports.sort((a: any, b: any) => {
+      let compareResult;
+      if (this.orderByCategory === 'name') {
+        compareResult = a.name.localeCompare(b.name);
+        if (this.orderByCategoryOrder !== 'up') {
+          compareResult = compareResult * -1;
+        }
+      } else {
+        compareResult = a.creation_time - b.creation_time;
+        if (this.orderByCategoryOrder !== 'up') {
+          compareResult = compareResult * -1;
+        }
+      }
+      return compareResult;
+    });
   }
 }
