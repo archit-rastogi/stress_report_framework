@@ -24,7 +24,7 @@
     *ngFor="let report of reports | async"
   >
     <mat-card-title>
-      {{ report.name }}
+      {{ report.prettyName }}
     </mat-card-title>
     <mat-card-actions>
       <button mat-button (click)="editReport(report)">edit</button>

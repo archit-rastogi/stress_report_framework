@@ -52,10 +52,7 @@ export class StressReportComponent implements OnInit, OnDestroy {
   private getReportTestsSub: any;
   private acceptDialogSub: any;
   private deleteTestSub: any;
-
   private searchSub: number | null = null;
-
-  dialogSub: any;
 
   constructor(private activatedRoute: ActivatedRoute,
               private router: Router,
@@ -131,6 +128,7 @@ export class StressReportComponent implements OnInit, OnDestroy {
   }
 
   getReportPages() {
+    this.loading = true;
     this.getReportPagesSub = this.api.post('get_report_pages', {name: this.reportId}).subscribe(res => {
       if (res.status) {
         if (res.hasOwnProperty('pages') && Object.keys(res.pages).length > 0) {
@@ -152,6 +150,7 @@ export class StressReportComponent implements OnInit, OnDestroy {
 
   getReportTests() {
     this.loading = true;
+    console.log('true');
     this.getReportTestsSub = this.api.post('get_report_tests', {
       name: this.reportId,
       page: this.activePage
@@ -172,6 +171,7 @@ export class StressReportComponent implements OnInit, OnDestroy {
             return {name: key, count: statuses[key]}
           });
         chips.push({name: 'all', count: tests.length});
+        console.log('false');
         this.loading = false;
 
         this.stats.next(chips);

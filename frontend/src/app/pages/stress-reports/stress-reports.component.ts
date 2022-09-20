@@ -121,6 +121,9 @@ export class StressReportsComponent implements OnInit {
         }
       }
       return compareResult;
+    }).map((obj: any) => {
+      obj.prettyName = obj.name.replace(new RegExp('_', 'g'), ' ');
+      return obj;
     });
   }
 }
