@@ -17,7 +17,7 @@ export class RunsComponent implements OnInit, OnDestroy {
   showTests = new BehaviorSubject<Array<any>>([]);
   testsSub: any;
   contextSearch = new FormControl();
-  searchSub: number | null = null;
+  searchSub: any = null;
   loading = false;
 
   private acceptDialogSub: any;

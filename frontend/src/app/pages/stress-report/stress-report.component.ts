@@ -50,7 +50,7 @@ export class StressReportComponent implements OnInit, OnDestroy {
   private excludeTestsSub: any;
   private getReportTestsSub: any;
   private deleteTestSub: any;
-  private searchSub: number = 0;
+  private searchSub: any = null;
 
   constructor(private activatedRoute: ActivatedRoute,
               private router: Router,
