@@ -115,7 +115,7 @@ export class StressReportsComponent implements OnInit {
           compareResult = compareResult * -1;
         }
       } else {
-        compareResult = a.creation_time - b.creation_time;
+        compareResult = a.start_time - b.start_time;
         if (this.orderByCategoryOrder !== 'up') {
           compareResult = compareResult * -1;
         }

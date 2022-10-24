@@ -865,7 +865,6 @@ export class StressStepsComponent implements OnInit {
   }
 
   timezoneChange(change: any) {
-    console.log(change.value);
     if (['local', 'utc', 'custom'].includes(change.value)) {
       localStorage.setItem('timezone_steps', change.value);
     }

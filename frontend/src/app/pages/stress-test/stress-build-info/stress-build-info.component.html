@@ -16,7 +16,7 @@
   <div class="flex">
     <table>
       <tr *ngFor="let propKey of getKeys((((testInfo | async) ?? {}) ?? {config: {}}).config)">
-        <td style="font-weight: bold;">{{ propKey }}</td>
+        <td style="font-weight: bold; padding-right: 20px">{{ propKey }}</td>
         <td>
           <ng-container *ngIf="propKey !== 'known_issues'">
             <ng-container *ngIf="getValue(propKey).includes('http')">

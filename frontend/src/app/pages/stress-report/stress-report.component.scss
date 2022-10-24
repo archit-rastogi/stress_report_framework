@@ -55,3 +55,28 @@
   font-size: x-large;
   margin-bottom: 20px;
 }
+
+
+.selected-chip {
+  background: linear-gradient(-45deg, rgba(200, 0, 255, 0.3), rgba(255, 0, 0, 0.3), rgba(213, 162, 0, 0.3), rgba(43, 199, 0, 0.3));
+  background-size: 300% 300%;
+  animation: gradient 2s ease infinite;
+}
+
+@keyframes gradient {
+  0% {
+    background-position: 0 100%;
+  }
+  50% {
+    background-position: 100% 0;
+  }
+  100% {
+    background-position: 0 100%;
+  }
+}
+
+.quick-actions {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 20px;
+}

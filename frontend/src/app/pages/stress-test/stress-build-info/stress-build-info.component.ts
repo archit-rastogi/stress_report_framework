@@ -66,7 +66,7 @@ export class StressBuildInfoComponent implements OnInit {
   }
 
   getValue(propKey: any): string {
-    return this.testInfo.getValue().config[propKey];
+    return `${this.testInfo.getValue().config[propKey]}`;
   }
 
   openLink(link: string) {

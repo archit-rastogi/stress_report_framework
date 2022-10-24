@@ -3,9 +3,6 @@ import {ActivatedRoute, Router} from '@angular/router';
 import {ApiService} from '../../services/api.service';
 import {BehaviorSubject} from 'rxjs';
 import {FormControl} from '@angular/forms';
-import {AcceptDialogComponent, AcceptOptions} from '../../components/accept-dialog/accept-dialog.component';
-import {MatDialog} from '@angular/material/dialog';
-import {AddKnownIssueComponent} from '../../components/add-known-issue/add-known-issue.component';
 import {ActionsService} from '../../services/actions.service';
 
 export class PageData {
@@ -46,11 +43,12 @@ export class StressReportComponent implements OnInit, OnDestroy {
   contextSearch = new FormControl('');
   loading = false;
   activeChip = new BehaviorSubject<string>('all');
+  orderByCategory: string = 'date';
+  orderByCategoryOrder: string = 'down';
 
   private getReportPagesSub: any;
   private excludeTestsSub: any;
   private getReportTestsSub: any;
-  private acceptDialogSub: any;
   private deleteTestSub: any;
   private searchSub: number | null = null;
 
@@ -65,37 +63,19 @@ export class StressReportComponent implements OnInit, OnDestroy {
     })
   }
 
-  filterChips(chipName: string) {
-    let filter = (_: any) => true;
-    switch (chipName) {
-      case 'running': {
-        filter = (test: any) => test.status == 'running';
-        break;
-      }
-      case 'failed': {
-        filter = (test: any) => test.status == 'failed';
-        break;
-      }
-      case 'passed': {
-        filter = (test: any) => test.status == 'passed';
-        break;
-      }
-      case 'all': {
-        filter = (_: any) => true;
-        break;
-      }
-    }
-    this.activeChip.next(chipName);
-
-    this.showTests.next(
-      this.tests.getValue()
-        .filter((test: any) => filter(test) && this.testContainedText(
-          test, this.contextSearch.value === null ? "" : this.contextSearch.value
-        ))
-    );
-  }
-
   ngOnInit(): void {
+    const reportSortCategory = localStorage.getItem('report_sort_category');
+    if (reportSortCategory !== null) {
+      this.orderByCategory = reportSortCategory;
+    }
+    const reportSortOrder = localStorage.getItem('report_sort_order');
+    if (reportSortOrder !== null) {
+      this.orderByCategoryOrder = reportSortOrder;
+    }
+    const activeChip = localStorage.getItem('report_chip_selected');
+    if (activeChip !== null) {
+      this.activeChip.next(activeChip);
+    }
     this.open = true;
     this.activePage = null;
     const contextSearchText = localStorage.getItem('reportContextSearch')
@@ -116,10 +96,23 @@ export class StressReportComponent implements OnInit, OnDestroy {
     [
       this.excludeTestsSub,
       this.getReportTestsSub,
-      this.acceptDialogSub,
       this.deleteTestSub,
-      this.searchSub
     ].forEach((sub: any) => this.api.unsub(sub));
+    if (this.searchSub) {
+      clearTimeout(this.searchSub);
+    }
+  }
+
+  filterChips(chipName: string) {
+    localStorage.setItem('report_chip_selected', chipName);
+    const chipFilter = this.getChipFilter(chipName);
+    this.activeChip.next(chipName);
+    this.showTests.next(this.sortTests(
+      this.tests.getValue()
+        .filter((test: any) => chipFilter(test) && this.getContextTestFilter(
+          test, this.contextSearch.value === null ? '' : this.contextSearch.value
+        ))
+    ));
   }
 
   setActivePage(page: string) {
@@ -150,7 +143,6 @@ export class StressReportComponent implements OnInit, OnDestroy {
 
   getReportTests() {
     this.loading = true;
-    console.log('true');
     this.getReportTestsSub = this.api.post('get_report_tests', {
       name: this.reportId,
       page: this.activePage
@@ -171,12 +163,25 @@ export class StressReportComponent implements OnInit, OnDestroy {
             return {name: key, count: statuses[key]}
           });
         chips.push({name: 'all', count: tests.length});
-        console.log('false');
+        chips.push({
+          name: 'failed + known issues',
+          count: tests.filter((test: any) => {
+            return test.status === 'failed'
+              && test.config.hasOwnProperty('known_issues')
+              && test.config.known_issues.length > 0
+          }).length
+        });
+        chips.push({
+          name: 'failed - known issues',
+          count: tests.filter((test: any) => test.status === 'failed' && !test.config.hasOwnProperty('known_issues')).length
+        });
         this.loading = false;
 
-        this.stats.next(chips);
+        this.stats.next(chips.sort((a: any, b: any) => a.name.localeCompare(b.name)));
         this.tests.next(tests);
-        this.showTests.next(tests);
+        this.showTests.next(this.sortTests(tests.filter((test: any) => this.getChipFilter(this.activeChip.getValue())(test) && this.getContextTestFilter(
+          test, this.contextSearch.value === null ? '' : this.contextSearch.value
+        ))));
 
         const contextSearchText = localStorage.getItem('reportContextSearch')
         if (contextSearchText !== null) {
@@ -214,25 +219,26 @@ export class StressReportComponent implements OnInit, OnDestroy {
   }
 
   getChipStyle(stat: any) {
-    return {
-      backgroundColor: stat.name === 'passed'
-        ? 'rgba(6,218,0,0.1)' : stat.name === 'failed'
-          ? 'rgba(218,0,0,0.1)' : stat.name === 'running'
-            ? 'rgba(150,117,0, 0.1)' : ''
-    };
+    if (stat.name === this.activeChip.getValue()) {
+      return {}
+    } else {
+      return {
+        backgroundColor: stat.name === 'passed'
+          ? 'rgba(6,218,0,0.1)' : stat.name === 'failed'
+            ? 'rgba(218,0,0,0.2)' : stat.name === 'failed - known issues'
+              ? 'rgba(255,0,0,0.1)' : stat.name === 'failed + known issues'
+                ? 'rgba(200,0,0,0.3)' : stat.name === 'running'
+                  ? 'rgba(150,117,0, 0.1)' : ''
+      };
+    }
   }
 
-  testContainedText(test: any, text: string): boolean {
-    return !!Object.keys(test.config)
-      .find(k => test.config[k].toString().includes(text)
-        || k.includes(text)
-        || test.status.includes(text)
-        || (test.start_pretty ? test.start_pretty.includes(text) : false)
-        || (test.hasOwnProperty('end_pretty') && test.end_pretty.includes(text)));
+  getChipClass(stat: any): string {
+    return stat.name === this.activeChip.getValue() ? 'selected-chip' : '';
   }
 
   filterByContext(text: string) {
-    this.showTests.next(this.tests.getValue().filter((test: any) => this.testContainedText(test, text)));
+    this.showTests.next(this.sortTests(this.tests.getValue().filter((test: any) => this.getContextTestFilter(test, text))));
   }
 
   searchContext(change: any) {
@@ -250,7 +256,7 @@ export class StressReportComponent implements OnInit, OnDestroy {
         return;
       }
       if (change.target.value === '') {
-        this.showTests.next(this.tests.getValue());
+        this.showTests.next(this.sortTests(this.tests.getValue()));
         localStorage.removeItem('reportContextSearch');
       }
 
@@ -259,7 +265,6 @@ export class StressReportComponent implements OnInit, OnDestroy {
       this.searchSub = null;
     }, 300);
   }
-
 
   selectAllShown() {
     const selectedTests = this.actionsService.selectedTests.getValue();
@@ -274,5 +279,82 @@ export class StressReportComponent implements OnInit, OnDestroy {
   onSelectPage(page: Page) {
     this.setActivePage(page.name);
     this.getReportTests();
+  }
+
+  changeSort(name: string) {
+    if (this.orderByCategory === name) {
+      this.orderByCategoryOrder = this.orderByCategoryOrder === 'up' ? 'down' : 'up';
+    } else {
+      this.orderByCategory = name;
+      this.orderByCategoryOrder = 'up';
+    }
+    this.showTests.next(this.sortTests(this.showTests.getValue()));
+    localStorage.setItem('report_sort_category', this.orderByCategory)
+    localStorage.setItem('report_sort_order', this.orderByCategoryOrder)
+  }
+
+  private getChipFilter(chipName: string): any {
+    switch (chipName) {
+      case 'running': {
+        return (test: any) => test.status == 'running';
+      }
+      case 'failed': {
+        return (test: any) => test.status == 'failed';
+      }
+      case 'failed + known issues': {
+        return (test: any) => test.status == 'failed' && test.config.hasOwnProperty('known_issues') && test.config.known_issues.length > 0;
+      }
+      case 'failed - known issues': {
+        return (test: any) => test.status == 'failed' && !test.config.hasOwnProperty('known_issues');
+      }
+      case 'passed': {
+        return (test: any) => test.status == 'passed';
+      }
+      case 'all': {
+        return (_: any) => true;
+      }
+    }
+  }
+
+  private getContextTestFilter(test: any, text: string): boolean {
+    return !!Object.keys(test.config)
+      .find(k => test.config[k].toString().includes(text)
+        || k.includes(text)
+        || test.status.includes(text)
+        || (test.start_pretty ? test.start_pretty.includes(text) : false)
+        || (test.hasOwnProperty('end_pretty') && test.end_pretty.includes(text)));
+  }
+
+  private sortTests(tests: Array<any>): Array<any> {
+    return tests.sort((a: any, b: any) => {
+      let res;
+      if (this.orderByCategory === 'name') {
+        res = a.config.test_name.localeCompare(b.config.test_name);
+        if (this.orderByCategoryOrder === 'up') {
+          return res * -1;
+        }
+        return res;
+      } else if (this.orderByCategory === 'start_date') {
+        res = a.start_time - b.start_time;
+        if (this.orderByCategoryOrder === 'up') {
+          return res * -1;
+        }
+        return res;
+      } else {
+        let aEnd = a.start_time
+        let bEnd = b.start_time
+        if (a.hasOwnProperty('end_time')) {
+          aEnd = a.end_time;
+        }
+        if (b.hasOwnProperty('end_time')) {
+          bEnd = b.end_time;
+        }
+        res = aEnd - bEnd;
+        if (this.orderByCategoryOrder === 'up') {
+          return res * -1;
+        }
+        return res;
+      }
+    });
   }
 }

@@ -14,9 +14,16 @@ export class ApiService {
               private http: HttpClient) {
   }
 
-  unsub(sub: Subscription): Subscription {
-    if (sub) {
-      sub.unsubscribe();
+  unsub(sub: Subscription, idx: number | null = null): Subscription {
+    try {
+      if (sub) {
+        sub.unsubscribe();
+      }
+    } catch (e) {
+      if (idx !== null) {
+        console.error(`Failed to unsubscribe from subscription ${idx}`);
+      }
+      console.error('failed to unsubscribe', e);
     }
     return sub;
   }

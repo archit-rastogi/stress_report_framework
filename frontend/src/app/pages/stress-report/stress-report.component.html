@@ -3,12 +3,35 @@
   <div class="page" *ngIf="((pages | async) ?? []).length > 0">Page: {{activePage}}</div>
   <!-- failed/passed stat -->
   <mat-chip-list>
-    <mat-chip (click)="filterChips(stat.name)" [ngStyle]="getChipStyle(stat)" *ngFor="let stat of stats | async">
+    <mat-chip (click)="filterChips(stat.name)" [ngClass]="getChipClass(stat)" [ngStyle]="getChipStyle(stat)" *ngFor="let stat of stats | async">
       {{stat.name}} - {{stat.count}}
     </mat-chip>
   </mat-chip-list>
   <!-- Quick actions -->
-  <div style="display: flex">
+  <div class="quick-actions">
+    <div>
+      <span style="margin-left: 20px">
+      Sort by:
+      <button mat-button (click)="changeSort('name')">
+        name
+        <mat-icon *ngIf="orderByCategory === 'name'"
+                  color="primary"
+                  [svgIcon]="orderByCategoryOrder == 'up' ? 'fas:angle-down': 'fas:angle-up'"></mat-icon>
+      </button>
+      <button mat-button (click)="changeSort('start_date')">
+        start date
+        <mat-icon *ngIf="orderByCategory === 'start_date'"
+                  color="primary"
+                  [svgIcon]="orderByCategoryOrder == 'up' ? 'fas:angle-down': 'fas:angle-up'"></mat-icon>
+      </button>
+      <button mat-button (click)="changeSort('end_date')">
+        end date
+        <mat-icon *ngIf="orderByCategory === 'end_date'"
+                  color="primary"
+                  [svgIcon]="orderByCategoryOrder == 'up' ? 'fas:angle-down': 'fas:angle-up'"></mat-icon>
+      </button>
+    </span>
+    </div>
     <div class="additional-actions">
       <button class="icon" mat-icon-button (click)="selectAllShown()">
         <mat-icon svgIcon="fas:check-double"></mat-icon>
