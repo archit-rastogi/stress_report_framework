@@ -50,7 +50,7 @@ export class StressReportComponent implements OnInit, OnDestroy {
   private excludeTestsSub: any;
   private getReportTestsSub: any;
   private deleteTestSub: any;
-  private searchSub: number | null = null;
+  private searchSub: number = 0;
 
   constructor(private activatedRoute: ActivatedRoute,
               private router: Router,
@@ -262,7 +262,7 @@ export class StressReportComponent implements OnInit, OnDestroy {
 
       this.filterByContext(change.target.value);
       localStorage.setItem('reportContextSearch', change.target.value);
-      this.searchSub = null;
+      this.searchSub = 0;
     }, 300);
   }
 
