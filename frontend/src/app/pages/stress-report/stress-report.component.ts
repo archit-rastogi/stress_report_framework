@@ -191,7 +191,10 @@ export class StressReportComponent implements OnInit, OnDestroy {
               id: foundPageTest ? foundPageTest.test_id : null,
             })
           });
-        test.previousTests = previousTests.splice(previousTests.length - 10, previousTests.length);
+        test.previousTests = previousTests.splice(
+          previousTests.length - 10 < 0 ? 0 : previousTests.length - 10,
+          previousTests.length
+        );
         newTests.push(test)
       });
       this.tests.next(newTests);
@@ -230,13 +233,13 @@ export class StressReportComponent implements OnInit, OnDestroy {
             && test.config.known_issues.length > 0
         }).length;
         if (failedWithKnownIssues > 0) {
-          chips.push({name: 'failed + known issues', count: failedWithKnownIssues});
+          chips.push({name: 'failed with known issues', count: failedWithKnownIssues});
         }
         const failedWithoutKnownIssues = tests
           .filter((test: any) => test.status === 'failed'
             && !test.config.hasOwnProperty('known_issues')).length
         if (failedWithoutKnownIssues > 0) {
-          chips.push({name: 'failed - known issues', count: failedWithoutKnownIssues});
+          chips.push({name: 'failed without known issues', count: failedWithoutKnownIssues});
         }
         this.loading = false;
         this.stats.next(chips.sort((a: any, b: any) => a.name.localeCompare(b.name)));
@@ -290,8 +293,8 @@ export class StressReportComponent implements OnInit, OnDestroy {
       return {
         backgroundColor: stat.name === 'passed'
           ? 'rgba(6,218,0,0.3)' : stat.name === 'failed'
-            ? 'rgba(218,0,0,0.2)' : stat.name === 'failed - known issues'
-              ? 'rgba(200,0,0,0.3)' : stat.name === 'failed + known issues'
+            ? 'rgba(255,0,0,0.4)' : stat.name === 'failed without known issues'
+              ? 'rgba(255,0,0,0.3)' : stat.name === 'failed with known issues'
                 ? 'rgba(255,0,0,0.2)' : stat.name === 'running'
                   ? 'rgba(150,117,0,0.3)' : ''
       };
@@ -384,10 +387,10 @@ export class StressReportComponent implements OnInit, OnDestroy {
       case 'failed': {
         return (test: any) => test.status == 'failed';
       }
-      case 'failed + known issues': {
+      case 'failed with known issues': {
         return (test: any) => test.status == 'failed' && test.config.hasOwnProperty('known_issues') && test.config.known_issues.length > 0;
       }
-      case 'failed - known issues': {
+      case 'failed without known issues': {
         return (test: any) => test.status == 'failed' && !test.config.hasOwnProperty('known_issues');
       }
       case 'passed': {

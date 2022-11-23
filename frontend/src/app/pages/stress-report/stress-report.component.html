@@ -8,14 +8,15 @@
     <ng-container *ngIf="showStatistics && (statistics | async)">
       <span>Latest statistics update was at: {{ ((statisticsUpdateTime | async) ?? {formatted: 'none'}).formatted }} {{ getStatisticsUpdateWarning() }}</span>
       <app-pages-total-statistics [statisticsData]="statistics | async"></app-pages-total-statistics>
-      <app-page-flaky-tests [statisticsData]="statistics | async"></app-page-flaky-tests>
       <app-pages-unique-known-issues [statisticsData]="statistics | async"></app-pages-unique-known-issues>
+      <app-page-flaky-tests [statisticsData]="statistics | async"></app-page-flaky-tests>
     </ng-container>
   </div>
   <app-pages-hitmap (onSelect)="onSelectPage($event)" *ngIf="((pages | async) ?? []).length > 0" [pages]="pages | async"></app-pages-hitmap>
-  <div class="page-title" *ngIf="((pages | async) ?? []).length > 0">Page: {{activePage}}</div>
+  <div class="page-title" *ngIf="((pages | async) ?? []).length > 0">Selected page: {{activePage}}</div>
   <!-- failed/passed stat -->
   <div class="block">
+    <div style="font-size: large; font-weight: bold; padding-top: 10px">Tests filters:</div>
     <button class="filter-btn" mat-raised-button (click)="toggleFilterChips(stat.name)" [ngClass]="getChipClass(stat)" [ngStyle]="getChipStyle(stat)" *ngFor="let stat of stats | async">
       {{stat.name}} - {{stat.count}}
     </button>

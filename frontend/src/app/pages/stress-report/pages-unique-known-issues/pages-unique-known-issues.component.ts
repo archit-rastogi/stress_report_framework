@@ -74,7 +74,8 @@ export class PagesUniqueKnownIssuesComponent implements OnInit, OnChanges {
 
   getPageStyle(page: string) {
     return this.selectedPage === page ? {
-      backgroundColor: 'rgba(63,0,159,0.3)',
+      backgroundColor: 'rgba(0,0,0,1)',
+      color: 'white'
     } : {};
   }
 
@@ -122,7 +123,7 @@ export class PagesUniqueKnownIssuesComponent implements OnInit, OnChanges {
               this.issues.next(this.issues.getValue()
                 .map((iissue: any) => {
                   if (iissue.url === issue.url) {
-                    iissue.title = respData.title;
+                    iissue.title = `#${p[3]} ${respData.title}`;
                   }
                   return iissue;
                 }));

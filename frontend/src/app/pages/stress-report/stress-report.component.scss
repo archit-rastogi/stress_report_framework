@@ -58,9 +58,11 @@
 
 
 .selected-chip {
-  background: linear-gradient(-45deg, rgba(200, 0, 255, 0.3), rgba(255, 0, 0, 0.3), rgba(213, 162, 0, 0.3), rgba(43, 199, 0, 0.3));
-  background-size: 300% 300%;
-  animation: gradient 2s ease infinite;
+  //background: linear-gradient(-45deg, rgba(200, 0, 255, 0.3), rgba(255, 0, 0, 0.3), rgba(213, 162, 0, 0.3), rgba(43, 199, 0, 0.3));
+  //background-size: 300% 300%;
+  //animation: gradient 2s ease infinite;
+  background-color: black;
+  color: white;
 }
 
 @keyframes gradient {

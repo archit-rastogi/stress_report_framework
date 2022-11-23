@@ -22,7 +22,8 @@
       </div>
       <div class="block" *ngIf="test.previousTests">
         <div *ngFor="let previousTest of test.previousTests">
-          <button [matTooltip]="previousTest.page" class="history-btn" mat-icon-button (click)="openPreviousTest(previousTest.id)"
+          <button [matTooltip]="previousTest.page" class="history-btn" mat-icon-button
+                  (click)="openPreviousTest(previousTest.id)"
                   [ngStyle]="getVersionStyle(previousTest.status, previousTest.id)">
           </button>
         </div>
@@ -30,11 +31,11 @@
     </div>
   </mat-card-title-group>
   <mat-card-actions>
-    <ng-container *ngIf="test.config.hasOwnProperty('known_issues')">
+    <ng-container *ngIf="((knownIssues | async)??[]).length > 0">
       <span class="ki-text">Known issues</span>
-      <ng-container *ngFor="let ki of test.config.known_issues.split(',')">
+      <ng-container *ngFor="let ki of knownIssues | async">
         <br/>
-        <button mat-button (click)="openLink(ki)">{{ki}}</button>
+        <button mat-button (click)="openLink(ki.url)">{{ ki.title }}</button>
       </ng-container>
     </ng-container>
   </mat-card-actions>

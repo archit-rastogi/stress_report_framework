@@ -1,4 +1,4 @@
-import {Component, EventEmitter, Input, OnDestroy, Output} from '@angular/core';
+import {Component, EventEmitter, Input, OnDestroy, OnInit, Output} from '@angular/core';
 import {Router} from '@angular/router';
 import * as moment from 'moment';
 import {ApiService} from '../../services/api.service';
@@ -9,19 +9,27 @@ import {BehaviorSubject} from 'rxjs';
   templateUrl: './stress-test-card.component.html',
   styleUrls: ['./stress-test-card.component.scss']
 })
-export class StressTestCardComponent implements OnDestroy {
+export class StressTestCardComponent implements OnDestroy, OnInit {
 
   @Input() test: any;
   @Input() selected: boolean = false;
   @Output() onToggle = new EventEmitter<boolean>();
   @Output() onClick = new EventEmitter();
+
   exceptions = new BehaviorSubject<any[]>([]);
+  knownIssues = new BehaviorSubject<any[]>([]);
+
   private allowToOpen = true;
   private getResultsSub: any;
 
   constructor(private router: Router,
               private api: ApiService) {
   }
+
+  ngOnInit() {
+    this.findKnownIssues();
+  }
+
 
   ngOnDestroy() {
     this.api.unsub(this.getResultsSub);
@@ -30,6 +38,36 @@ export class StressTestCardComponent implements OnDestroy {
   blockOpen() {
     this.allowToOpen = false;
     setTimeout(() => this.allowToOpen = true, 300);
+  }
+
+  findKnownIssues() {
+    Object.keys(this.test.config).forEach(key => {
+      this.test.config[key].split(',').forEach((knownIssue: string) => {
+        if (knownIssue.startsWith('https://github.com')) {
+          const p = knownIssue.match('https://github.com/([a-z-0-9]+)/([a-z-0-9]+)/issues/([0-9]+)');
+          if (p) {
+            fetch(`https://api.github.com/repos/${p[1]}/${p[2]}/issues/${p[3]}`, {
+              headers: {Accept: 'application/vnd.github+json'}
+            }).then((resp) => resp.json())
+              .then((respData) => {
+                const existedKnownIssues = this.knownIssues.getValue()
+                existedKnownIssues.push({
+                  title: `#${p[3]} ${respData.title}`,
+                  url: knownIssue
+                });
+                this.knownIssues.next(existedKnownIssues);
+              });
+          }
+        } else if (key === 'known_issues') {
+          const existedKnownIssues = this.knownIssues.getValue()
+          existedKnownIssues.push({
+            title: knownIssue,
+            url: knownIssue
+          });
+          this.knownIssues.next(existedKnownIssues);
+        }
+      });
+    });
   }
 
   getStatusStyle(status: string): any {

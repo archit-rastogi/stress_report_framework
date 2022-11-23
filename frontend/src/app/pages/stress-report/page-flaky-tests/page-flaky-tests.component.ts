@@ -10,7 +10,7 @@ import {ApiService} from '../../../services/api.service';
 export class PageFlakyTestsComponent implements OnInit, OnChanges {
   @Input() statisticsData: any | null = null;
 
-  show = true;
+  show = false;
   tests = new BehaviorSubject<any[]>([]);
   private allowToOpen = true;
 
@@ -20,7 +20,7 @@ export class PageFlakyTestsComponent implements OnInit, OnChanges {
   ngOnInit(): void {
     const show = localStorage.getItem('pages-flaky-tests-show');
     if (show == null) {
-      this.show = true;
+      this.show = false;
     } else {
       this.show = show === 'true';
     }
