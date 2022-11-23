@@ -1,0 +1,36 @@
+.block {
+  display: flex;
+  flex-wrap: wrap;
+}
+
+mat-card {
+  margin-top: 5px;
+}
+
+mat-card:hover {
+  background-color: rgba(5, 0, 255, 0.06);
+  cursor: pointer;
+}
+
+.previous-test {
+  width: 20px;
+  height: 20px;
+}
+
+.title {
+  font-size: 1.2rem;
+  font-weight: bold;
+}
+
+.container {
+  margin-bottom: 15px;
+  margin-top: 15px;
+}
+
+.show-btn {
+  padding: 10px;
+  width: 100%;
+  text-align: left;
+  font-weight: bold;
+  font-size: x-large;
+}

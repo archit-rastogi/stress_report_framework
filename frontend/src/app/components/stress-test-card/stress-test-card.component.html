@@ -15,13 +15,27 @@
         <button mat-button class="status" [ngStyle]="getStatusStyle(test.status)"
                 (click)="openException()">{{test.status}}</button>
       </div>
+      <div class="open-in-new-window">
+        <button mat-button (click)="openTestInNewWindow()">
+          <mat-icon svgIcon="fas:arrow-up-right-from-square"></mat-icon>
+        </button>
+      </div>
+      <div class="block" *ngIf="test.previousTests">
+        <div *ngFor="let previousTest of test.previousTests">
+          <button [matTooltip]="previousTest.page" class="history-btn" mat-icon-button (click)="openPreviousTest(previousTest.id)"
+                  [ngStyle]="getVersionStyle(previousTest.status, previousTest.id)">
+          </button>
+        </div>
+      </div>
     </div>
   </mat-card-title-group>
-  <mat-card-actions *ngIf="test.config.hasOwnProperty('known_issues')">
-    <span class="ki-text">Known issues</span>
-    <ng-container *ngFor="let ki of test.config.known_issues.split(',')">
-      <br/>
-      <button mat-button (click)="openLink(ki)">{{ki}}</button>
+  <mat-card-actions>
+    <ng-container *ngIf="test.config.hasOwnProperty('known_issues')">
+      <span class="ki-text">Known issues</span>
+      <ng-container *ngFor="let ki of test.config.known_issues.split(',')">
+        <br/>
+        <button mat-button (click)="openLink(ki)">{{ki}}</button>
+      </ng-container>
     </ng-container>
   </mat-card-actions>
 </mat-card>

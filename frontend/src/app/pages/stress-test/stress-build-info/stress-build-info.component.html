@@ -18,22 +18,30 @@
       <tr *ngFor="let propKey of getKeys((((testInfo | async) ?? {}) ?? {config: {}}).config)">
         <td style="font-weight: bold; padding-right: 20px">{{ propKey }}</td>
         <td>
-          <ng-container *ngIf="propKey !== 'known_issues'">
+          <ng-container>
             <ng-container *ngIf="getValue(propKey).includes('http')">
-              <a (click)="openLink(getValue(propKey))">{{ getValue(propKey) }}</a>
+              <a *ngFor="let link of getValue(propKey).split(',')"
+                 (click)="openLink(link)">
+                {{ link }}
+              </a>
             </ng-container>
             <ng-container *ngIf="!getValue(propKey).includes('http')">
               {{ getValue(propKey) }}
             </ng-container>
           </ng-container>
-          <ng-container *ngIf="propKey === 'known_issues'">
-            <div *ngFor="let link of getValue(propKey).split(',')">
-              <a (click)="openLink(link)">{{link}}</a>
-              <br/>
-            </div>
-          </ng-container>
         </td>
       </tr>
     </table>
   </div>
+  <ng-container *ngIf="knownIssues | async">
+    <div class="flex">
+      <h2>Known issues</h2>
+    </div>
+    <div class="flex">
+      <mat-card (click)="openLink(knownIssue.url)" *ngFor="let knownIssue of knownIssues | async">
+        <mat-card-title>{{knownIssue.title}}</mat-card-title>
+        <span>{{ knownIssue.url }}</span>
+      </mat-card>
+    </div>
+  </ng-container>
 </ng-container>

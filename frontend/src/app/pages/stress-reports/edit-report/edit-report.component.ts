@@ -12,7 +12,7 @@ import {ApiService} from '../../../services/api.service';
 })
 export class EditReportComponent implements OnInit {
 
-  name = new FormControl({value: '', disabled: true});
+  name = new FormControl('');
 
   filterValue = new FormControl();
   filterKey = new FormControl();
@@ -87,14 +87,17 @@ export class EditReportComponent implements OnInit {
   }
 
   update() {
-    this.report.config['filters'] = this.filters.getValue();
-    this.report.config['dates'] = this.dateRanges.getValue();
-    this.report.config['excludes'] = this.excludedTests.getValue().map(t => t.test_id);
+    const newConfig: any = {
+      filters: this.filters.getValue(),
+      dates: this.dateRanges.getValue(),
+      excludes: this.excludedTests.getValue().map(t => t.test_id),
+    };
     if (this.pageProperty.value !== null && this.pageProperty.value.length > 0) {
-      this.report.config['page_property'] = this.pageProperty.value;
+      newConfig.page_property = this.pageProperty.value;
     }
     this.updateReportSub = this.api.post('update_report', {
-      config: this.report.config,
+      config: newConfig,
+      name: this.name.value,
       report_id: this.report.report_id
     }).subscribe(res => {
       if (res.status) {

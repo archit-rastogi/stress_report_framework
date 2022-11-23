@@ -95,7 +95,7 @@ export class ActionsService {
   openEditModal() {
     this.dialogSub = this.dialog.open(
       EditRunInfoDialogComponent,
-      {data: this.selectedTests.getValue()[0]}
+      {data: this.selectedTests.getValue()}
     ).afterClosed().subscribe(res => {
       if (res) {
         this.selectedTests.next([]);

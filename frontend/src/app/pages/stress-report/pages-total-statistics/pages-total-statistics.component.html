@@ -1,0 +1,5 @@
+<button mat-button class="show-btn" (click)="toggleShow()">
+  Total report statistics
+  <mat-icon style="vertical-align: sub" [svgIcon]="show ? 'fas:angle-down' : 'fas:angle-left'"></mat-icon>
+</button>
+<div echarts *ngIf="show" [options]="(options | async) ?? {}" class="chart"></div>

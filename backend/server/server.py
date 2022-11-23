@@ -39,14 +39,17 @@ app.add_routes([
     web.post('/back/get_test_results', main_module.get_test_results),
     web.post('/back/get_tests', main_module.get_tests),
     web.post('/back/get_test_info', main_module.get_test_info),
+    web.post('/back/get_tests_info', main_module.get_tests_info),
     web.post('/back/get_steps', main_module.get_steps),
     web.post('/back/get_metrics', main_module.get_metrics),
     web.post('/back/get_metric', main_module.get_metric),
     web.post('/back/get_attachments', main_module.get_attachments),
+    web.post('/back/get_test_history', main_module.get_test_history),
 
     web.post('/back/get_reports', main_module.get_reports),
     web.post('/back/get_report_tests', main_module.get_report_tests),
     web.post('/back/get_report_pages', main_module.get_report_pages),
+    web.post('/back/get_report_statistics', main_module.get_report_statistics),
     web.post('/back/add_test_properties', main_module.add_test_properties),
     web.post('/back/remove_test_properties', main_module.remove_test_properties),
     web.post('/back/update_report', main_module.update_report),
@@ -56,7 +59,7 @@ app.add_routes([
     web.post('/back/delete_test', main_module.delete_test),
     web.post('/back/delete_report', main_module.delete_report),
     web.post('/back/delete_attachments', main_module.delete_attachments),
-    web.post('/back/edit_test_info', main_module.edit_test_info),
+    web.post('/back/edit_tests_info', main_module.edit_tests_info),
 ]),
 
 web.run_app(app, port=int(environ.get('PORT', 9999)))

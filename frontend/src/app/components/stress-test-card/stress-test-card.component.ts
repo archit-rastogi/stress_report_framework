@@ -121,4 +121,40 @@ export class StressTestCardComponent implements OnDestroy {
     this.blockOpen();
     window.open(ki, '_blank');
   }
+
+  getVersionStyle(status: string, testId: string): any {
+    if (testId === this.test.test_id) {
+      return {backgroundColor: 'rgba(90,0,178,0.4)'}
+    }
+    switch (status) {
+      case 'passed': {
+        return {backgroundColor: 'rgba(38,134,0,0.3)'};
+      }
+      case 'failed': {
+        return {backgroundColor: 'rgba(255,0,0,0.3)'};
+      }
+      case 'running': {
+        return {backgroundColor: 'rgba(175,152,0,0.3)'};
+      }
+      case 'none': {
+        return {backgroundColor: 'rgba(255,255,255,0.5)'};
+      }
+    }
+  }
+
+  openPreviousTest(id: string): void {
+    this.allowToOpen = false;
+    setTimeout(() => this.allowToOpen = true, 300);
+    if (id === null) {
+      this.api.snackMessage('This test did not exist on this page!', 4);
+    } else {
+      window.open(`${this.api.getBaseLink()}/stress_test/${id}`, '_blank')
+    }
+  }
+
+  openTestInNewWindow() {
+    this.allowToOpen = false;
+    setTimeout(() => this.allowToOpen = true, 300);
+    window.open(`${this.api.getBaseLink()}/stress_test/${this.test.test_id}`, '_blank')
+  }
 }

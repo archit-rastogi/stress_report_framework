@@ -53,6 +53,12 @@ import {MatTooltipModule} from '@angular/material/tooltip';
 import {ActionsService} from './services/actions.service';
 import {MatTabsModule} from '@angular/material/tabs';
 import {MatAutocompleteModule} from '@angular/material/autocomplete';
+import {ScrollingModule} from '@angular/cdk/scrolling';
+import { StressHistoryComponent } from './pages/stress-test/stress-history/stress-history.component';
+import {MatSelectModule} from '@angular/material/select';
+import { PagesTotalStatisticsComponent } from './pages/stress-report/pages-total-statistics/pages-total-statistics.component';
+import { PageFlakyTestsComponent } from './pages/stress-report/page-flaky-tests/page-flaky-tests.component';
+import { PagesUniqueKnownIssuesComponent } from './pages/stress-report/pages-unique-known-issues/pages-unique-known-issues.component';
 
 @NgModule({
   declarations: [
@@ -81,6 +87,10 @@ import {MatAutocompleteModule} from '@angular/material/autocomplete';
     PagesHitmapComponent,
     AddPropertiesComponent,
     RemovePropertiesComponent,
+    StressHistoryComponent,
+    PagesTotalStatisticsComponent,
+    PageFlakyTestsComponent,
+    PagesUniqueKnownIssuesComponent,
   ],
   imports: [
     BrowserModule,
@@ -107,6 +117,8 @@ import {MatAutocompleteModule} from '@angular/material/autocomplete';
     MatCheckboxModule,
     MatTooltipModule,
     MatAutocompleteModule,
+    MatSelectModule,
+    ScrollingModule,
     NgxEchartsModule.forRoot({echarts: () => import('echarts')}),
   ],
   providers: [

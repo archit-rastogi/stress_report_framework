@@ -50,7 +50,7 @@
   text-align: right;
 }
 
-.page {
+.page-title {
   font-weight: bold;
   font-size: x-large;
   margin-bottom: 20px;
@@ -79,4 +79,23 @@
   display: flex;
   justify-content: space-between;
   margin-top: 20px;
+}
+
+.show-statistics-btn {
+  font-weight: bold;
+  font-size: x-large;
+}
+.statistics {
+  margin-bottom: 20px;
+}
+
+.block {
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.filter-btn {
+  line-height: normal !important;
+  margin: 5px;
+  padding: 5px;
 }

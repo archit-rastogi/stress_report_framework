@@ -22,6 +22,12 @@ mat-card:hover {
   justify-content: right
 }
 
+.open-in-new-window {
+  margin: 10px;
+  display: flex;
+  justify-content: right
+}
+
 mat-card-title-group {
   display: flex;
 }
@@ -38,4 +44,19 @@ mat-card-actions {
   width: 60%;
   margin-left: 20px;
   margin-right: auto;
+}
+
+.block {
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.history-btn {
+  height: 20px !important;
+  width: 20px;
+  margin: 5px;
+}
+
+.history-btn:hover {
+  background-color: rgba(5, 0, 255, 0.5) !important;
 }

@@ -1,4 +1,5 @@
 import logging
+import sys
 from dataclasses import dataclass
 from datetime import datetime
 from traceback import format_exc
@@ -52,8 +53,7 @@ class ModuleConfig:
 
 class AbstractModule:
     def __init__(self, config: ModuleConfig):
-        self.log = logging
-        self.log.basicConfig(level=logging.INFO)
+        self.log = self._init_logger()
         self.config = config
         self.db = QueryExecute(
             self.log,
@@ -63,6 +63,17 @@ class AbstractModule:
             self.config.db_username,
             setup_file_path=config.setup_file_path
         )
+
+    def _init_logger(self):
+        f = logging.Formatter('%(asctime)s:%(levelname)5s: %(message)s')
+        console_handler = logging.StreamHandler(sys.stdout)
+        console_handler.setFormatter(f)
+
+        _logger = logging.getLogger("stress")
+        _logger.handlers.clear()
+        _logger.setLevel(logging.DEBUG)
+        _logger.addHandler(console_handler)
+        return _logger
 
     async def get_params(self, request: Request):
         return await request.json()

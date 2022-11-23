@@ -1,12 +1,25 @@
 <div class="container">
+  <mat-progress-bar *ngIf="statisticsLoading" mode="indeterminate"></mat-progress-bar>
+  <div *ngIf="statistics | async" class="statistics">
+    <button class="show-statistics-btn width" mat-button (click)="toggleShowStatistics()">
+      <mat-icon style="vertical-align: baseline" [svgIcon]="showStatistics ? 'fas:angle-down' : 'fas:angle-right'"></mat-icon>
+      Detailed statistics
+    </button>
+    <ng-container *ngIf="showStatistics && (statistics | async)">
+      <span>Latest statistics update was at: {{ ((statisticsUpdateTime | async) ?? {formatted: 'none'}).formatted }} {{ getStatisticsUpdateWarning() }}</span>
+      <app-pages-total-statistics [statisticsData]="statistics | async"></app-pages-total-statistics>
+      <app-page-flaky-tests [statisticsData]="statistics | async"></app-page-flaky-tests>
+      <app-pages-unique-known-issues [statisticsData]="statistics | async"></app-pages-unique-known-issues>
+    </ng-container>
+  </div>
   <app-pages-hitmap (onSelect)="onSelectPage($event)" *ngIf="((pages | async) ?? []).length > 0" [pages]="pages | async"></app-pages-hitmap>
-  <div class="page" *ngIf="((pages | async) ?? []).length > 0">Page: {{activePage}}</div>
+  <div class="page-title" *ngIf="((pages | async) ?? []).length > 0">Page: {{activePage}}</div>
   <!-- failed/passed stat -->
-  <mat-chip-list>
-    <mat-chip (click)="filterChips(stat.name)" [ngClass]="getChipClass(stat)" [ngStyle]="getChipStyle(stat)" *ngFor="let stat of stats | async">
+  <div class="block">
+    <button class="filter-btn" mat-raised-button (click)="toggleFilterChips(stat.name)" [ngClass]="getChipClass(stat)" [ngStyle]="getChipStyle(stat)" *ngFor="let stat of stats | async">
       {{stat.name}} - {{stat.count}}
-    </mat-chip>
-  </mat-chip-list>
+    </button>
+  </div>
   <!-- Quick actions -->
   <div class="quick-actions">
     <div>

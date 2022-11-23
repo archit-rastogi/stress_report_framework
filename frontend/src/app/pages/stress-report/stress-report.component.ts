@@ -4,6 +4,7 @@ import {ApiService} from '../../services/api.service';
 import {BehaviorSubject} from 'rxjs';
 import {FormControl} from '@angular/forms';
 import {ActionsService} from '../../services/actions.service';
+import * as moment from 'moment';
 
 export class PageData {
   order: number;
@@ -32,16 +33,20 @@ export class Page {
 })
 export class StressReportComponent implements OnInit, OnDestroy {
   open = false;
-  reportId: string | null = null;
+  reportName: string | null = null;
+  showStatistics = true;
 
   tests = new BehaviorSubject<any[]>([])
   showTests = new BehaviorSubject<any[]>([])
   stats = new BehaviorSubject<any[]>([])
   pages = new BehaviorSubject<Page[]>([]);
+  statistics = new BehaviorSubject<any>(null);
+  statisticsUpdateTime = new BehaviorSubject<any>(null)
 
   activePage: string | null = null;
   contextSearch = new FormControl('');
   loading = false;
+  statisticsLoading = false;
   activeChip = new BehaviorSubject<string>('all');
   orderByCategory: string = 'date';
   orderByCategoryOrder: string = 'down';
@@ -50,6 +55,7 @@ export class StressReportComponent implements OnInit, OnDestroy {
   private excludeTestsSub: any;
   private getReportTestsSub: any;
   private deleteTestSub: any;
+  private getReportStatisticsSub: any;
   private searchSub: any = null;
 
   constructor(private activatedRoute: ActivatedRoute,
@@ -64,10 +70,17 @@ export class StressReportComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
+    this.statisticsLoading = false;
+    const reportShowStatistics = localStorage.getItem('report_show_statistics');
+    if (reportShowStatistics !== null) {
+      this.showStatistics = reportShowStatistics === 'true';
+    }
+
     const reportSortCategory = localStorage.getItem('report_sort_category');
     if (reportSortCategory !== null) {
       this.orderByCategory = reportSortCategory;
     }
+
     const reportSortOrder = localStorage.getItem('report_sort_order');
     if (reportSortOrder !== null) {
       this.orderByCategoryOrder = reportSortOrder;
@@ -82,7 +95,7 @@ export class StressReportComponent implements OnInit, OnDestroy {
     if (contextSearchText !== null) {
       this.contextSearch.setValue(contextSearchText);
     }
-    this.reportId = this.activatedRoute.snapshot.paramMap.get('id');
+    this.reportName = this.activatedRoute.snapshot.paramMap.get('id');
     const params: any = this.activatedRoute.snapshot.url[this.activatedRoute.snapshot.url.length - 1].parameters;
     if (params.page !== null && params.page !== undefined) {
       this.setActivePage(params.page);
@@ -103,8 +116,8 @@ export class StressReportComponent implements OnInit, OnDestroy {
     }
   }
 
-  filterChips(chipName: string) {
-    localStorage.setItem('report_chip_selected', chipName);
+  toggleFilterChips(chipName: string) {
+    this.changeFilterChips(chipName);
     const chipFilter = this.getChipFilter(chipName);
     this.activeChip.next(chipName);
     this.showTests.next(this.sortTests(
@@ -117,12 +130,12 @@ export class StressReportComponent implements OnInit, OnDestroy {
 
   setActivePage(page: string) {
     this.activePage = page;
-    this.router.navigate(['stress_report', this.reportId, {page}]);
+    this.router.navigate(['stress_report', this.reportName, {page}]);
   }
 
   getReportPages() {
     this.loading = true;
-    this.getReportPagesSub = this.api.post('get_report_pages', {name: this.reportId}).subscribe(res => {
+    this.getReportPagesSub = this.api.post('get_report_pages', {name: this.reportName}).subscribe(res => {
       if (res.status) {
         if (res.hasOwnProperty('pages') && Object.keys(res.pages).length > 0) {
           const listPages = Object.keys(res.pages).map(pageName => {
@@ -136,19 +149,67 @@ export class StressReportComponent implements OnInit, OnDestroy {
             this.setActivePage(listPages[listPages.length - 1].name)
           }
         }
+        this.getStatistics();
         this.getReportTests();
       }
     })
   }
 
+  getStatistics() {
+    this.statisticsLoading = true;
+    this.getReportStatisticsSub = this.api.post('get_report_statistics', {
+      name: this.reportName
+    }).subscribe(res => {
+      if (res.status && res.data) {
+        this.statistics.next(res.data.detailed_statistics);
+        const updateDate = moment(res.data.update_ts * 1000);
+        this.statisticsUpdateTime.next({
+          date: updateDate.toDate(),
+          formatted: updateDate.format('HH:mm:ss DD.MM.YYYY')
+        });
+        this.updateTestsWithStatistics();
+        this.statisticsLoading = false;
+      }
+    });
+  }
+
+  updateTestsWithStatistics() {
+    const newTests: any[] = [];
+    const stat = this.statistics.getValue();
+    if (stat !== null) {
+      this.tests.getValue().forEach((test: any) => {
+        const previousTests: any[] = [];
+        Object.keys(stat)
+          .filter((page: string) => stat[page].length > 0)
+          .sort((a: string, b: string) => stat[a][0].order - stat[b][0].order)
+          .forEach((pageName: any) => {
+            const foundPageTest = stat[pageName].find((pageTest: any) => pageTest.test_name === test.config.test_name);
+            previousTests.push({
+              name: test.config.test_name,
+              page: pageName,
+              status: foundPageTest ? foundPageTest.status : 'none',
+              id: foundPageTest ? foundPageTest.test_id : null,
+            })
+          });
+        test.previousTests = previousTests.splice(previousTests.length - 10, previousTests.length);
+        newTests.push(test)
+      });
+      this.tests.next(newTests);
+      const updateTests = this.showTests.getValue()
+        .map((test: any) => newTests
+          .find((nt: any) => nt.test_id === test.test_id))
+      this.showTests.next(updateTests);
+    }
+  }
+
   getReportTests() {
     this.loading = true;
     this.getReportTestsSub = this.api.post('get_report_tests', {
-      name: this.reportId,
+      name: this.reportName,
       page: this.activePage
     }).subscribe(res => {
       if (res.status) {
-        const tests = res.tests.sort((a: any, b: any) => a.start_time - b.start_time);
+        let tests = res.tests.sort((a: any, b: any) => a.start_time - b.start_time);
         const statuses: any = {};
         tests.forEach((test: any) => {
           if (statuses.hasOwnProperty(test.status)) {
@@ -163,30 +224,34 @@ export class StressReportComponent implements OnInit, OnDestroy {
             return {name: key, count: statuses[key]}
           });
         chips.push({name: 'all', count: tests.length});
-        chips.push({
-          name: 'failed + known issues',
-          count: tests.filter((test: any) => {
-            return test.status === 'failed'
-              && test.config.hasOwnProperty('known_issues')
-              && test.config.known_issues.length > 0
-          }).length
-        });
-        chips.push({
-          name: 'failed - known issues',
-          count: tests.filter((test: any) => test.status === 'failed' && !test.config.hasOwnProperty('known_issues')).length
-        });
+        const failedWithKnownIssues = tests.filter((test: any) => {
+          return test.status === 'failed'
+            && test.config.hasOwnProperty('known_issues')
+            && test.config.known_issues.length > 0
+        }).length;
+        if (failedWithKnownIssues > 0) {
+          chips.push({name: 'failed + known issues', count: failedWithKnownIssues});
+        }
+        const failedWithoutKnownIssues = tests
+          .filter((test: any) => test.status === 'failed'
+            && !test.config.hasOwnProperty('known_issues')).length
+        if (failedWithoutKnownIssues > 0) {
+          chips.push({name: 'failed - known issues', count: failedWithoutKnownIssues});
+        }
         this.loading = false;
-
         this.stats.next(chips.sort((a: any, b: any) => a.name.localeCompare(b.name)));
         this.tests.next(tests);
-        this.showTests.next(this.sortTests(tests.filter((test: any) => this.getChipFilter(this.activeChip.getValue())(test) && this.getContextTestFilter(
-          test, this.contextSearch.value === null ? '' : this.contextSearch.value
-        ))));
-
-        const contextSearchText = localStorage.getItem('reportContextSearch')
-        if (contextSearchText !== null) {
-          this.filterByContext(contextSearchText);
+        const chipFilteredTests: any[] = tests
+          .filter((test: any) => this.getChipFilter(this.activeChip.getValue())(test))
+        if (chipFilteredTests.length === 0) {
+          this.toggleFilterChips('all');
+          return;
         }
+        const newTests = this.sortTests(chipFilteredTests.filter(test => this.getContextTestFilter(
+          test, this.contextSearch.value === null ? '' : this.contextSearch.value
+        )))
+        this.showTests.next(newTests);
+        this.updateTestsWithStatistics();
       }
     })
   }
@@ -208,7 +273,7 @@ export class StressReportComponent implements OnInit, OnDestroy {
   excludeTests() {
     this.excludeTestsSub = this.api.post('add_exclude_tests', {
       tests: this.actionsService.selectedTests.getValue(),
-      name: this.reportId
+      name: this.reportName
     }).subscribe(res => {
       if (res.status) {
         this.api.snackMessage(`${this.actionsService.selectedTests.getValue().length} tests excluded from report!`, 2);
@@ -224,11 +289,11 @@ export class StressReportComponent implements OnInit, OnDestroy {
     } else {
       return {
         backgroundColor: stat.name === 'passed'
-          ? 'rgba(6,218,0,0.1)' : stat.name === 'failed'
+          ? 'rgba(6,218,0,0.3)' : stat.name === 'failed'
             ? 'rgba(218,0,0,0.2)' : stat.name === 'failed - known issues'
-              ? 'rgba(255,0,0,0.1)' : stat.name === 'failed + known issues'
-                ? 'rgba(200,0,0,0.3)' : stat.name === 'running'
-                  ? 'rgba(150,117,0, 0.1)' : ''
+              ? 'rgba(200,0,0,0.3)' : stat.name === 'failed + known issues'
+                ? 'rgba(255,0,0,0.2)' : stat.name === 'running'
+                  ? 'rgba(150,117,0,0.3)' : ''
       };
     }
   }
@@ -252,7 +317,7 @@ export class StressReportComponent implements OnInit, OnDestroy {
         } else {
           localStorage.setItem('reportContextSearch', change.target.value);
         }
-        this.filterChips(this.activeChip.getValue());
+        this.toggleFilterChips(this.activeChip.getValue());
         return;
       }
       if (change.target.value === '') {
@@ -291,6 +356,24 @@ export class StressReportComponent implements OnInit, OnDestroy {
     this.showTests.next(this.sortTests(this.showTests.getValue()));
     localStorage.setItem('report_sort_category', this.orderByCategory)
     localStorage.setItem('report_sort_order', this.orderByCategoryOrder)
+  }
+
+  getStatisticsUpdateWarning(): string {
+    const statDateUpdate = this.statisticsUpdateTime.getValue();
+    if (statDateUpdate !== null) {
+      return (statDateUpdate.date.getTime() - new Date().getTime()) / 1000 > 60 * 5 ? 'update in progress. Please update page in minute or so fpr new results' : '';
+    }
+    return '';
+  }
+
+  toggleShowStatistics() {
+    this.showStatistics = !this.showStatistics;
+    localStorage.setItem('report_show_statistics', this.showStatistics ? 'true' : 'false');
+  }
+
+  private changeFilterChips(chipName: string) {
+    localStorage.setItem('report_chip_selected', chipName);
+    this.activeChip.next(chipName);
   }
 
   private getChipFilter(chipName: string): any {

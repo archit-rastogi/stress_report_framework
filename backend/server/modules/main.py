@@ -1,14 +1,30 @@
 import asyncio
 from datetime import datetime
+from re import match
 
-from modules.base import AbstractModule, request_handler
+from modules.base import AbstractModule, request_handler, ModuleConfig
 
 
 class MainModule(AbstractModule):
+    def __init__(self, config: ModuleConfig):
+        AbstractModule.__init__(self, config)
+        self.calculating_report_history = {}
+        self.calculating_pages = {}
 
     @request_handler()
-    async def edit_test_info(self, params: dict):
-        await self.db.edit_test_info(params['info'], params['test_id'])
+    async def edit_tests_info(self, params: dict):
+        await self.db.edit_tests_info(params['info'], params['test_ids'], params['status'])
+        if params['status'] == 'failed':
+            for test_id in params['test_ids']:
+                await self.db.add_results(
+                    test_id=test_id,
+                    result_type='exception',
+                    name='Status changed manually',
+                    data={
+                        'message': params['exception'],
+                        'exception': params['exception'],
+                    }
+                )
 
     @request_handler()
     async def get_tests(self, params: dict):
@@ -22,6 +38,13 @@ class MainModule(AbstractModule):
         test_id = params['test_id']
         return {
             'test_info': await self.db.get_test(test_id)
+        }
+
+    @request_handler()
+    async def get_tests_info(self, params: dict):
+        tests = await self.db.get_tests_by_ids(params['test_ids'])
+        return {
+            'tests_info': tests
         }
 
     @request_handler()
@@ -153,7 +176,7 @@ class MainModule(AbstractModule):
                         'comparator': '='
                     })
                 else:
-                    pages = await self._update_report(report)
+                    pages = await self._update_report_pages(report)
                     if selected_page in pages.keys():
                         filters.append({
                             'key': page_property,
@@ -168,42 +191,89 @@ class MainModule(AbstractModule):
                             'value': sorted_pages_list[-1][0],
                             'comparator': '='
                         })
-        return {'tests': await self.db.get_report_cases(report['report_id'], custom_filters=filters)}
+
+        return {'tests': await self.db.get_report_cases(
+            report['report_id'],
+            custom_filters=filters
+        )}
 
     @request_handler()
     async def get_report_pages(self, params: dict):
-        update_pages_every = 60 * 4
+        update_pages_every = 60
         name = params['name']
         report = await self.db.find_report_by_name(name)
         if not report:
             return {'status': False, 'reason': 'Failed to find report'}
 
         config = report['config']
-
         if config.get('page_property'):
             last_update = config.get('update_pages')
             if last_update is None:
                 update_pages = True
             else:
                 update_pages = (datetime.now().timestamp() - last_update) > update_pages_every
-            if update_pages:
-                return {'pages': await self._update_report(report)}
-            else:
-                return {'pages': config['pages']}
+            if self.calculating_pages.get(report['report_id']):
+                return
+            self.calculating_pages[report['report_id']] = True
+            try:
+                if update_pages:
+                    loop = asyncio.get_event_loop()
+                    loop.create_task(self._update_report_data(report))
+                    return {'pages': await self._update_report_pages(report)}
+                else:
+                    return {'pages': config['pages']}
+            finally:
+                self.calculating_pages[report['report_id']] = False
 
-    async def _update_report(self, report: dict) -> dict[str, dict[str, int]]:
+    async def _update_report_pages(self, report: dict) -> dict[str, dict[str, int]]:
         config = report['config']
         pages = await self.db.get_pages(config, page_property=config['page_property'])
         config['pages'] = pages
         config['update_pages'] = datetime.now().timestamp()
-        await self.db.update_report(report['report_id'], config)
+        await self.db.update_report_config(report['report_id'], config)
         return pages
+
+    async def _update_report_data(self, report: dict):
+        if self.calculating_report_history.get(report['report_id']):
+            return
+        try:
+            self.calculating_report_history[report['report_id']] = True
+            self.log.info(f'start calculate report {report["name"]}')
+            pages = await self.db.get_pages(report['config'])
+            data = {}
+            pages_list = list(pages.items())
+            pages_list.sort(key=lambda entity: entity[1]['order'])
+            for page_name, page_data in pages_list[-30:]:
+                filters = report['config'].get('filters', []) + [{
+                    'key': report['config']['page_property'],
+                    'value': page_name,
+                }]
+                tests = await self.db.get_tests(filters=filters)
+                data[page_name] = [{
+                    'order': int(test['config'][f"{report['config']['page_property']}_order"]),
+                    'test_id': test['test_id'],
+                    'status': test['status'],
+                    'test_name': test['config']['test_name'],
+                    'known_issues': test['config'].get('known_issues', None),
+                } for test in tests]
+            await self.db.update_report_data(report['report_id'], {
+                "detailed_statistics": data,
+                'update_ts': datetime.now().timestamp()
+            })
+            self.log.info(f'stop calculate report {report["name"]}')
+        finally:
+            self.calculating_report_history[report['report_id']] = False
+
+    @request_handler()
+    async def get_report_statistics(self, params: dict):
+        return {'data': await self.db.get_report_data(params['name'])}
 
     @request_handler()
     async def update_report(self, params: dict):
         new_config = params['config']
         report_id = params['report_id']
-        await self.db.update_report(report_id, new_config)
+        name = params['name']
+        await self.db.update_report_config(report_id, new_config, name)
 
     @request_handler()
     async def add_exclude_tests(self, params: dict):
@@ -212,7 +282,7 @@ class MainModule(AbstractModule):
         report = await self.db.find_report_by_name(name)
         config = report['config']
         config['excludes'] = config.get('excludes', []) + tests
-        await self.db.update_report(report['report_id'], config)
+        await self.db.update_report_config(report['report_id'], config)
 
     @request_handler()
     async def get_excluded_tests(self, params: dict):
@@ -294,7 +364,7 @@ class MainModule(AbstractModule):
             test = await self.db.get_test(test_id)
             for entry in properties:
                 test['config'][entry['key']] = entry['value']
-            await self.db.edit_test_info(test['config'], test_id)
+            await self.db.edit_tests_info(test['config'], [test_id])
 
     @request_handler()
     async def remove_test_properties(self, params: dict):
@@ -305,4 +375,38 @@ class MainModule(AbstractModule):
             for k in properties:
                 if test['config'].get(k) is not None:
                     del test['config'][k]
-            await self.db.edit_test_info(test['config'], test_id)
+            await self.db.edit_tests_info(test['config'], [test_id])
+
+    @request_handler()
+    async def get_test_history(self, params: dict):
+        test_id = params['test_id']
+        test = await self.db.get_test(test_id)
+        t_config = test['config']
+        reports = await self.db.get_reports()
+        found_report_configs = []
+        for report in reports:
+            r_config = report['config']
+            for f in r_config.get('filters', []):
+                if report['config'].get('page_property') \
+                        and f['key'] in t_config.keys() \
+                        and match(f['value'], t_config[f['key']]) \
+                        and t_config.get(report['config']['page_property']):
+                    found_report_configs.append(report)
+
+        for report in found_report_configs:
+            report_tests = await self.db.get_report_cases(
+                report_id=report['report_id'],
+                custom_filters=[{
+                    'key': 'test_name',
+                    'value': f"^{test['config']['test_name']}$"
+                }]
+            )
+            try:
+                report_tests.sort(
+                    key=lambda x: int(x['config'].get(f"{report['config']['page_property']}_order", 0))
+                )
+            except:
+                self.log.error(f'error to sort history to {test_id=} report={report["report_id"]}')
+            report['found_tests'] = report_tests[-20:]
+
+        return {'found_reports': found_report_configs}

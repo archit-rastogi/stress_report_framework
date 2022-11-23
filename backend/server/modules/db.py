@@ -108,15 +108,30 @@ class QueryExecute:
         await self.format_test(test)
         return test
 
-    async def get_tests(self, start_date: datetime, end_date: datetime, filters: list[dict] = None) -> list[dict]:
+    async def get_tests_by_ids(self, test_ids: list[str]) -> list[dict]:
+        test_ids_str = "','".join(test_ids)
+        rows = await self.execute(
+            f"select test_id, config, start_time, end_time, status "
+            f"from stress_tests "
+            f"where test_id in ('{test_ids_str}')")
+        [await self.format_test(r) for r in rows]
+        return rows
+
+    async def get_tests(self, start_date: datetime = None, end_date: datetime = None, filters: list[dict] = None) -> list[dict]:
         filter_condition = ''
         if filters:
-            filter_condition += ' and '
             filter_condition += ' and '.join(
                 [f"config->'{f['key']}' is not null and config->>'{f['key']}' ~ '{f['value']}'" for f in filters])
+
+        params = []
+        if start_date and end_date:
+            if filters:
+                filter_condition += ' and '
+            filter_condition += ' start_time between $1 and $2'
+            params.extend([start_date, end_date])
         rows = await self.execute('select test_id, config, start_time, end_time, status from stress_tests '
-                                  f'where start_time between $1 and $2 {filter_condition} '
-                                  'order by start_time desc', [start_date, end_date])
+                                  f'where {filter_condition} '
+                                  'order by start_time desc', params)
         for row in rows:
             row['start_time'] = row['start_time'].timestamp()
             row['end_time'] = row['end_time'].timestamp() if row.get('end_time') else None
@@ -204,8 +219,12 @@ class QueryExecute:
 
         return rows
 
-    async def update_report(self, report_id: str, new_config: dict):
-        await self.execute(f"update stress_report set config = '{dumps(new_config)}' where report_id = '{report_id}'")
+    async def update_report_config(self, report_id: str, new_config: dict, name: str = None):
+        await self.execute(f"update stress_report "
+                           f"set config = config || '{dumps(new_config)}'"
+                           f"where report_id = '{report_id}'")
+        if name is not None:
+            await self.execute(f"update stress_report set name = '{name}' where report_id = '{report_id}'")
 
     async def find_report_by_name(self, report_name) -> dict:
         rows = await self.execute(f"select name, config, report_id from stress_report where name = '{report_name}'")
@@ -245,7 +264,8 @@ class QueryExecute:
             f"      config ->> '{page_property}_order' as page_order, "
             f"      status "
             f"from stress_tests "
-            f"{f'where {filters_condition_str}' if filters_condition_str else ''}"
+            f"where config ->> 'page' is not null "
+            f"{f'and {filters_condition_str}' if filters_condition_str else ''}"
             f"group by config->>'{page_property}', config ->> '{page_property}_order', status"
         )
 
@@ -334,8 +354,16 @@ class QueryExecute:
     async def update_result(self, result_id: str, data):
         await self.execute(f"update stress_results set data = '{dumps(data)}' where result_id = '{result_id}'")
 
-    async def edit_test_info(self, info: dict, test_id: str):
-        await self.execute(f"update stress_tests set config = '{dumps(info)}' where test_id = '{test_id}'")
+    async def edit_tests_info(self, info: dict, test_ids: list[str], status: str = None):
+        test_ids_str = "','".join(test_ids)
+        await self.execute(f"update stress_tests "
+                           f"set config = config || '{dumps(info)}'"
+                           f"where test_id in ('{test_ids_str}')")
+        if status and len(test_ids) == 1:
+            await self.execute(
+                f"update stress_tests set status = '{status}', end_time = $1 where test_id = '{test_ids[0]}'",
+                [datetime.now()]
+            )
 
     async def update_test_config(self, test_id: str, key: str, value: str):
         await self.execute(
@@ -349,3 +377,13 @@ class QueryExecute:
         if config.get(key):
             del config[key]
             await self.execute(f"update stress_tests set config = '{dumps(config)}' where test_id = '{test_id}'")
+
+    async def update_report_data(self, report_id: str, new_data: dict):
+        await self.execute(f"update stress_report set report_data = '{dumps(new_data)}' "
+                           f"where report_id = '{report_id}'")
+
+    async def get_report_data(self, report_name: str) -> dict:
+        rows = await self.execute(f"select report_id, report_data "
+                                  f"from stress_report "
+                                  f"where name = '{report_name}'")
+        return loads(rows[0]['report_data']) if rows[0]['report_data'] else None

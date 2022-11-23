@@ -6,6 +6,7 @@ import {icon, IconDefinition} from '@fortawesome/fontawesome-svg-core';
 import {
   faAngleDown,
   faAngleRight,
+  faAngleLeft,
   faAngleUp,
   faCheckDouble,
   faDownload,
@@ -17,7 +18,8 @@ import {
   faXmark,
   faTrashCan,
   faVirus,
-  faVirusSlash
+  faVirusSlash,
+  faArrowUpRightFromSquare
 } from '@fortawesome/free-solid-svg-icons';
 import {faFile as faFileR} from '@fortawesome/free-regular-svg-icons';
 
@@ -32,6 +34,7 @@ export const iconsAppInitializer = {
       faAngleDown,
       faAngleUp,
       faAngleRight,
+      faAngleLeft,
       faFileR,
       faXmark,
       faPlus,
@@ -44,6 +47,7 @@ export const iconsAppInitializer = {
       faVirusSlash,
       faBoxArchive,
       faDownload,
+      faArrowUpRightFromSquare,
     ];
     const registerFaIcon = (i: IconDefinition) => {
       icons.addSvgIconLiteralInNamespace(

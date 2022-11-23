@@ -772,7 +772,7 @@ export class StressStepsComponent implements OnInit {
       ],
       grid: {
         height: graphHeight,
-        left: `${longestNameLength / 16 * 100}px` // 16
+        left: `${(longestNameLength / 16 * 95) + 15}px` // 16
       },
       xAxis: {
         type: 'value',

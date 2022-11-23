@@ -13,9 +13,33 @@ export class StressBuildInfoComponent implements OnInit {
   @Input() testId: string | undefined | null;
   testInfo = new BehaviorSubject<any>(null);
   showInfo = false;
+  knownIssues = new BehaviorSubject<any[]>([]);
   private getTestInfoSub: any;
 
   constructor(private api: ApiService) {
+  }
+
+  findKnownIssues(buildInfo: any) {
+    Object.keys(buildInfo.config).forEach(key => {
+      buildInfo.config[key].split(',').forEach((knownIssue: string) => {
+        if (knownIssue.startsWith('https://github.com')) {
+          const p = knownIssue.match('https://github.com/([a-z-0-9]+)/([a-z-0-9]+)/issues/([0-9]+)');
+          if (p) {
+            fetch(`https://api.github.com/repos/${p[1]}/${p[2]}/issues/${p[3]}`, {
+              headers: {Accept: 'application/vnd.github+json'}
+            }).then((resp) => resp.json())
+              .then((respData) => {
+                const existedKnownIssues = this.knownIssues.getValue()
+                existedKnownIssues.push({
+                  title: respData.title,
+                  url: knownIssue
+                });
+                this.knownIssues.next(existedKnownIssues);
+              });
+          }
+        }
+      });
+    });
   }
 
   ngOnInit(): void {
@@ -26,6 +50,7 @@ export class StressBuildInfoComponent implements OnInit {
     this.getTestInfoSub = this.api.post('get_test_info', {test_id: this.testId}).subscribe(res => {
       if (res.status) {
         this.testInfo.next(res.test_info);
+        this.findKnownIssues(res.test_info);
       }
     })
   }

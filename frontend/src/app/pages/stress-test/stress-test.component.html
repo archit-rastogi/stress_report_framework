@@ -1,4 +1,6 @@
 <app-stress-build-info [testId]="testId"></app-stress-build-info>
+<button mat-button (click)="toggleSection('history')">History</button>
+<app-stress-history *ngIf="openedSections.includes('history')" [testId]="testId"></app-stress-history>
 <button mat-button (click)="toggleSection('steps')">Steps</button>
 <app-stress-steps *ngIf="openedSections.includes('steps')" [testId]="testId"></app-stress-steps>
 <button mat-button (click)="toggleSection('attachments')">Attachments</button>
