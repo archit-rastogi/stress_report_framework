@@ -1,6 +1,6 @@
 <div class="container">
-  <mat-progress-bar *ngIf="statisticsLoading" mode="indeterminate"></mat-progress-bar>
   <div *ngIf="statistics | async" class="statistics">
+    <mat-progress-bar *ngIf="statisticsLoading" mode="indeterminate"></mat-progress-bar>
     <button class="show-statistics-btn width" mat-button (click)="toggleShowStatistics()">
       <mat-icon style="vertical-align: baseline" [svgIcon]="showStatistics ? 'fas:angle-down' : 'fas:angle-right'"></mat-icon>
       Detailed statistics
@@ -13,6 +13,7 @@
     </ng-container>
   </div>
   <app-pages-hitmap (onSelect)="onSelectPage($event)" *ngIf="((pages | async) ?? []).length > 0" [pages]="pages | async"></app-pages-hitmap>
+  <mat-progress-bar *ngIf="pagesLoading" mode="indeterminate"></mat-progress-bar>
   <div class="page-title" *ngIf="((pages | async) ?? []).length > 0">Selected page: {{activePage}}</div>
   <!-- failed/passed stat -->
   <div class="block">
@@ -102,7 +103,7 @@
     </button>
   </div>
   <!-- Cards -->
-  <mat-progress-bar *ngIf="loading" mode="indeterminate"></mat-progress-bar>
+  <mat-progress-bar *ngIf="testsLoading" mode="indeterminate"></mat-progress-bar>
   <app-stress-test-card
     [selected]="isSelected(test)"
     [test]="test"

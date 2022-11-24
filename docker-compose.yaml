@@ -15,12 +15,22 @@ services:
       - "SETUP_FILE=/setup.sql"
     volumes:
       - "${SETUP_DB_FILE_PATH:-/tmp}:/setup.sql:ro"
+    logging:
+      driver: "json-file"
+      options:
+        max-file: 2
+        max-size: 10m
   frontend:
     image: "ghcr.io/pilshchikov/stress-report/frontend:${FRONTEND_VERSION:-latest}"
     depends_on:
       - server
     ports:
       - "80:80"
+    logging:
+      driver: "json-file"
+      options:
+        max-file: 2
+        max-size: 10m
   files:
     image: "ghcr.io/pilshchikov/stress-report/files:${FILES_VERISON:-latest}"
     depends_on:
@@ -36,6 +46,11 @@ services:
       - "DB_PORT=5433"
     volumes:
       - "${FILES_DIR:-/tmp/files}:/files_dir"
+    logging:
+      driver: "json-file"
+      options:
+        max-file: 2
+        max-size: 10m
   db:
     image: "yugabytedb/yugabyte:${YUGABYTE_VERSION:-latest}"
     volumes:
@@ -46,3 +61,8 @@ services:
       - "5433:5433"
       - "9042:9042"
     command: "./bin/yugabyted start --base_dir=/db_data --daemon=false"
+    logging:
+      driver: "json-file"
+      options:
+        max-file: 2
+        max-size: 10m

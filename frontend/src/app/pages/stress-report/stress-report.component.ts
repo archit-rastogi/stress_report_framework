@@ -45,8 +45,9 @@ export class StressReportComponent implements OnInit, OnDestroy {
 
   activePage: string | null = null;
   contextSearch = new FormControl('');
-  loading = false;
+  testsLoading = false;
   statisticsLoading = false;
+  pagesLoading = false;
   activeChip = new BehaviorSubject<string>('all');
   orderByCategory: string = 'date';
   orderByCategoryOrder: string = 'down';
@@ -134,8 +135,9 @@ export class StressReportComponent implements OnInit, OnDestroy {
   }
 
   getReportPages() {
-    this.loading = true;
+    this.pagesLoading = true;
     this.getReportPagesSub = this.api.post('get_report_pages', {name: this.reportName}).subscribe(res => {
+      this.pagesLoading = false;
       if (res.status) {
         if (res.hasOwnProperty('pages') && Object.keys(res.pages).length > 0) {
           const listPages = Object.keys(res.pages).map(pageName => {
@@ -206,7 +208,7 @@ export class StressReportComponent implements OnInit, OnDestroy {
   }
 
   getReportTests() {
-    this.loading = true;
+    this.testsLoading = true;
     this.getReportTestsSub = this.api.post('get_report_tests', {
       name: this.reportName,
       page: this.activePage
@@ -241,7 +243,6 @@ export class StressReportComponent implements OnInit, OnDestroy {
         if (failedWithoutKnownIssues > 0) {
           chips.push({name: 'failed without known issues', count: failedWithoutKnownIssues});
         }
-        this.loading = false;
         this.stats.next(chips.sort((a: any, b: any) => a.name.localeCompare(b.name)));
         this.tests.next(tests);
         const chipFilteredTests: any[] = tests
@@ -256,6 +257,7 @@ export class StressReportComponent implements OnInit, OnDestroy {
         this.showTests.next(newTests);
         this.updateTestsWithStatistics();
       }
+      this.testsLoading = false;
     })
   }
 
