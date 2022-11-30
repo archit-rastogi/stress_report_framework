@@ -1,5 +1,6 @@
 import logging
 import sys
+from copy import deepcopy
 from dataclasses import dataclass
 from datetime import datetime
 from traceback import format_exc
@@ -22,6 +23,12 @@ def request_handler(post_params=True, request_require=False, get_params=False):
             if request_require:
                 function_kwargs['request'] = request
             try:
+                if function_kwargs.get('params'):
+                    params_to_show = deepcopy(function_kwargs["params"])
+                    if 'add_metric' in func.__name__:
+                        if params_to_show.get('data'):
+                            del params_to_show['data']
+                    self.log.info(f'[{func.__name__}] {params_to_show}')
                 result = await func(self, **function_kwargs)
             except Exception as e:
                 msg = f'{e}\n{format_exc()}'

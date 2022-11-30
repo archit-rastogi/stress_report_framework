@@ -64,3 +64,11 @@ class ReceiverModule(AbstractModule):
         else:
             attachment_id = await self.db.add_attachment(name, source, attachment_type, test_id, timestamp)
             return {'attachment_id': attachment_id}
+
+    @request_handler()
+    async def edit_test_config(self, params: dict):
+        await self.db.edit_test_config(params['test_id'], params['config'])
+
+    @request_handler()
+    async def edit_step(self, params: dict):
+        await self.db.edit_step(params['step_id'], params['properties'])

@@ -94,6 +94,11 @@ class QueryExecute:
                            [start_time])
         return step_id
 
+    async def edit_step(self, step_id: str, properties: dict):
+        await self.execute(f"update steps "
+                           f"set properties = properties || '{dumps(properties)}' "
+                           f"where step_id = {step_id}")
+
     async def end_step(self, step_id: str, status: str, end_time: datetime):
         await self.execute(f"update steps set status='{status}', end_time=$1 where step_id = '{step_id}'", [end_time])
 
@@ -364,6 +369,11 @@ class QueryExecute:
                 f"update stress_tests set status = '{status}', end_time = $1 where test_id = '{test_ids[0]}'",
                 [datetime.now()]
             )
+
+    async def edit_test_info(self, info: dict, test_id: str):
+        await self.execute(f"update stress_tests "
+                           f"set config = config || '{dumps(info)}'"
+                           f"where test_id = '{test_id}'")
 
     async def update_test_config(self, test_id: str, key: str, value: str):
         await self.execute(
