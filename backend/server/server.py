@@ -35,9 +35,7 @@ app.add_routes([
     web.post('/back/edit_test_config', receiver_module.edit_test_config),
     web.post('/back/edit_step', receiver_module.edit_step),
     web.post('/back/add_test_results', main_module.add_test_results),
-    web.post('/back/add_test_known_issue', main_module.add_test_known_issue),
 
-    web.post('/back/remove_test_known_issue', main_module.remove_test_known_issue),
     web.post('/back/get_test_results', main_module.get_test_results),
     web.post('/back/get_tests', main_module.get_tests),
     web.post('/back/get_test_info', main_module.get_test_info),

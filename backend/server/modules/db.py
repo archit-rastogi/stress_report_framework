@@ -58,7 +58,6 @@ class QueryExecute:
         if params is None:
             params = []
         failed_connection = False
-        res = []
         try:
             res: List[Record] = await connection.fetch(query, *params)
         except:
@@ -362,7 +361,7 @@ class QueryExecute:
     async def edit_tests_info(self, info: dict, test_ids: list[str], status: str = None):
         test_ids_str = "','".join(test_ids)
         await self.execute(f"update stress_tests "
-                           f"set config = config || '{dumps(info)}'"
+                           f"set config = '{dumps(info)}'"
                            f"where test_id in ('{test_ids_str}')")
         if status and len(test_ids) == 1:
             await self.execute(

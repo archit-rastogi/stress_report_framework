@@ -11,22 +11,22 @@
 
 @media (min-width: 1200px) and (max-width: 1600px) {
   .container {
-    margin-left: 15%;
-    margin-right: 15%;
+    margin-left: 10%;
+    margin-right: 10%;
   }
 }
 
 @media (min-width: 1600px) and (max-width: 2400px) {
   .container {
-    margin-left: 25%;
-    margin-right: 25%;
+    margin-left: 20%;
+    margin-right: 20%;
   }
 }
 
 @media (min-width: 2400px) {
   .container {
-    margin-left: 30%;
-    margin-right: 30%;
+    margin-left: 24%;
+    margin-right: 25%;
   }
 }
 
@@ -58,10 +58,9 @@
 
 
 .selected-chip {
-  //background: linear-gradient(-45deg, rgba(200, 0, 255, 0.3), rgba(255, 0, 0, 0.3), rgba(213, 162, 0, 0.3), rgba(43, 199, 0, 0.3));
-  //background-size: 300% 300%;
-  //animation: gradient 2s ease infinite;
-  background-color: black;
+  background: linear-gradient(-45deg, rgba(0, 0, 0, 1), rgb(194, 194, 194));
+  background-size: 300% 300%;
+  animation: gradient 1s ease infinite;
   color: white;
 }
 

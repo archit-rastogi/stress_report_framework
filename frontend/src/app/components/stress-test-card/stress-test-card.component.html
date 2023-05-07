@@ -31,6 +31,9 @@
     </div>
   </mat-card-title-group>
   <mat-card-actions>
+    <ng-container *ngIf="test.config.hasOwnProperty('comment')">
+      <pre class="comment">{{test.config.comment}}</pre>
+    </ng-container>
     <ng-container *ngIf="((knownIssues | async)??[]).length > 0">
       <span class="ki-text">Known issues</span>
       <ng-container *ngFor="let ki of knownIssues | async">

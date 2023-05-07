@@ -16,6 +16,12 @@ export class StressTestCardComponent implements OnDestroy, OnInit {
   @Output() onToggle = new EventEmitter<boolean>();
   @Output() onClick = new EventEmitter();
 
+  ignoreKeyFields = [
+    'known_issues',
+    'test_name',
+    'comment'
+  ];
+
   exceptions = new BehaviorSubject<any[]>([]);
   knownIssues = new BehaviorSubject<any[]>([]);
 
@@ -42,6 +48,9 @@ export class StressTestCardComponent implements OnDestroy, OnInit {
 
   findKnownIssues() {
     Object.keys(this.test.config).forEach(key => {
+      if (typeof this.test.config[key] !== 'string') {
+        return;
+      }
       this.test.config[key].split(',').forEach((knownIssue: string) => {
         if (knownIssue.startsWith('https://github.com')) {
           const p = knownIssue.match('https://github.com/([a-z-0-9]+)/([a-z-0-9]+)/issues/([0-9]+)');
@@ -128,7 +137,7 @@ export class StressTestCardComponent implements OnDestroy, OnInit {
   getKeys(config: any): Array<string> {
     return Object.keys(config)
       .sort((a, b) => a.localeCompare(b) ? 0 : 1)
-      .filter(k => k !== 'known_issues');
+      .filter(k => !this.ignoreKeyFields.includes(k));
   }
 
   selectCard(event: Event) {

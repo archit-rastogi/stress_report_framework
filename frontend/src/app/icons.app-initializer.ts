@@ -19,7 +19,8 @@ import {
   faTrashCan,
   faVirus,
   faVirusSlash,
-  faArrowUpRightFromSquare
+  faArrowUpRightFromSquare,
+  faComment
 } from '@fortawesome/free-solid-svg-icons';
 import {faFile as faFileR} from '@fortawesome/free-regular-svg-icons';
 
@@ -48,6 +49,7 @@ export const iconsAppInitializer = {
       faBoxArchive,
       faDownload,
       faArrowUpRightFromSquare,
+      faComment,
     ];
     const registerFaIcon = (i: IconDefinition) => {
       icons.addSvgIconLiteralInNamespace(

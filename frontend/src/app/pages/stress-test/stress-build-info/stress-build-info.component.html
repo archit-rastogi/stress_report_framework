@@ -33,7 +33,12 @@
       </tr>
     </table>
   </div>
-  <ng-container *ngIf="knownIssues | async">
+  <ng-container *ngIf="((testInfo | async) ?? {}) && ((testInfo | async) ?? {}).config && ((testInfo | async) ?? {}).config.hasOwnProperty('comment')">
+    <div class="flex">
+      <pre class="comment">{{(testInfo | async).config.comment}}</pre>
+    </div>
+  </ng-container>
+  <ng-container *ngIf="((knownIssues | async) ?? []).length > 0">
     <div class="flex">
       <h2>Known issues</h2>
     </div>

@@ -32,10 +32,6 @@ mat-card-title-group {
   display: flex;
 }
 
-mat-card-actions {
-  margin-left: 20px;
-}
-
 .ki-text {
   font-weight: bold;
 }
@@ -59,4 +55,17 @@ mat-card-actions {
 
 .history-btn:hover {
   background-color: rgb(0, 0, 0) !important;
+}
+
+.comment {
+  padding: 5px 10px 5px 10px;
+  background-color: rgba(37, 0, 235, 0.18);
+  border-radius: 5px;
+  color: black;
+  margin: 10px 0px 10px 0px;
+  white-space: pre-wrap; /* Since CSS 2.1 */
+  white-space: -moz-pre-wrap; /* Mozilla, since 1999 */
+  white-space: -pre-wrap; /* Opera 4-6 */
+  white-space: -o-pre-wrap; /* Opera 7 */
+  word-wrap: break-word; /* Internet Explorer 5.5+ */
 }

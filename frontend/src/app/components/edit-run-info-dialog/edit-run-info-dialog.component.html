@@ -1,6 +1,17 @@
 <div class="container">
   <cdk-virtual-scroll-viewport [itemSize]="100">
     <div class="inner-container">
+      <div *ngIf="showStatusChange | async" class="width status">
+        <div class="title">Status</div>
+        <mat-select [formControl]="newStatus">
+          <mat-option *ngFor="let status of statusOptions" [value]="status">{{status}}</mat-option>
+        </mat-select>
+        <mat-form-field class="width" *ngIf="newStatus.value === 'failed'">
+          <mat-label>Exception message</mat-label>
+          <input matInput [formControl]="exception">
+        </mat-form-field>
+      </div>
+      <hr/>
       <div class="title">New property</div>
       <mat-form-field class="width">
         <mat-label>New key</mat-label>
@@ -11,17 +22,6 @@
         <input matInput [formControl]="newValue">
       </mat-form-field>
       <button mat-button class="width" style="margin-bottom: 10px" (click)="addField()">Add field</button>
-      <div *ngIf="showStatusChange | async" class="width status">
-        <hr/>
-        <div class="title">Status</div>
-        <mat-select [formControl]="newStatus">
-          <mat-option *ngFor="let status of statusOptions" [value]="status">{{status}}</mat-option>
-        </mat-select>
-        <mat-form-field class="width" *ngIf="newStatus.value === 'failed'">
-          <mat-label>Exception message</mat-label>
-          <input matInput [formControl]="exception">
-        </mat-form-field>
-      </div>
       <hr/>
       <div class="title">Change properties</div>
       <form [formGroup]="form" (ngSubmit)="update()">

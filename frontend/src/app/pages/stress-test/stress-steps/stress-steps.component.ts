@@ -18,82 +18,12 @@ export class StressStepsComponent implements OnInit {
   getStepsSub: any;
   loading = false;
   categories = 1;
-  timezone: string | null = '';
-  timezoneFilterForm = new FormControl();
+  timezoneType: string | null = 'local';
+  timezoneFilterForm = new FormControl("UTC");
   timezoneFilter: Observable<string[]> = new Observable<string[]>();
   zones: Array<string> = [
-    'Africa/Abidjan',
-    'Africa/Accra',
-    'Africa/Addis_Ababa',
-    'Africa/Algiers',
-    'Africa/Asmara',
-    'Africa/Asmera',
-    'Africa/Bamako',
-    'Africa/Bangui',
-    'Africa/Banjul',
-    'Africa/Bissau',
-    'Africa/Blantyre',
-    'Africa/Brazzaville',
-    'Africa/Bujumbura',
-    'Africa/Cairo',
-    'Africa/Casablanca',
-    'Africa/Ceuta',
-    'Africa/Conakry',
-    'Africa/Dakar',
-    'Africa/Dar_es_Salaam',
-    'Africa/Djibouti',
-    'Africa/Douala',
-    'Africa/El_Aaiun',
-    'Africa/Freetown',
-    'Africa/Gaborone',
-    'Africa/Harare',
-    'Africa/Johannesburg',
-    'Africa/Juba',
-    'Africa/Kampala',
-    'Africa/Khartoum',
-    'Africa/Kigali',
-    'Africa/Kinshasa',
-    'Africa/Lagos',
-    'Africa/Libreville',
-    'Africa/Lome',
-    'Africa/Luanda',
-    'Africa/Lubumbashi',
-    'Africa/Lusaka',
-    'Africa/Malabo',
-    'Africa/Maputo',
-    'Africa/Maseru',
-    'Africa/Mbabane',
-    'Africa/Mogadishu',
-    'Africa/Monrovia',
-    'Africa/Nairobi',
-    'Africa/Ndjamena',
-    'Africa/Niamey',
-    'Africa/Nouakchott',
-    'Africa/Ouagadougou',
-    'Africa/Porto-Novo',
-    'Africa/Sao_Tome',
-    'Africa/Timbuktu',
-    'Africa/Tripoli',
-    'Africa/Tunis',
-    'Africa/Windhoek',
     'America/Adak',
     'America/Anchorage',
-    'America/Anguilla',
-    'America/Antigua',
-    'America/Araguaina',
-    'America/Argentina/Buenos_Aires',
-    'America/Argentina/Catamarca',
-    'America/Argentina/ComodRivadavia',
-    'America/Argentina/Cordoba',
-    'America/Argentina/Jujuy',
-    'America/Argentina/La_Rioja',
-    'America/Argentina/Mendoza',
-    'America/Argentina/Rio_Gallegos',
-    'America/Argentina/Salta',
-    'America/Argentina/San_Juan',
-    'America/Argentina/San_Luis',
-    'America/Argentina/Tucuman',
-    'America/Argentina/Ushuaia',
     'America/Aruba',
     'America/Asuncion',
     'America/Atikokan',
@@ -242,19 +172,6 @@ export class StressStepsComponent implements OnInit {
     'America/Winnipeg',
     'America/Yakutat',
     'America/Yellowknife',
-    'Antarctica/Casey',
-    'Antarctica/Davis',
-    'Antarctica/DumontDUrville',
-    'Antarctica/Macquarie',
-    'Antarctica/Mawson',
-    'Antarctica/McMurdo',
-    'Antarctica/Palmer',
-    'Antarctica/Rothera',
-    'Antarctica/South_Pole',
-    'Antarctica/Syowa',
-    'Antarctica/Troll',
-    'Antarctica/Vostok',
-    'Arctic/Longyearbyen',
     'Asia/Aden',
     'Asia/Almaty',
     'Asia/Amman',
@@ -632,12 +549,18 @@ export class StressStepsComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.timezoneFilterForm.setValue(localStorage.getItem('timezone_selected_zone'));
+    const savedTimezoneType = localStorage.getItem('timezone_type_step');
+    if (savedTimezoneType) {
+      this.timezoneType = savedTimezoneType
+    }
+    const savedTimezone = localStorage.getItem('timezone_selected_zone_step');
+    if (savedTimezone) {
+      this.timezoneFilterForm.setValue(savedTimezone);
+    }
     this.timezoneFilter = this.timezoneFilterForm.valueChanges.pipe(
       startWith(''),
       map(value => this._filter(value || '')),
     );
-    this.timezone = localStorage.getItem('timezone_steps') == null ? 'utc' : localStorage.getItem('timezone_steps')
     this.loading = true;
     this.getStepsSub = this.api.post('get_steps', {test_id: this.testId}).subscribe(res => {
       this.loading = false;
@@ -648,19 +571,21 @@ export class StressStepsComponent implements OnInit {
     })
   }
 
-  formatTs(timezone: string | null, timestamp: number) {
-    let prepareTime = (momentTime: any) => momentTime;
-    switch (timezone) {
+  formatTs(timezoneType: string | null, timestamp: number) {
+    const sourceTime = moment(timestamp * 1000);
+
+    switch (timezoneType) {
       case 'utc': {
-        prepareTime = (momentTime: any) => momentTime.utc()
-        break;
+        return sourceTime.utc().format('DD.MM HH:mm:ss');
       }
       case 'custom': {
-        prepareTime = (momentTime: any) => momentTime.tz(this.timezoneFilterForm.value);
-        break;
+        const selectedTz = this.timezoneFilterForm.value;
+        return sourceTime.tz(selectedTz ? selectedTz : "UTC").format('DD.MM HH:mm:ss');
+      }
+      default: {
+        return sourceTime.format('DD.MM HH:mm:ss');
       }
     }
-    return prepareTime(moment(timestamp * 1000)).format('DD.MM HH:mm:ss');
   }
 
   drawGraph(steps: Array<any>) {
@@ -740,9 +665,9 @@ export class StressStepsComponent implements OnInit {
       tooltip: {
         formatter: (params: any) => {
           const step = params.data.step
-          let time = this.formatTs(this.timezone, step.start_time)
+          let time = this.formatTs(this.timezoneType, step.start_time)
           if (step.end_time) {
-            time = `${time} - ${this.formatTs(this.timezone, step.end_time)}`
+            time = `${time} - ${this.formatTs(this.timezoneType, step.end_time)}`
           }
           const rows = Object.keys(step.properties)
             .filter(key => key !== 'name')
@@ -779,7 +704,7 @@ export class StressStepsComponent implements OnInit {
         min: lowestTime,
         max: highest,
         axisLabel: {
-          formatter: (ts: number) => this.formatTs(this.timezone, ts)
+          formatter: (ts: number) => this.formatTs(this.timezoneType, ts)
         }
       },
       yAxis: {
@@ -828,9 +753,9 @@ export class StressStepsComponent implements OnInit {
   }
 
   getStepTime(step: any): any {
-    let res = this.formatTs(this.timezone, step.start_time);
+    let res = this.formatTs(this.timezoneType, step.start_time);
     if (step.status !== 'running') {
-      res = `${res} - ${this.formatTs(this.timezone, step.end_time)}`;
+      res = `${res} - ${this.formatTs(this.timezoneType, step.end_time)}`;
     }
     return res;
   }
@@ -865,15 +790,13 @@ export class StressStepsComponent implements OnInit {
   }
 
   timezoneChange(change: any) {
-    if (['local', 'utc', 'custom'].includes(change.value)) {
-      localStorage.setItem('timezone_steps', change.value);
-    }
-    this.timezone = change.value;
-    if (this.timezoneFilterForm.value !== null) {
-      localStorage.setItem('timezone_selected_zone', this.timezoneFilterForm.value)
-    } else if (this.timezone === 'custom') {
-      return
-    }
+    localStorage.setItem('timezone_type_step', change.value);
+    this.timezoneType = change.value;
+    this.drawGraph(this.deepCopy(this.steps.getValue()));
+  }
+
+  timezoneChangeCustom(change: any) {
+    localStorage.setItem('timezone_selected_zone_step', change)
     this.drawGraph(this.deepCopy(this.steps.getValue()));
   }
 }

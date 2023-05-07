@@ -34,7 +34,7 @@ export class Page {
 export class StressReportComponent implements OnInit, OnDestroy {
   open = false;
   reportName: string | null = null;
-  showStatistics = true;
+  showStatistics = false;
 
   tests = new BehaviorSubject<any[]>([])
   showTests = new BehaviorSubject<any[]>([])
@@ -162,6 +162,7 @@ export class StressReportComponent implements OnInit, OnDestroy {
     this.getReportStatisticsSub = this.api.post('get_report_statistics', {
       name: this.reportName
     }).subscribe(res => {
+      this.statisticsLoading = false;
       if (res.status && res.data) {
         this.statistics.next(res.data.detailed_statistics);
         const updateDate = moment(res.data.update_ts * 1000);
@@ -170,7 +171,6 @@ export class StressReportComponent implements OnInit, OnDestroy {
           formatted: updateDate.format('HH:mm:ss DD.MM.YYYY')
         });
         this.updateTestsWithStatistics();
-        this.statisticsLoading = false;
       }
     });
   }
@@ -213,6 +213,7 @@ export class StressReportComponent implements OnInit, OnDestroy {
       name: this.reportName,
       page: this.activePage
     }).subscribe(res => {
+      this.testsLoading = false;
       if (res.status) {
         let tests = res.tests.sort((a: any, b: any) => a.start_time - b.start_time);
         const statuses: any = {};
@@ -257,7 +258,6 @@ export class StressReportComponent implements OnInit, OnDestroy {
         this.showTests.next(newTests);
         this.updateTestsWithStatistics();
       }
-      this.testsLoading = false;
     })
   }
 

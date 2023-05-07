@@ -1,4 +1,4 @@
-import {Component, Input, OnInit} from '@angular/core';
+import {Component, Input, OnDestroy, OnInit} from '@angular/core';
 import * as moment from 'moment';
 import {BehaviorSubject} from 'rxjs';
 import {ApiService} from '../../../services/api.service';
@@ -8,7 +8,7 @@ import {ApiService} from '../../../services/api.service';
   templateUrl: './stress-build-info.component.html',
   styleUrls: ['./stress-build-info.component.scss']
 })
-export class StressBuildInfoComponent implements OnInit {
+export class StressBuildInfoComponent implements OnInit, OnDestroy {
 
   @Input() testId: string | undefined | null;
   testInfo = new BehaviorSubject<any>(null);
@@ -19,8 +19,31 @@ export class StressBuildInfoComponent implements OnInit {
   constructor(private api: ApiService) {
   }
 
+  ngOnInit(): void {
+    const savedState = localStorage.getItem("openedBuildInfo");
+    if (savedState !== null) {
+      this.showInfo = savedState === "true"
+    }
+    this.getTestInfo();
+  }
+
+  getTestInfo() {
+    this.getTestInfoSub = this.api.post('get_test_info', {test_id: this.testId}).subscribe(res => {
+      if (res.status) {
+        this.testInfo.next(res.test_info);
+        this.findKnownIssues(res.test_info);
+      }
+    });
+  }
+
+  ngOnDestroy() {
+  }
+
   findKnownIssues(buildInfo: any) {
     Object.keys(buildInfo.config).forEach(key => {
+      if (typeof buildInfo.config[key] !== 'string') {
+        return;
+      }
       buildInfo.config[key].split(',').forEach((knownIssue: string) => {
         if (knownIssue.startsWith('https://github.com')) {
           const p = knownIssue.match('https://github.com/([a-z-0-9]+)/([a-z-0-9]+)/issues/([0-9]+)');
@@ -40,19 +63,6 @@ export class StressBuildInfoComponent implements OnInit {
         }
       });
     });
-  }
-
-  ngOnInit(): void {
-    const savedState = localStorage.getItem("openedBuildInfo");
-    if (savedState !== null) {
-      this.showInfo = savedState === "true"
-    }
-    this.getTestInfoSub = this.api.post('get_test_info', {test_id: this.testId}).subscribe(res => {
-      if (res.status) {
-        this.testInfo.next(res.test_info);
-        this.findKnownIssues(res.test_info);
-      }
-    })
   }
 
   getKeys(properties: any): any[] {

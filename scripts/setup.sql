@@ -39,8 +39,6 @@ create table IF NOT EXISTS metrics
         on update restrict
 );
 
-create index test_id_metrics ON metrics(test_id asc);
-
 CREATE INDEX IF NOT EXISTS stress_idx ON stress_tests (start_time ASC, end_time ASC);
 
 create table IF NOT EXISTS attachments
@@ -59,8 +57,6 @@ create table IF NOT EXISTS attachments
         on update restrict
 );
 
-create index test_id_attachments ON attachments(test_id asc);
-
 create table IF NOT EXISTS files
 (
     file_id text primary key,
@@ -76,7 +72,8 @@ create table IF NOT EXISTS stress_report
     name          text,
     config        jsonb,
     cases         jsonb,
-    creation_time timestamp without time zone
+    creation_time timestamp without time zone,
+    report_data jsonb
 );
 
 create table if not exists universe_configs

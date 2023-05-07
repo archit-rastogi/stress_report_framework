@@ -347,23 +347,13 @@ class MainModule(AbstractModule):
             await self.remove_file(attachment['source'])
 
     @request_handler()
-    async def add_test_known_issue(self, params: dict):
-        for test_id in params['tests_ids']:
-            await self.db.update_test_config(test_id, 'known_issues', params['known_issue'])
-
-    @request_handler()
-    async def remove_test_known_issue(self, params: dict):
-        for test_id in params['tests_ids']:
-            await self.db.remove_test_config_key(test_id, 'known_issues')
-
-    @request_handler()
     async def add_test_properties(self, params: dict):
         test_ids: list[str] = params['test_ids']
-        properties: list[dict[str, str]] = params['properties']
+        properties: dict[str, str] = params['properties']
         for test_id in test_ids:
             test = await self.db.get_test(test_id)
-            for entry in properties:
-                test['config'][entry['key']] = entry['value']
+            for k, v in properties.items():
+                test['config'][k] = v
             await self.db.edit_tests_info(test['config'], [test_id])
 
     @request_handler()

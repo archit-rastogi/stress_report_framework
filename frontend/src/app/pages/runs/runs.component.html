@@ -27,47 +27,7 @@
     <input matInput [formControl]="contextSearch" (keydown)="searchContext($event)">
   </mat-form-field>
   <mat-progress-bar *ngIf="loading" mode="indeterminate"></mat-progress-bar>
-
-  <!--  Actions  -->
-  <div class="actions" *ngIf="((actionsService.selectedTests | async) ?? []).length > 0">
-    {{((actionsService.selectedTests | async) ?? []).length}} tests selected
-    <button mat-button
-            (click)="actionsService.selectedTests.next([])"
-            matTooltip="Cancel selection"
-            matTooltipShowDelay="300">
-      <mat-icon svgIcon="fas:xmark"></mat-icon>
-    </button>
-    <button mat-button (click)="actionsService.openAddKnownIssue()"
-            matTooltip="Add known issue"
-            matTooltipShowDelay="300">
-      <mat-icon svgIcon="fas:virus"></mat-icon>
-    </button>
-    <button mat-button (click)="actionsService.removeKnownIssues()"
-            matTooltip="Remove all known issues"
-            matTooltipShowDelay="300">
-      <mat-icon svgIcon="fas:virus-slash"></mat-icon>
-    </button>
-    <button mat-button (click)="actionsService.openRemoveProperties()"
-            matTooltip="Remove properties"
-            matTooltipShowDelay="300">
-      <mat-icon svgIcon="fas:minus"></mat-icon>
-    </button>
-    <button mat-button (click)="actionsService.openAddProperties()"
-            matTooltip="Add properties"
-            matTooltipShowDelay="300">
-      <mat-icon svgIcon="fas:plus"></mat-icon>
-    </button>
-    <button mat-button (click)="actionsService.openEditModal()"
-            matTooltip="Edit first selected test"
-            matTooltipShowDelay="300">
-      <mat-icon svgIcon="fas:pen"></mat-icon>
-    </button>
-    <button mat-button color="warn" (click)="actionsService.deleteSelectedTests()"
-            matTooltip="Remove tests and attached files"
-            matTooltipShowDelay="300">
-      <mat-icon svgIcon="fas:trash-can"></mat-icon>
-    </button>
-  </div>
+  <app-actions-bar></app-actions-bar>
 
   <app-stress-test-card
     (onToggle)="onTestToggle(test)"

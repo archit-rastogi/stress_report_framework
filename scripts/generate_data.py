@@ -27,7 +27,7 @@ def dict_through(tree):
 
 r = Random()
 
-add_files = True
+add_files = False
 
 base_url = 'http://localhost:9999/back'
 

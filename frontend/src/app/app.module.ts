@@ -47,8 +47,6 @@ import { ResultExceptionComponent } from './pages/stress-test/stress-results/res
 import { ExceptionComponent } from './components/exception/exception.component';
 import { AddKnownIssueComponent } from './components/add-known-issue/add-known-issue.component';
 import { PagesHitmapComponent } from './pages/stress-report/pages-hitmap/pages-hitmap.component';
-import { AddPropertiesComponent } from './components/add-properties/add-properties.component';
-import { RemovePropertiesComponent } from './components/remove-properties/remove-properties.component';
 import {MatTooltipModule} from '@angular/material/tooltip';
 import {ActionsService} from './services/actions.service';
 import {MatTabsModule} from '@angular/material/tabs';
@@ -59,6 +57,8 @@ import {MatSelectModule} from '@angular/material/select';
 import { PagesTotalStatisticsComponent } from './pages/stress-report/pages-total-statistics/pages-total-statistics.component';
 import { PageFlakyTestsComponent } from './pages/stress-report/page-flaky-tests/page-flaky-tests.component';
 import { PagesUniqueKnownIssuesComponent } from './pages/stress-report/pages-unique-known-issues/pages-unique-known-issues.component';
+import { AddCommentDialogComponent } from './components/add-comment-dialog/add-comment-dialog.component';
+import { ActionsBarComponent } from './components/actions-bar/actions-bar.component';
 
 @NgModule({
   declarations: [
@@ -85,12 +85,12 @@ import { PagesUniqueKnownIssuesComponent } from './pages/stress-report/pages-uni
     ExceptionComponent,
     AddKnownIssueComponent,
     PagesHitmapComponent,
-    AddPropertiesComponent,
-    RemovePropertiesComponent,
     StressHistoryComponent,
     PagesTotalStatisticsComponent,
     PageFlakyTestsComponent,
     PagesUniqueKnownIssuesComponent,
+    AddCommentDialogComponent,
+    ActionsBarComponent,
   ],
   imports: [
     BrowserModule,

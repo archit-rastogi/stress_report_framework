@@ -23,9 +23,11 @@ export class AddKnownIssueComponent implements OnDestroy {
   }
 
   submit() {
-    this.addKnownIssuesSub = this.api.post('add_test_known_issue', {
-      tests_ids: this.selectedTestsIds,
-      known_issue: this.knownIssueUrl.value
+    this.addKnownIssuesSub = this.api.post('add_test_properties', {
+      test_ids: this.selectedTestsIds,
+      properties: {
+        known_issues: this.knownIssueUrl.value
+      }
     }).subscribe(res => {
       if (res.status) {
         this.api.snackMessage("Known issue was added successfully!", 2);

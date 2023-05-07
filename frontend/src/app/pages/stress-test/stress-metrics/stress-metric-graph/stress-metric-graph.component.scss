@@ -9,7 +9,7 @@
 }
 
 mat-button-toggle-group {
-  margin-top: 20px;
+  margin-top: 5px;
 }
 
 .chart {
@@ -18,4 +18,17 @@ mat-button-toggle-group {
 
 mat-progress-bar {
   padding-top: 10px;
+}
+
+.tz-block {
+  margin-top: 5px;
+  margin-bottom: 5px;
+}
+
+.center-block {
+  display: flex;
+  justify-content: center;
+}
+.tz-select-box {
+  width: 300px;
 }
