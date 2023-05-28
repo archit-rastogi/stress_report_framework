@@ -59,7 +59,7 @@ app.add_routes([
     web.post('/back/delete_test', main_module.delete_test),
     web.post('/back/delete_report', main_module.delete_report),
     web.post('/back/delete_attachments', main_module.delete_attachments),
-    web.post('/back/edit_tests_info', main_module.edit_tests_info),
+    web.post('/back/edit_tests', main_module.edit_tests),
 ]),
 
 web.run_app(app, port=int(environ.get('PORT', 9999)))

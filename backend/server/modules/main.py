@@ -12,8 +12,15 @@ class MainModule(AbstractModule):
         self.calculating_pages = {}
 
     @request_handler()
-    async def edit_tests_info(self, params: dict):
-        await self.db.edit_tests_info(params['info'], params['test_ids'], params['status'])
+    async def edit_tests(self, params: dict):
+        test_ids = params['test_ids']
+        status = params['status']
+        info = params['info']
+        for test_id in test_ids:
+            test = await self.db.get_test(test_id)
+            for k, v in info.items():
+                test['config'][k] = v
+            await self.db.edit_tests_config(info, [test_id], status)
         if params['status'] == 'failed':
             for test_id in params['test_ids']:
                 await self.db.add_results(
@@ -354,7 +361,7 @@ class MainModule(AbstractModule):
             test = await self.db.get_test(test_id)
             for k, v in properties.items():
                 test['config'][k] = v
-            await self.db.edit_tests_info(test['config'], [test_id])
+            await self.db.edit_tests_config(test['config'], [test_id])
 
     @request_handler()
     async def remove_test_properties(self, params: dict):
@@ -365,7 +372,7 @@ class MainModule(AbstractModule):
             for k in properties:
                 if test['config'].get(k) is not None:
                     del test['config'][k]
-            await self.db.edit_tests_info(test['config'], [test_id])
+            await self.db.edit_tests_config(test['config'], [test_id])
 
     @request_handler()
     async def get_test_history(self, params: dict):

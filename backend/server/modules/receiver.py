@@ -67,7 +67,12 @@ class ReceiverModule(AbstractModule):
 
     @request_handler()
     async def edit_test_config(self, params: dict):
-        await self.db.edit_test_config(params['test_id'], params['config'])
+        test_id = params['test_id']
+        new_config = params['config']
+        test = await self.db.get_test(test_id)
+        for k, v in new_config.items():
+            test['config'][k] = v
+        await self.db.edit_tests_config(test['config'], [params['test_id']])
 
     @request_handler()
     async def edit_step(self, params: dict):

@@ -358,7 +358,7 @@ class QueryExecute:
     async def update_result(self, result_id: str, data):
         await self.execute(f"update stress_results set data = '{dumps(data)}' where result_id = '{result_id}'")
 
-    async def edit_tests_info(self, info: dict, test_ids: list[str], status: str = None):
+    async def edit_tests_config(self, info: dict, test_ids: list[str], status: str = None):
         test_ids_str = "','".join(test_ids)
         await self.execute(f"update stress_tests "
                            f"set config = '{dumps(info)}'"
@@ -368,11 +368,6 @@ class QueryExecute:
                 f"update stress_tests set status = '{status}', end_time = $1 where test_id = '{test_ids[0]}'",
                 [datetime.now()]
             )
-
-    async def edit_test_info(self, info: dict, test_id: str):
-        await self.execute(f"update stress_tests "
-                           f"set config = config || '{dumps(info)}'"
-                           f"where test_id = '{test_id}'")
 
     async def update_test_config(self, test_id: str, key: str, value: str):
         await self.execute(

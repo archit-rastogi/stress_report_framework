@@ -75,7 +75,7 @@ export class EditRunInfoDialogComponent implements OnInit, OnDestroy {
 
 
   update() {
-    this.editTestInfoSub = this.api.post('edit_tests_info', {
+    this.editTestInfoSub = this.api.post('edit_tests', {
       test_ids: this.testIds,
       info: this.form.value,
       exception: this.exception.value,
