@@ -542,12 +542,6 @@ export class StressStepsComponent implements OnInit {
     return JSON.parse(JSON.stringify(obj))
   }
 
-  private _filter(value: string): string[] {
-    const filterValue = value.toLowerCase();
-
-    return this.zones.filter(option => option.toLowerCase().includes(filterValue));
-  }
-
   ngOnInit(): void {
     const savedTimezoneType = localStorage.getItem('timezone_type_step');
     if (savedTimezoneType) {
@@ -625,9 +619,7 @@ export class StressStepsComponent implements OnInit {
         value: [categories.indexOf(step.properties.name), step.start_time, step.end_time, step.end_time - step.start_time],
         step,
         itemStyle: {
-          normal: {
-            color: this.getColorByStatus(step.status)
-          }
+          color: this.getColorByStatus(step.status)
         }
       });
     });
@@ -798,5 +790,11 @@ export class StressStepsComponent implements OnInit {
   timezoneChangeCustom(change: any) {
     localStorage.setItem('timezone_selected_zone_step', change)
     this.drawGraph(this.deepCopy(this.steps.getValue()));
+  }
+
+  private _filter(value: string): string[] {
+    const filterValue = value.toLowerCase();
+
+    return this.zones.filter(option => option.toLowerCase().includes(filterValue));
   }
 }
