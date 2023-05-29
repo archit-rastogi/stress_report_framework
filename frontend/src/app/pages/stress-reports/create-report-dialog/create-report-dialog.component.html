@@ -1,0 +1,59 @@
+<div class="container">
+  <h3>Report name</h3>
+  <div class="section">
+    <mat-form-field class="width">
+      <input matInput [formControl]="name">
+    </mat-form-field>
+  </div>
+  <h3>Filters</h3>
+  <div class="section">
+    <div class="width flex">
+      <mat-form-field>
+        <mat-label>Property</mat-label>
+        <input matInput [formControl]="filterKey">
+      </mat-form-field>
+      <mat-form-field>
+        <mat-label>Value</mat-label>
+        <input matInput [formControl]="filterValue">
+      </mat-form-field>
+      <button mat-button (click)="addFilter()">Add</button>
+    </div>
+    <mat-chip-set>
+      <mat-chip *ngFor="let filter of filters | async">
+        {{filter.key}} = {{filter.value}}
+        <button matChipRemove (click)="removeFilter(filter)">
+          <mat-icon svgIcon="fas:xmark"></mat-icon>
+        </button>
+      </mat-chip>
+    </mat-chip-set>
+  </div>
+  <h3>Date ranges</h3>
+  <div class="section">
+    <mat-form-field class="time-range" appearance="fill">
+      <mat-label>Enter a date range</mat-label>
+      <mat-date-range-input (click)="picker.open()" [formGroup]="range" [rangePicker]="picker">
+        <input matStartDate formControlName="start" placeholder="Start date">
+        <input matEndDate formControlName="end" placeholder="End date">
+      </mat-date-range-input>
+      <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+      <mat-date-range-picker #picker></mat-date-range-picker>
+    </mat-form-field>
+    <button mat-button (click)="addDateRange()">Add</button>
+    <mat-chip-set>
+      <mat-chip *ngFor="let dateRange of dateRanges | async">
+        {{formatData(dateRange.start)}} - {{formatData(dateRange.end)}}
+        <button matChipRemove (click)="removeDateRange(dateRange)">
+          <mat-icon svgIcon="fas:xmark"></mat-icon>
+        </button>
+      </mat-chip>
+    </mat-chip-set>
+  </div>
+  <h3>Pages</h3>
+  <div class="section">
+    <mat-form-field class="width">
+      <mat-label>Page property</mat-label>
+      <input matInput [formControl]="pageProperty">
+    </mat-form-field>
+  </div>
+  <button class="width create" color="primary" mat-button (click)="create()">Create</button>
+</div>

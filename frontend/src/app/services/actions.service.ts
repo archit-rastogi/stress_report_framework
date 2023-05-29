@@ -1,6 +1,6 @@
 import {Inject, Injectable} from '@angular/core';
 import {BehaviorSubject, Subject} from 'rxjs';
-import {AddKnownIssueComponent} from '../components/add-known-issue/add-known-issue.component';
+import {AddKnownIssueDialogComponent} from '../components/add-known-issue-dialog/add-known-issue-dialog.component';
 import {AcceptDialogComponent, AcceptOptions} from '../components/accept-dialog/accept-dialog.component';
 import {MatDialog} from '@angular/material/dialog';
 import {ApiService} from './api.service';
@@ -20,7 +20,7 @@ export class ActionsService {
 
   openAddKnownIssue() {
     this.dialogSub = this.dialog.open(
-      AddKnownIssueComponent,
+      AddKnownIssueDialogComponent,
       {data: this.selectedTests.getValue()}
     ).afterClosed().subscribe(res => {
       if (res) {

@@ -12,8 +12,11 @@ button {
   width: 100%;
 }
 
+.mdc-button {
+  padding: 0px !important;
+}
 .show-button {
-  text-align: left;
+  justify-content: flex-start;
 }
 
 mat-tab-group {

@@ -85,6 +85,8 @@
 .show-statistics-btn {
   font-weight: bold;
   font-size: x-large;
+  font-family: "Arial";
+  letter-spacing: normal;
 }
 .statistics {
   margin-bottom: 20px;
@@ -97,6 +99,7 @@
 
 .filter-btn {
   line-height: normal !important;
+  height: 26px;
   margin: 5px;
   padding: 5px;
 }

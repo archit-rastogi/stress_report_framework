@@ -1,10 +1,13 @@
 .block {
   display: flex;
   flex-wrap: wrap;
+  background-color: rgba(255,0,0,0.1);
+  padding: 10px;
 }
 
 mat-card {
   margin-top: 5px;
+  padding: 10px;
 }
 
 mat-card:hover {
@@ -25,6 +28,7 @@ mat-card:hover {
   line-height: normal !important;
   margin: 5px;
   padding: 5px;
+  height: 23px;
 }
 
 .show-btn {

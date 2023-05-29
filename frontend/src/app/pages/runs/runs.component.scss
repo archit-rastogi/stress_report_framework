@@ -30,8 +30,14 @@
   }
 }
 
+.today-btn {
+  vertical-align: center;
+}
+
 .search-field {
   display: flex;
+  align-items: center;
+  flex-direction: row;
 }
 
 .time-range {

@@ -3,7 +3,7 @@ import {ApiService} from '../../services/api.service';
 import {BehaviorSubject} from 'rxjs';
 import {MatDialog} from '@angular/material/dialog';
 import {Router} from '@angular/router';
-import {CreateReportComponent} from './create-report/create-report.component';
+import {CreateReportDialogComponent} from './create-report-dialog/create-report-dialog.component';
 import {EditReportComponent} from './edit-report/edit-report.component';
 import {AcceptDialogComponent, AcceptOptions} from '../../components/accept-dialog/accept-dialog.component';
 
@@ -53,7 +53,7 @@ export class StressReportsComponent implements OnInit {
   }
 
   openCreateDialog() {
-    this.dialogSub = this.dialog.open(CreateReportComponent, {maxWidth: '500px'}).afterClosed().subscribe(res => {
+    this.dialogSub = this.dialog.open(CreateReportDialogComponent, {maxWidth: '500px'}).afterClosed().subscribe(res => {
       if (res) {
         this.getReports();
       }

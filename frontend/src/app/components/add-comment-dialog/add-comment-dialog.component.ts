@@ -1,7 +1,7 @@
 import {Component, Inject, OnDestroy, OnInit} from '@angular/core';
 import {MAT_DIALOG_DATA, MatDialogRef} from "@angular/material/dialog";
 import {ApiService} from "../../services/api.service";
-import {AddKnownIssueComponent} from "../add-known-issue/add-known-issue.component";
+import {AddKnownIssueDialogComponent} from "../add-known-issue-dialog/add-known-issue-dialog.component";
 import {FormControl} from "@angular/forms";
 
 @Component({
@@ -15,7 +15,7 @@ export class AddCommentDialogComponent implements OnInit, OnDestroy {
   private addCommentSub: any;
 
   constructor(@Inject(MAT_DIALOG_DATA) private selectedTestsIds: string[],
-              public dialogRef: MatDialogRef<AddKnownIssueComponent>,
+              public dialogRef: MatDialogRef<AddKnownIssueDialogComponent>,
               private api: ApiService) {
   }
 

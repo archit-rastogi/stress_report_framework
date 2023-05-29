@@ -21,7 +21,7 @@
     <mat-progress-bar *ngIf="loading" mode="indeterminate"></mat-progress-bar>
   </div>
   <mat-card
-    class="width"
+    class="width card"
     (click)="openReport(report)"
     *ngFor="let report of reports | async"
   >

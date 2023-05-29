@@ -1,7 +1,7 @@
 const PROXY_CONFIG = [
   {
       context: ["/back"],
-      target: 'http://localhost:9999',
+      target: 'http://10.9.8.199:9999',
       secure: false,
       changeOrigin: true,
   },

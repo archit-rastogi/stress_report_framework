@@ -1,7 +1,7 @@
 <ng-container *ngIf="((issues | async) ?? []).length > 0">
   <button mat-button class="show-btn" (click)="toggleShow()">
     Known issues affected more tests
-    <mat-icon style="vertical-align: sub" [svgIcon]="show ? 'fas:angle-down' : 'fas:angle-left'"></mat-icon>
+    <mat-icon style="vertical-align: sub" [svgIcon]="show ? 'fas:angle-down' : 'fas:angle-right'"></mat-icon>
   </button>
   <div class="container" *ngIf="show">
     <span style="margin-left: 10px">

@@ -1,5 +1,6 @@
 import {Component, OnInit} from '@angular/core';
 import {Router} from '@angular/router';
+import {ThemePalette} from "@angular/material/core";
 
 @Component({
   selector: 'app-nav-bar',
@@ -18,7 +19,7 @@ export class NavBarComponent implements OnInit {
     this.router.navigateByUrl(path);
   }
 
-  getColor(path: string): string {
-    return this.router.url.includes(path) ? 'primary' : ''
+  getColor(path: string): ThemePalette {
+    return this.router.url.includes(path) ? 'primary' : undefined
   }
 }

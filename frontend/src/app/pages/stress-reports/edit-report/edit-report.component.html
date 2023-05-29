@@ -15,14 +15,14 @@
       </mat-form-field>
       <button mat-button (click)="addFilter()">Add</button>
     </div>
-    <mat-chip-list>
+    <mat-chip-set>
       <mat-chip *ngFor="let filter of filters | async">
         {{filter.key}} = {{filter.value}}
         <button matChipRemove (click)="removeFilter(filter)">
           <mat-icon svgIcon="fas:xmark"></mat-icon>
         </button>
       </mat-chip>
-    </mat-chip-list>
+    </mat-chip-set>
   </div>
   <h3>Date ranges</h3>
   <div class="section">
@@ -38,14 +38,14 @@
       </mat-form-field>
       <button mat-button (click)="addDateRange()">Add</button>
     </div>
-    <mat-chip-list>
+    <mat-chip-set>
       <mat-chip *ngFor="let dateRange of dateRanges | async">
         {{formatData(dateRange.start)}} - {{formatData(dateRange.end)}}
         <button matChipRemove (click)="removeDateRange(dateRange)">
           <mat-icon svgIcon="fas:xmark"></mat-icon>
         </button>
       </mat-chip>
-    </mat-chip-list>
+    </mat-chip-set>
   </div>
   <div class="section" *ngIf="((excludedTests | async) ?? []).length > 0">
     <h3>Excludes (right click to select tests)</h3>

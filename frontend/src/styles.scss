@@ -1,4 +1,15 @@
 /* You can add global styles to this file, and also import other style files */
-
+button {
+  letter-spacing: normal !important;
+}
+.mdc-tab {
+  letter-spacing: normal !important;
+}
+.mdc-text-field--filled:not(.mdc-text-field--disabled) {
+  background-color: transparent !important;
+}
+.mat-mdc-form-field, .mat-mdc-floating-label {
+  letter-spacing: normal !important;
+}
 html, body { height: 100%; }
 body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }

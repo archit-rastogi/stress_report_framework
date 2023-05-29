@@ -6,11 +6,11 @@ import {MatDialogRef} from '@angular/material/dialog';
 import {ApiService} from '../../../services/api.service';
 
 @Component({
-  selector: 'app-create-report',
-  templateUrl: './create-report.component.html',
-  styleUrls: ['./create-report.component.scss']
+  selector: 'app-create-report-dialog',
+  templateUrl: './create-report-dialog.component.html',
+  styleUrls: ['./create-report-dialog.component.scss']
 })
-export class CreateReportComponent implements OnInit {
+export class CreateReportDialogComponent implements OnInit {
 
   name = new FormControl();
   filterValue = new FormControl();
@@ -27,7 +27,7 @@ export class CreateReportComponent implements OnInit {
   pageProperty = new FormControl('');
 
   constructor(private api: ApiService,
-              private dialogRef: MatDialogRef<CreateReportComponent>) {
+              private dialogRef: MatDialogRef<CreateReportDialogComponent>) {
   }
 
   ngOnInit(): void {

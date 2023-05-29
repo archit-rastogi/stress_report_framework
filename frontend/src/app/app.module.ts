@@ -34,7 +34,7 @@ import {MatProgressBarModule} from '@angular/material/progress-bar';
 import {StressTestCardComponent} from './components/stress-test-card/stress-test-card.component';
 import {StressReportsComponent} from './pages/stress-reports/stress-reports.component';
 import {StressReportComponent} from './pages/stress-report/stress-report.component';
-import {CreateReportComponent} from './pages/stress-reports/create-report/create-report.component';
+import {CreateReportDialogComponent} from './pages/stress-reports/create-report-dialog/create-report-dialog.component';
 import {EditReportComponent} from './pages/stress-reports/edit-report/edit-report.component';
 import {MatCheckboxModule} from '@angular/material/checkbox';
 import {AcceptDialogComponent} from './components/accept-dialog/accept-dialog.component';
@@ -45,7 +45,7 @@ import { EditRunInfoDialogComponent } from './components/edit-run-info-dialog/ed
 import { ResultTableComponent } from './pages/stress-test/stress-results/result-table/result-table.component';
 import { ResultExceptionComponent } from './pages/stress-test/stress-results/result-exception/result-exception.component';
 import { ExceptionComponent } from './components/exception/exception.component';
-import { AddKnownIssueComponent } from './components/add-known-issue/add-known-issue.component';
+import { AddKnownIssueDialogComponent } from './components/add-known-issue-dialog/add-known-issue-dialog.component';
 import { PagesHitmapComponent } from './pages/stress-report/pages-hitmap/pages-hitmap.component';
 import {MatTooltipModule} from '@angular/material/tooltip';
 import {ActionsService} from './services/actions.service';
@@ -73,7 +73,7 @@ import { ActionsBarComponent } from './components/actions-bar/actions-bar.compon
     StressAttachmentItemComponent,
     StressTestCardComponent,
     StressReportsComponent,
-    CreateReportComponent,
+    CreateReportDialogComponent,
     StressReportComponent,
     EditReportComponent,
     AcceptDialogComponent,
@@ -83,7 +83,7 @@ import { ActionsBarComponent } from './components/actions-bar/actions-bar.compon
     ResultTableComponent,
     ResultExceptionComponent,
     ExceptionComponent,
-    AddKnownIssueComponent,
+    AddKnownIssueDialogComponent,
     PagesHitmapComponent,
     StressHistoryComponent,
     PagesTotalStatisticsComponent,
