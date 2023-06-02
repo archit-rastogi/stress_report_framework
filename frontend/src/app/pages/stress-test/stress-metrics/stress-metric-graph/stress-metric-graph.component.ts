@@ -639,7 +639,7 @@ export class StressMetricGraphComponent implements OnInit, OnDestroy {
   }
 
   formatTs(timezoneType: string | null, timestamp: number) {
-    const sourceTime = moment(timestamp * 1000);
+    const sourceTime = moment(timestamp);
 
     switch (timezoneType) {
       case 'utc': {

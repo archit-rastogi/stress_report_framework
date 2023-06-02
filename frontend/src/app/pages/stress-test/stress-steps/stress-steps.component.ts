@@ -610,7 +610,7 @@ export class StressStepsComponent implements OnInit {
     let longestNameLength = 0;
     steps.forEach((step: any) => {
       if (step.end_time === null) {
-        step.end_time = +new Date()
+        step.end_time = highest
       }
       if (longestNameLength < step.properties.name.length) {
         longestNameLength = step.properties.name.length;
