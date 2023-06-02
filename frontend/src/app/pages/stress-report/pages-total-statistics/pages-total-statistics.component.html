@@ -2,4 +2,4 @@
   Total report statistics
   <mat-icon style="vertical-align: sub" [svgIcon]="show ? 'fas:angle-down' : 'fas:angle-right'"></mat-icon>
 </button>
-<div echarts *ngIf="show" [options]="(options | async) ?? {}" class="chart"></div>
+<div echarts *ngIf="show" [options]="options()" class="chart"></div>

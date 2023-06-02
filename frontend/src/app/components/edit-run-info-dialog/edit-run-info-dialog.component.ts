@@ -1,8 +1,8 @@
-import {Component, Inject, OnDestroy, OnInit} from '@angular/core';
+import {Component, Inject, OnDestroy, OnInit, signal, WritableSignal} from '@angular/core';
 import {MAT_DIALOG_DATA, MatDialogRef} from '@angular/material/dialog';
 import {ApiService} from '../../services/api.service';
 import {FormControl, FormGroup} from '@angular/forms';
-import {BehaviorSubject, Subscription} from 'rxjs';
+import {Subscription} from 'rxjs';
 
 @Component({
   selector: 'app-edit-run-info-dialog',
@@ -16,7 +16,7 @@ export class EditRunInfoDialogComponent implements OnInit, OnDestroy {
   newValue = new FormControl();
   newStatus = new FormControl();
   exception = new FormControl();
-  showStatusChange = new BehaviorSubject<boolean>(false);
+  showStatusChange: WritableSignal<boolean> = signal(false)
   formFields: string[] = [];
   statusOptions = ['failed', 'passed', 'running'];
 
@@ -36,7 +36,7 @@ export class EditRunInfoDialogComponent implements OnInit, OnDestroy {
         let uniqueConfigs: any = {};
         if (res.tests_info.length == 1) {
           this.newStatus.setValue(res.tests_info[0].status);
-          this.showStatusChange.next(true);
+          this.showStatusChange.set(true);
         }
         res.tests_info.forEach((test: any) => {
           if (Object.keys(uniqueConfigs).length === 0) {
@@ -83,12 +83,10 @@ export class EditRunInfoDialogComponent implements OnInit, OnDestroy {
     }).subscribe(res => {
       if (res.status) {
         this.dialogRef.close(true);
+      } else {
+        this.api.snackMessage(`Failed to update: ${res.reason}`, 6);
       }
     })
-  }
-
-  close() {
-    this.dialogRef.close(false);
   }
 
   deleteRow(field: string) {

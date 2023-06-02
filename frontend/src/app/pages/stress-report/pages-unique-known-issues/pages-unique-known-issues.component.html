@@ -1,4 +1,4 @@
-<ng-container *ngIf="((issues | async) ?? []).length > 0">
+<ng-container *ngIf="issues().length > 0">
   <button mat-button class="show-btn" (click)="toggleShow()">
     Known issues affected more tests
     <mat-icon style="vertical-align: sub" [svgIcon]="show ? 'fas:angle-down' : 'fas:angle-right'"></mat-icon>
@@ -11,9 +11,9 @@
       <button mat-raised-button class="test"
               [ngStyle]="getPageStyle(page)"
               (click)="togglePageSelect(page)"
-              *ngFor="let page of pages | async">{{ page }}</button>
+              *ngFor="let page of pages()">{{ page }}</button>
     </div>
-    <mat-card *ngFor="let issue of issues | async" (click)="openKnownIssue(issue)">
+    <mat-card *ngFor="let issue of issues()" (click)="openKnownIssue(issue)">
       <div>
         <div>
           <div class="title" *ngIf="issue.hasOwnProperty('title')">{{ issue.title }}</div>

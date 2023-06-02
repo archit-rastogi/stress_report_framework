@@ -1,6 +1,5 @@
-import {Component, Input, OnDestroy, OnInit} from '@angular/core';
+import {Component, Input, OnDestroy, OnInit, signal, WritableSignal} from '@angular/core';
 import * as moment from 'moment';
-import {BehaviorSubject} from 'rxjs';
 import {ApiService} from '../../../services/api.service';
 
 @Component({
@@ -11,9 +10,9 @@ import {ApiService} from '../../../services/api.service';
 export class StressBuildInfoComponent implements OnInit, OnDestroy {
 
   @Input() testId: string | undefined | null;
-  testInfo = new BehaviorSubject<any>(null);
+  testInfo: WritableSignal<any> = signal(null)
   showInfo = false;
-  knownIssues = new BehaviorSubject<any[]>([]);
+  knownIssues: WritableSignal<any[]> = signal([])
   private getTestInfoSub: any;
 
   constructor(private api: ApiService) {
@@ -30,7 +29,7 @@ export class StressBuildInfoComponent implements OnInit, OnDestroy {
   getTestInfo() {
     this.getTestInfoSub = this.api.post('get_test_info', {test_id: this.testId}).subscribe(res => {
       if (res.status) {
-        this.testInfo.next(res.test_info);
+        this.testInfo.set(res.test_info);
         this.findKnownIssues(res.test_info);
       }
     });
@@ -52,12 +51,12 @@ export class StressBuildInfoComponent implements OnInit, OnDestroy {
               headers: {Accept: 'application/vnd.github+json'}
             }).then((resp) => resp.json())
               .then((respData) => {
-                const existedKnownIssues = this.knownIssues.getValue()
+                const existedKnownIssues = this.knownIssues()
                 existedKnownIssues.push({
                   title: respData.title,
                   url: knownIssue
                 });
-                this.knownIssues.next(existedKnownIssues);
+                this.knownIssues.set(existedKnownIssues);
               });
           }
         }
@@ -101,7 +100,7 @@ export class StressBuildInfoComponent implements OnInit, OnDestroy {
   }
 
   getValue(propKey: any): string {
-    return `${this.testInfo.getValue().config[propKey]}`;
+    return `${this.testInfo().config[propKey]}`;
   }
 
   openLink(link: string) {

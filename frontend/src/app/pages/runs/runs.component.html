@@ -32,7 +32,7 @@
   <app-stress-test-card
     (onToggle)="onTestToggle(test)"
     [test]="test"
-    [selected]="((actionsService.selectedTests | async) ?? []).includes(test.test_id)"
-    *ngFor="let test of showTests | async">
+    [selected]="actionsService.selectedTests().includes(test.test_id)"
+    *ngFor="let test of showTests()">
   </app-stress-test-card>
 </div>

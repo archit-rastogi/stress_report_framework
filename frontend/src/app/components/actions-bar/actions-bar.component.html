@@ -1,8 +1,8 @@
-<div class="actions" *ngIf="((actionsService.selectedTests | async) ?? []).length > 0">
-  <span *ngIf="((actionsService.selectedTests | async) ?? []).length > 0">
-    {{ ((actionsService.selectedTests | async) ?? []).length }} selected
+<div class="actions" *ngIf="actionsService.selectedTests().length > 0">
+  <span *ngIf="actionsService.selectedTests().length > 0">
+    {{ actionsService.selectedTests().length }} selected
   </span>
-  <button mat-button (click)="actionsService.selectedTests.next([])"
+  <button mat-button (click)="actionsService.selectedTests.set([])"
           matTooltip="Cancel selection"
           matTooltipShowDelay="300">
     <mat-icon svgIcon="fas:xmark"></mat-icon>

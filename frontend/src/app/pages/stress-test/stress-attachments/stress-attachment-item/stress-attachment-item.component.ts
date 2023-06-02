@@ -37,17 +37,17 @@ export class StressAttachmentItemComponent implements OnInit, OnChanges {
 
   selectAttachment(event: Event) {
     event.preventDefault();
-    const oldSelected = this.attachmentsSync.selectedAttachments.getValue();
+    const oldSelected = this.attachmentsSync.selectedAttachments();
     if (oldSelected.map(os => os.name).includes(this.attachment.name)) {
-      this.attachmentsSync.selectedAttachments.next(oldSelected.filter(selectedId => selectedId.name !== this.attachment.name));
+      this.attachmentsSync.selectedAttachments.set(oldSelected.filter(selectedId => selectedId.name !== this.attachment.name));
     } else {
       oldSelected.push(this.attachment);
-      this.attachmentsSync.selectedAttachments.next(oldSelected);
+      this.attachmentsSync.selectedAttachments.set(oldSelected);
     }
   }
 
   getStyle() {
-    const contain = this.attachmentsSync.selectedAttachments.getValue().map(sa => sa.name).includes(this.attachment.name);
+    const contain = this.attachmentsSync.selectedAttachments().map(sa => sa.name).includes(this.attachment.name);
     return contain ? {backgroundColor: 'rgba(5, 0, 255, 0.2)'} : {};
   }
 }

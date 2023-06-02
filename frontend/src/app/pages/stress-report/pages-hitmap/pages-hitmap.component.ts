@@ -1,6 +1,5 @@
-import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
+import {Component, EventEmitter, Input, OnInit, Output, signal, WritableSignal} from '@angular/core';
 import {EChartsOption} from 'echarts';
-import {BehaviorSubject} from 'rxjs';
 import {Page} from '../stress-report.component';
 
 @Component({
@@ -12,7 +11,7 @@ export class PagesHitmapComponent implements OnInit {
 
   @Input() pages: Page[] | null = null;
   @Output() onSelect = new EventEmitter<Page>();
-  options = new BehaviorSubject<EChartsOption>({} as EChartsOption);
+  options: WritableSignal<EChartsOption> = signal({} as EChartsOption)
   pageCoord: any[] = [];
 
   maxRowWidth = 7;
@@ -54,10 +53,10 @@ export class PagesHitmapComponent implements OnInit {
         }
 
         this.pageCoord.push([x, rows - 1, page]);
-        const failedState = failedCount/passedCount * 100;
+        const failedState = failedCount / passedCount * 100;
         return [x, rows - 1, Math.round(failedCount == 0 && passedCount == 0 ? 0 : failedState)]
       });
-    this.options.next({
+    this.options.set({
       tooltip: {
         position: 'bottom',
         formatter: (params: any) => {
@@ -102,7 +101,7 @@ export class PagesHitmapComponent implements OnInit {
         calculable: true,
         orient: 'horizontal',
         left: 'center',
-        inRange : {
+        inRange: {
           color: [
             'rgba(0,159,32,0.8)',
             'rgba(150,24,68,0.8)'
@@ -135,7 +134,7 @@ export class PagesHitmapComponent implements OnInit {
 
   getHeight() {
     return {
-      height: this.pages === null ? '30px' : this.pages.length > this.maxRowWidth ? `${Math.ceil(this.pages.length/this.maxRowWidth) * 30}px` : '30px'
+      height: this.pages === null ? '30px' : this.pages.length > this.maxRowWidth ? `${Math.ceil(this.pages.length / this.maxRowWidth) * 30}px` : '30px'
     };
   }
 

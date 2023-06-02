@@ -1,5 +1,4 @@
-import {Component, Input, OnInit} from '@angular/core';
-import {BehaviorSubject} from 'rxjs';
+import {Component, Input, OnInit, signal, WritableSignal} from '@angular/core';
 import {ApiService} from '../../../services/api.service';
 import {Router} from '@angular/router';
 
@@ -11,8 +10,8 @@ import {Router} from '@angular/router';
 export class StressHistoryComponent implements OnInit {
 
   @Input() testId: string | undefined | null;
-  foundReports = new BehaviorSubject<any[]>([]);
-  test = new BehaviorSubject({});
+  foundReports: WritableSignal<any[]> = signal([])
+  test: WritableSignal<any> = signal({})
   loading = false;
 
   private getHistorySub: any;
@@ -27,7 +26,7 @@ export class StressHistoryComponent implements OnInit {
     }).subscribe(res => {
       if (res.status) {
         this.loading = false;
-        this.foundReports.next(res.found_reports);
+        this.foundReports.set(res.found_reports);
       }
     });
   }

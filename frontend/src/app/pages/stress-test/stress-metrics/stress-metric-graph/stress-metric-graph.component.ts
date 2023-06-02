@@ -1,5 +1,5 @@
-import {Component, Input, OnDestroy, OnInit} from '@angular/core';
-import {BehaviorSubject, map, Observable, startWith, Subscription} from 'rxjs';
+import {Component, Input, OnDestroy, OnInit, signal, WritableSignal} from '@angular/core';
+import {map, Observable, startWith, Subscription} from 'rxjs';
 import * as moment from 'moment';
 import {EChartsOption} from 'echarts';
 import {ApiService} from '../../../../services/api.service';
@@ -11,7 +11,7 @@ import {FormControl} from '@angular/forms';
   styleUrls: ['./stress-metric-graph.component.scss']
 })
 export class StressMetricGraphComponent implements OnInit, OnDestroy {
-  echartsOptions = new BehaviorSubject<EChartsOption>({} as EChartsOption);
+  echartsOptions: WritableSignal<EChartsOption> = signal({} as EChartsOption);
   loading = false;
   @Input() graphName: any;
   @Input() testId: any;
@@ -597,7 +597,7 @@ export class StressMetricGraphComponent implements OnInit, OnDestroy {
         .map((s: any) => `<tr><td>${s.marker} ${s.seriesName}</td><td>${s.value[1]}</td></tr>`);
       return `${params[0].axisValueLabel}<br/><table style="width: 100%">${lines.join('')}</table>`
     }
-    this.echartsOptions.next({
+    this.echartsOptions.set({
       animationDuration: 100,
       legend: {
         data: Object.keys(res.series),

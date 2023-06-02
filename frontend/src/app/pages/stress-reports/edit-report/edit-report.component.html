@@ -1,4 +1,4 @@
-<div class="container">
+<mat-dialog-content>
   <mat-form-field class="flex">
     <input matInput [formControl]="name">
   </mat-form-field>
@@ -16,7 +16,7 @@
       <button mat-button (click)="addFilter()">Add</button>
     </div>
     <mat-chip-set>
-      <mat-chip *ngFor="let filter of filters | async">
+      <mat-chip *ngFor="let filter of filters()">
         {{filter.key}} = {{filter.value}}
         <button matChipRemove (click)="removeFilter(filter)">
           <mat-icon svgIcon="fas:xmark"></mat-icon>
@@ -39,7 +39,7 @@
       <button mat-button (click)="addDateRange()">Add</button>
     </div>
     <mat-chip-set>
-      <mat-chip *ngFor="let dateRange of dateRanges | async">
+      <mat-chip *ngFor="let dateRange of dateRanges()">
         {{formatData(dateRange.start)}} - {{formatData(dateRange.end)}}
         <button matChipRemove (click)="removeDateRange(dateRange)">
           <mat-icon svgIcon="fas:xmark"></mat-icon>
@@ -47,9 +47,9 @@
       </mat-chip>
     </mat-chip-set>
   </div>
-  <div class="section" *ngIf="((excludedTests | async) ?? []).length > 0">
+  <div class="section" *ngIf="excludedTests().length > 0">
     <h3>Excludes (right click to select tests)</h3>
-    <ng-container *ngIf="((selectedExcludeTests | async) ?? []).length > 0">
+    <ng-container *ngIf="selectedExcludeTests().length > 0">
       <button mat-button color="warn" (click)="removeFromExcluded()">Remove</button>
     </ng-container>
     <app-stress-test-card
@@ -57,7 +57,7 @@
       [selected]="isSelected(exclude)"
       (onToggle)="selectTest(exclude)"
       [test]="exclude"
-      *ngFor="let exclude of excludedTests | async"></app-stress-test-card>
+      *ngFor="let exclude of excludedTests()"></app-stress-test-card>
   </div>
   <h3>Pages</h3>
   <div class="section flex">
@@ -66,5 +66,7 @@
       <input matInput [formControl]="pageProperty">
     </mat-form-field>
   </div>
-  <button mat-button class="update width" color="primary" (click)="update()">Update</button>
-</div>
+</mat-dialog-content>
+<mat-dialog-actions>
+  <button mat-button class="width" color="primary" (click)="update()">Update</button>
+</mat-dialog-actions>

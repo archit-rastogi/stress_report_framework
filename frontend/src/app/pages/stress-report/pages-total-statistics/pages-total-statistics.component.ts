@@ -1,5 +1,4 @@
-import {Component, Input, OnChanges, OnInit, SimpleChanges} from '@angular/core';
-import {BehaviorSubject} from 'rxjs';
+import {Component, Input, OnChanges, OnInit, signal, SimpleChanges, WritableSignal} from '@angular/core';
 
 @Component({
   selector: 'app-pages-total-statistics',
@@ -10,7 +9,7 @@ export class PagesTotalStatisticsComponent implements OnInit, OnChanges {
   @Input() statisticsData: any | null = null;
 
   show = true;
-  options = new BehaviorSubject<any>({});
+  options: WritableSignal<any> = signal({})
 
   constructor() {
   }
@@ -43,7 +42,7 @@ export class PagesTotalStatisticsComponent implements OnInit, OnChanges {
     const xAxis = Object.keys(this.statisticsData)
       .filter((page: string) => this.statisticsData[page].length > 0)
       .sort((a: any, b: any) => this.statisticsData[a][0].order - this.statisticsData[b][0].order);
-    this.options.next({
+    this.options.set({
       tooltip: {
         order: 'valueDesc',
         trigger: 'axis'

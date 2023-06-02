@@ -1,42 +1,41 @@
-<div class="container">
-  <cdk-virtual-scroll-viewport [itemSize]="100">
-    <div class="inner-container">
-      <div *ngIf="showStatusChange | async" class="width status">
-        <div class="title">Status</div>
-        <mat-select [formControl]="newStatus">
-          <mat-option *ngFor="let status of statusOptions" [value]="status">{{status}}</mat-option>
-        </mat-select>
-        <mat-form-field class="width" *ngIf="newStatus.value === 'failed'">
-          <mat-label>Exception message</mat-label>
-          <input matInput [formControl]="exception">
-        </mat-form-field>
-      </div>
-      <hr/>
-      <div class="title">New property</div>
+<h2 matDialogTitle>Change config</h2>
+<mat-dialog-content>
+  <div *ngIf="showStatusChange()" class="width status">
+    <div class="title">Status</div>
+    <mat-select [formControl]="newStatus">
+      <mat-option *ngFor="let status of statusOptions" [value]="status">{{status}}</mat-option>
+    </mat-select>
+    <mat-form-field class="width" *ngIf="newStatus.value === 'failed'">
+      <mat-label>Exception message</mat-label>
+      <input matInput [formControl]="exception">
+    </mat-form-field>
+  </div>
+  <mat-divider></mat-divider>
+  <div class="title">New property</div>
+  <mat-form-field class="width">
+    <mat-label>New key</mat-label>
+    <input matInput [formControl]="newKey">
+  </mat-form-field>
+  <mat-form-field class="width">
+    <mat-label>New Value</mat-label>
+    <input matInput [formControl]="newValue">
+  </mat-form-field>
+  <button mat-button class="width" style="margin-bottom: 10px" (click)="addField()">Add field</button>
+  <mat-divider></mat-divider>
+  <div class="title">Change properties</div>
+  <form [formGroup]="form" (ngSubmit)="update()">
+    <div class="width flex" *ngFor="let field of formFields">
       <mat-form-field class="width">
-        <mat-label>New key</mat-label>
-        <input matInput [formControl]="newKey">
+        <mat-label>{{field}}</mat-label>
+        <input [formControlName]="field" matInput>
       </mat-form-field>
-      <mat-form-field class="width">
-        <mat-label>New Value</mat-label>
-        <input matInput [formControl]="newValue">
-      </mat-form-field>
-      <button mat-button class="width" style="margin-bottom: 10px" (click)="addField()">Add field</button>
-      <hr/>
-      <div class="title">Change properties</div>
-      <form [formGroup]="form" (ngSubmit)="update()">
-        <div class="width flex" *ngFor="let field of formFields">
-          <mat-form-field class="width">
-            <mat-label>{{field}}</mat-label>
-            <input [formControlName]="field" matInput>
-          </mat-form-field>
-          <button mat-button (click)="deleteRow(field)">
-            <mat-icon color="warn" svgIcon="fas:trash-can"></mat-icon>
-          </button>
-        </div>
-        <button class="width" mat-button color="primary" type="submit">Update</button>
-      </form>
-      <button class="width" mat-button color="warn" (click)="close()">Cancel</button>
+      <button mat-button (click)="deleteRow(field)">
+        <mat-icon color="warn" svgIcon="fas:trash-can"></mat-icon>
+      </button>
     </div>
-  </cdk-virtual-scroll-viewport>
-</div>
+    <button class="width" mat-button color="primary" type="submit">Update</button>
+  </form>
+</mat-dialog-content>
+<mat-dialog-actions>
+  <button class="width" mat-button color="warn" matDialogClose>Cancel</button>
+</mat-dialog-actions>

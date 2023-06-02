@@ -1,20 +1,20 @@
 <div class="container">
-  <div *ngIf="statistics | async" class="statistics">
+  <div *ngIf="statistics()" class="statistics">
     <mat-progress-bar *ngIf="statisticsLoading" mode="indeterminate"></mat-progress-bar>
     <button class="show-statistics-btn width" mat-button (click)="toggleShowStatistics()">
       <mat-icon style="vertical-align: baseline" [svgIcon]="showStatistics ? 'fas:angle-down' : 'fas:angle-right'"></mat-icon>
       Detailed statistics
     </button>
-    <ng-container *ngIf="showStatistics && (statistics | async)">
-      <span>Latest statistics update was at: {{ ((statisticsUpdateTime | async) ?? {formatted: 'none'}).formatted }} {{ getStatisticsUpdateWarning() }}</span>
-      <app-pages-total-statistics [statisticsData]="statistics | async"></app-pages-total-statistics>
-      <app-pages-unique-known-issues [statisticsData]="statistics | async"></app-pages-unique-known-issues>
-      <app-page-flaky-tests [statisticsData]="statistics | async"></app-page-flaky-tests>
+    <ng-container *ngIf="showStatistics && statistics()">
+      <span>Latest statistics update was at: {{ (statisticsUpdateTime() ?? {formatted: 'none'}).formatted }} {{ getStatisticsUpdateWarning() }}</span>
+      <app-pages-total-statistics [statisticsData]="statistics()"></app-pages-total-statistics>
+      <app-pages-unique-known-issues [statisticsData]="statistics()"></app-pages-unique-known-issues>
+      <app-page-flaky-tests [statisticsData]="statistics()"></app-page-flaky-tests>
     </ng-container>
   </div>
-  <app-pages-hitmap (onSelect)="onSelectPage($event)" *ngIf="((pages | async) ?? []).length > 0" [pages]="pages | async"></app-pages-hitmap>
+  <app-pages-hitmap (onSelect)="onSelectPage($event)" *ngIf="pages().length > 0" [pages]="pages()"></app-pages-hitmap>
   <mat-progress-bar *ngIf="pagesLoading" mode="indeterminate"></mat-progress-bar>
-  <div class="page-title" *ngIf="((pages | async) ?? []).length > 0">Selected page: {{activePage}}</div>
+  <div class="page-title" *ngIf="pages().length > 0">Selected page: {{activePage}}</div>
   <!-- failed/passed stat -->
   <div class="block">
     <div style="font-size: large; font-weight: bold; padding-top: 10px">Tests filters:</div>
@@ -22,7 +22,7 @@
             (click)="toggleFilterChips(stat.name)"
             [ngClass]="getChipClass(stat)"
             [ngStyle]="getChipStyle(stat)"
-            *ngFor="let stat of stats | async">
+            *ngFor="let stat of stats()">
       {{stat.name}} - {{stat.count}}
     </button>
   </div>
@@ -73,5 +73,5 @@
     [selected]="isSelected(test)"
     [test]="test"
     (onToggle)="testSelected(test)"
-    *ngFor="let test of showTests | async"></app-stress-test-card>
+    *ngFor="let test of showTests()"></app-stress-test-card>
 </div>

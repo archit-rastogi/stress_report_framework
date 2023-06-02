@@ -1,5 +1,4 @@
-import {Component, Input, OnChanges, OnInit, SimpleChanges} from '@angular/core';
-import {BehaviorSubject} from 'rxjs';
+import {Component, Input, OnChanges, OnInit, signal, SimpleChanges, WritableSignal} from '@angular/core';
 import {ApiService} from '../../../services/api.service';
 
 @Component({
@@ -11,7 +10,7 @@ export class PageFlakyTestsComponent implements OnInit, OnChanges {
   @Input() statisticsData: any | null = null;
 
   show = false;
-  tests = new BehaviorSubject<any[]>([]);
+  tests: WritableSignal<any[]> = signal([]);
   private allowToOpen = true;
 
   constructor(private api: ApiService) {
@@ -94,7 +93,7 @@ export class PageFlakyTestsComponent implements OnInit, OnChanges {
       test.previousTests = previousTests.reverse();
     });
 
-    this.tests.next(
+    this.tests.set(
       lastPageTests
         .filter((test: any) => test.changedStatuses > 0)
         .sort((a: any, b: any) => a.changedStatuses - b.changedStatuses)

@@ -23,7 +23,7 @@
   <mat-card
     class="width card"
     (click)="openReport(report)"
-    *ngFor="let report of reports | async"
+    *ngFor="let report of reports()"
   >
     <div style="display: flex; justify-content: space-between">
       <div style="font-size: x-large; font-weight: bold">{{ report.prettyName }}</div>

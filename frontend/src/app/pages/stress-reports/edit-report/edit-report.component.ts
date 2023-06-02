@@ -1,7 +1,6 @@
-import {Component, Inject, OnInit} from '@angular/core';
+import {Component, Inject, OnInit, signal, WritableSignal} from '@angular/core';
 import {MAT_DIALOG_DATA, MatDialogRef} from '@angular/material/dialog';
 import {FormControl, FormGroup} from '@angular/forms';
-import {BehaviorSubject} from 'rxjs';
 import * as moment from 'moment';
 import {ApiService} from '../../../services/api.service';
 
@@ -24,10 +23,10 @@ export class EditReportComponent implements OnInit {
 
   pageProperty = new FormControl('');
 
-  filters = new BehaviorSubject<any[]>([]);
-  dateRanges = new BehaviorSubject<any[]>([]);
-  excludedTests = new BehaviorSubject<any[]>([]);
-  selectedExcludeTests = new BehaviorSubject<any[]>([]);
+  filters: WritableSignal<any[]> = signal([]);
+  dateRanges: WritableSignal<any[]> = signal([]);
+  excludedTests: WritableSignal<any[]> = signal([]);
+  selectedExcludeTests: WritableSignal<any[]> = signal([]);
   updateReportSub: any;
   getExcludedTestsSub: any;
 
@@ -39,47 +38,47 @@ export class EditReportComponent implements OnInit {
   ngOnInit(): void {
     this.name.setValue(this.report.name);
     if (this.report.config.hasOwnProperty('filters')) {
-      this.filters.next(this.report.config.filters);
+      this.filters.set(this.report.config.filters);
     }
     if (this.report.config.hasOwnProperty('dates')) {
-      this.dateRanges.next(this.report.config.dates);
+      this.dateRanges.set(this.report.config.dates);
     }
     if (this.report.config.hasOwnProperty('page_property')) {
       this.pageProperty.setValue(this.report.config.page_property);
     }
     this.getExcludedTestsSub = this.api.post('get_excluded_tests', {report_id: this.report.report_id}).subscribe(res => {
       if (res.status) {
-        this.excludedTests.next(res.tests);
+        this.excludedTests.set(res.tests);
       }
     })
   }
 
   addFilter() {
-    const oldFilters = this.filters.getValue();
+    const oldFilters = this.filters();
     oldFilters.push({
       key: this.filterKey.value,
       value: this.filterValue.value
     });
-    this.filters.next(oldFilters);
+    this.filters.set(oldFilters);
     this.filterValue.setValue(null);
     this.filterKey.setValue(null);
   }
 
   removeFilter(filter: any): void {
-    this.filters.next(this.filters.getValue().filter(f => f.key !== filter.key));
+    this.filters.set(this.filters().filter(f => f.key !== filter.key));
   }
 
   addDateRange() {
-    const ranges = this.dateRanges.getValue();
+    const ranges = this.dateRanges();
     ranges.push({
       start: moment(this.range.value.start).startOf('day').unix(),
       end: moment(this.range.value.end).endOf('day').unix(),
     });
-    this.dateRanges.next(ranges);
+    this.dateRanges.set(ranges);
   }
 
   removeDateRange(dateRange: any) {
-    this.dateRanges.next(this.dateRanges.getValue().filter(r => r.start !== dateRange.start && r.end !== dateRange.end));
+    this.dateRanges.set(this.dateRanges().filter(r => r.start !== dateRange.start && r.end !== dateRange.end));
   }
 
   formatData(time: number): string {
@@ -88,9 +87,9 @@ export class EditReportComponent implements OnInit {
 
   update() {
     const newConfig: any = {
-      filters: this.filters.getValue(),
-      dates: this.dateRanges.getValue(),
-      excludes: this.excludedTests.getValue().map(t => t.test_id),
+      filters: this.filters(),
+      dates: this.dateRanges(),
+      excludes: this.excludedTests().map(t => t.test_id),
     };
     if (this.pageProperty.value !== null && this.pageProperty.value.length > 0) {
       newConfig.page_property = this.pageProperty.value;
@@ -108,22 +107,22 @@ export class EditReportComponent implements OnInit {
   }
 
   removeFromExcluded() {
-    this.excludedTests.next(this.excludedTests.getValue().filter(test => !this.selectedExcludeTests.getValue().includes(test.test_id)));
-    this.selectedExcludeTests.next([]);
+    this.excludedTests.set(this.excludedTests().filter(test => !this.selectedExcludeTests().includes(test.test_id)));
+    this.selectedExcludeTests.set([]);
   }
 
   selectTest(test: any) {
-    const selectedExcludeTests = this.selectedExcludeTests.getValue();
+    const selectedExcludeTests = this.selectedExcludeTests();
     if (selectedExcludeTests.includes(test.test_id)) {
-      this.selectedExcludeTests.next(selectedExcludeTests.filter(t => t !== test.test_id));
+      this.selectedExcludeTests.set(selectedExcludeTests.filter(t => t !== test.test_id));
     } else {
       selectedExcludeTests.push(test.test_id);
-      this.selectedExcludeTests.next(selectedExcludeTests);
+      this.selectedExcludeTests.set(selectedExcludeTests);
     }
 
   }
 
   isSelected(exclude: any): boolean {
-    return this.selectedExcludeTests.getValue().includes(exclude.test_id);
+    return this.selectedExcludeTests().includes(exclude.test_id);
   }
 }

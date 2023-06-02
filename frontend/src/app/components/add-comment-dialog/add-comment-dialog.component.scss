@@ -2,6 +2,10 @@
   width: 100%;
 }
 
-.container {
-  padding: 15px;
+mat-form-field {
+  width: 400px;
+}
+
+mat-dialog-actions {
+  justify-content: flex-end;
 }

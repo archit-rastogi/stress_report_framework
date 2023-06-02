@@ -31,4 +31,4 @@
   </div>
 </div>
 <mat-progress-bar *ngIf="loading" mode="indeterminate"></mat-progress-bar>
-<div echarts [options]="(echartsOptions | async) ?? {}" class="chart"></div>
+<div echarts [options]="echartsOptions()" class="chart"></div>

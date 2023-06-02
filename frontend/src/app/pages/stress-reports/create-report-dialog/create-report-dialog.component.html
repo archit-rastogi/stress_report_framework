@@ -1,4 +1,5 @@
-<div class="container">
+<h2 matDialogTitle>Create report</h2>
+<mat-dialog-content>
   <h3>Report name</h3>
   <div class="section">
     <mat-form-field class="width">
@@ -19,7 +20,7 @@
       <button mat-button (click)="addFilter()">Add</button>
     </div>
     <mat-chip-set>
-      <mat-chip *ngFor="let filter of filters | async">
+      <mat-chip *ngFor="let filter of filters()">
         {{filter.key}} = {{filter.value}}
         <button matChipRemove (click)="removeFilter(filter)">
           <mat-icon svgIcon="fas:xmark"></mat-icon>
@@ -40,7 +41,7 @@
     </mat-form-field>
     <button mat-button (click)="addDateRange()">Add</button>
     <mat-chip-set>
-      <mat-chip *ngFor="let dateRange of dateRanges | async">
+      <mat-chip *ngFor="let dateRange of dateRanges()">
         {{formatData(dateRange.start)}} - {{formatData(dateRange.end)}}
         <button matChipRemove (click)="removeDateRange(dateRange)">
           <mat-icon svgIcon="fas:xmark"></mat-icon>
@@ -55,5 +56,7 @@
       <input matInput [formControl]="pageProperty">
     </mat-form-field>
   </div>
+</mat-dialog-content>
+<mat-dialog-actions>
   <button class="width create" color="primary" mat-button (click)="create()">Create</button>
-</div>
+</mat-dialog-actions>

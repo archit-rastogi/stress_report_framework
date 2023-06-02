@@ -1,5 +1,4 @@
-import {Component, Input, OnChanges, OnInit, SimpleChanges} from '@angular/core';
-import {BehaviorSubject} from 'rxjs';
+import {Component, Input, OnChanges, OnInit, signal, SimpleChanges, WritableSignal} from '@angular/core';
 import {ApiService} from '../../../services/api.service';
 
 @Component({
@@ -11,8 +10,8 @@ export class PagesUniqueKnownIssuesComponent implements OnInit, OnChanges {
   @Input() statisticsData: any | null = null;
 
   show = true;
-  issues = new BehaviorSubject<any[]>([]);
-  pages = new BehaviorSubject<string[]>([]);
+  issues: WritableSignal<any[]> = signal([])
+  pages: WritableSignal<string[]> = signal([])
   selectedPage: string = '';
 
   private allowToOpen = true;
@@ -83,12 +82,12 @@ export class PagesUniqueKnownIssuesComponent implements OnInit, OnChanges {
     if (this.statisticsData === null) {
       return;
     }
-    if (this.pages.getValue().length === 0) {
+    if (this.pages().length === 0) {
       let allPages = Object.keys(this.statisticsData)
         .filter((page: string) => this.statisticsData[page].length > 0)
         .sort((a: any, b: any) => this.statisticsData[a][0].order - this.statisticsData[b][0].order);
       allPages = allPages.splice(allPages.length - 10, allPages.length - 1);
-      this.pages.next(allPages);
+      this.pages.set(allPages);
       this.selectedPage = allPages[allPages.length - 1];
     }
 
@@ -107,12 +106,12 @@ export class PagesUniqueKnownIssuesComponent implements OnInit, OnChanges {
         });
       }
     });
-    this.issues.next(issues.sort((a: any, b: any) => b.tests.length - a.tests.length));
+    this.issues.set(issues.sort((a: any, b: any) => b.tests.length - a.tests.length));
     this.findUrlNames();
   }
 
   private findUrlNames() {
-    this.issues.getValue().forEach((issue: any) => {
+    this.issues().forEach((issue: any) => {
       if (issue.url.startsWith('https://github.com')) {
         const p = issue.url.match('https://github.com/([a-z-0-9]+)/([a-z-0-9]+)/issues/([0-9]+)');
         if (p) {
@@ -120,7 +119,7 @@ export class PagesUniqueKnownIssuesComponent implements OnInit, OnChanges {
             headers: {Accept: 'application/vnd.github+json'}
           }).then((resp) => resp.json())
             .then((respData) => {
-              this.issues.next(this.issues.getValue()
+              this.issues.set(this.issues()
                 .map((iissue: any) => {
                   if (iissue.url === issue.url) {
                     iissue.title = `#${p[3]} ${respData.title}`;

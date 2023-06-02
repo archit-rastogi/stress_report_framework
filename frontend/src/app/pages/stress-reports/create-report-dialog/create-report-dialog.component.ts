@@ -1,7 +1,6 @@
-import {Component, OnInit} from '@angular/core';
+import {Component, OnInit, signal, WritableSignal} from '@angular/core';
 import {FormControl, FormGroup} from '@angular/forms';
 import * as moment from 'moment';
-import {BehaviorSubject} from 'rxjs';
 import {MatDialogRef} from '@angular/material/dialog';
 import {ApiService} from '../../../services/api.service';
 
@@ -21,8 +20,8 @@ export class CreateReportDialogComponent implements OnInit {
     end: new FormControl()
   })
 
-  filters = new BehaviorSubject<any[]>([]);
-  dateRanges = new BehaviorSubject<any[]>([]);
+  filters: WritableSignal<any[]> = signal([]);
+  dateRanges: WritableSignal<any[]> = signal([]);
 
   pageProperty = new FormControl('');
 
@@ -40,12 +39,12 @@ export class CreateReportDialogComponent implements OnInit {
     }
 
     const config: any = {};
-    if (this.filters.getValue()) {
-      config['filters'] = this.filters.getValue()
+    if (this.filters()) {
+      config['filters'] = this.filters()
     }
 
-    if (this.dateRanges.getValue()) {
-      config['dates'] = this.dateRanges.getValue()
+    if (this.dateRanges()) {
+      config['dates'] = this.dateRanges()
     }
 
     if (this.pageProperty.value !== null && this.pageProperty.value.length > 0) {
@@ -64,31 +63,31 @@ export class CreateReportDialogComponent implements OnInit {
   }
 
   addFilter() {
-    const oldFilters = this.filters.getValue();
+    const oldFilters = this.filters();
     oldFilters.push({
       key: this.filterKey.value,
       value: this.filterValue.value
     });
-    this.filters.next(oldFilters);
+    this.filters.set(oldFilters);
     this.filterValue.setValue(null);
     this.filterKey.setValue(null);
   }
 
   removeFilter(filter: any): void {
-    this.filters.next(this.filters.getValue().filter(f => f.key !== filter.key));
+    this.filters.set(this.filters().filter(f => f.key !== filter.key));
   }
 
   addDateRange() {
-    const ranges = this.dateRanges.getValue();
+    const ranges = this.dateRanges();
     ranges.push({
       start: moment(this.range.value.start).startOf('day').unix(),
       end: moment(this.range.value.end).endOf('day').unix(),
     });
-    this.dateRanges.next(ranges);
+    this.dateRanges.set(ranges);
   }
 
   removeDateRange(dateRange: any) {
-    this.dateRanges.next(this.dateRanges.getValue().filter(r => r.start !== dateRange.start && r.end !== dateRange.end));
+    this.dateRanges.set(this.dateRanges().filter(r => r.start !== dateRange.start && r.end !== dateRange.end));
   }
 
   formatData(time: number): string {

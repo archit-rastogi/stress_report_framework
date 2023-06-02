@@ -1,6 +1,5 @@
-import {Component, Input, OnInit} from '@angular/core';
+import {Component, Input, OnInit, signal, WritableSignal} from '@angular/core';
 import {ApiService} from '../../../services/api.service';
-import {BehaviorSubject} from 'rxjs';
 
 @Component({
   selector: 'app-stress-results',
@@ -10,7 +9,7 @@ import {BehaviorSubject} from 'rxjs';
 export class StressResultsComponent implements OnInit {
   @Input() testId: string | undefined | null;
 
-  results = new BehaviorSubject<any[]>([]);
+  results: WritableSignal<any[]> = signal([])
   getTestResults: any;
   loading = false;
 
@@ -22,7 +21,7 @@ export class StressResultsComponent implements OnInit {
     this.getTestResults = this.api.post('get_test_results', {test_id: this.testId}).subscribe(res => {
       this.loading = false;
       if (res.status) {
-        this.results.next(res.results.sort((a: any, b: any) => a.name.localeCompare(b.name)));
+        this.results.set(res.results.sort((a: any, b: any) => a.name.localeCompare(b.name)));
       }
     })
   }

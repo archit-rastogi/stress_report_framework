@@ -24,13 +24,13 @@
     </mat-form-field>
   </div>
 </div>
-<div echarts [options]="(chartOptions | async) ?? {}" (chartClick)="click($event)" [ngStyle]="graphStyle()"
+<div echarts [options]="chartOptions()" (chartClick)="click($event)" [ngStyle]="graphStyle()"
      class="width"></div>
 <div class="flex">
-  <button class="close" mat-button (click)="openedSteps.next([])" *ngIf="((openedSteps | async) ?? []).length > 0">Close
+  <button class="close" mat-button (click)="openedSteps.set([])" *ngIf="openedSteps().length > 0">Close
     all
   </button>
-  <ng-container *ngFor="let step of openedSteps | async">
+  <ng-container *ngFor="let step of openedSteps()">
     <h3 class="width" [ngStyle]="getStepStatus(step.status)">{{step.properties.name}}</h3>
     <span class="width time-range">{{getStepTime(step)}}</span>
     <table>

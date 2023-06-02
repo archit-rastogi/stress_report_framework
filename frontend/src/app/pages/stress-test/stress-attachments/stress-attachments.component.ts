@@ -1,6 +1,5 @@
-import {Component, Input, OnInit} from '@angular/core';
+import {Component, Input, OnInit, signal, WritableSignal} from '@angular/core';
 import {ApiService} from '../../../services/api.service';
-import {BehaviorSubject, Subject} from 'rxjs';
 import {AttachmentsSyncService} from './services/attachments.service';
 import {MatDialog} from '@angular/material/dialog';
 import {AcceptDialogComponent, AcceptOptions} from '../../../components/accept-dialog/accept-dialog.component';
@@ -13,8 +12,8 @@ import {AcceptDialogComponent, AcceptOptions} from '../../../components/accept-d
 export class StressAttachmentsComponent implements OnInit {
 
   @Input() testId: string | undefined | null;
-  attachments = new BehaviorSubject<Array<any>>([]);
-  show = new Subject<boolean>();
+  attachments: WritableSignal<any[]> = signal([])
+  show: WritableSignal<boolean> = signal(false)
   getAttachmentsSub: any;
   deleteAttachmentSub: any;
   acceptDialogSub: any;
@@ -35,14 +34,14 @@ export class StressAttachmentsComponent implements OnInit {
     this.getAttachmentsSub = this.api.post('get_attachments', {test_id: this.testId}).subscribe(res => {
       this.loading = false;
       if (res.status) {
-        this.show.next(true);
-        this.attachments.next(res.attachments);
+        this.show.set(true);
+        this.attachments.set(res.attachments);
       }
     })
   }
 
   delete() {
-    const selectedAttachments = this.attachmentsSync.selectedAttachments.getValue();
+    const selectedAttachments = this.attachmentsSync.selectedAttachments();
     this.acceptDialogSub = this.dialog.open(
       AcceptDialogComponent,
       {data: new AcceptOptions(`You really want to delete ${selectedAttachments.length} attached files?`)}
@@ -53,7 +52,7 @@ export class StressAttachmentsComponent implements OnInit {
         }).subscribe(res => {
           if (res.status) {
             this.api.snackMessage(`All selected attachments deleted!`, 2);
-            this.attachmentsSync.selectedAttachments.next([]);
+            this.attachmentsSync.selectedAttachments.set([]);
             this.getAttachments();
           }
         });
@@ -62,11 +61,11 @@ export class StressAttachmentsComponent implements OnInit {
   }
 
   cancelSelection() {
-    this.attachmentsSync.selectedAttachments.next([]);
+    this.attachmentsSync.selectedAttachments.set([]);
   }
 
   attachmentsExists() {
-    return this.attachmentsSync.selectedAttachments.getValue().length > 0;
+    return this.attachmentsSync.selectedAttachments().length > 0;
   }
 
   downloadAll() {
@@ -74,7 +73,7 @@ export class StressAttachmentsComponent implements OnInit {
   }
 
   downloadLastSelectedItem() {
-    const at = this.attachmentsSync.selectedAttachments.getValue()[this.attachmentsSync.selectedAttachments.getValue().length - 1]
+    const at = this.attachmentsSync.selectedAttachments()[this.attachmentsSync.selectedAttachments().length - 1]
     const pattern = at.hasOwnProperty('source_key') ? `${at.source_key}/` : at.name;
     window.open(`${this.api.getBaseLink()}/files/build_archive?test_id=${this.testId}&pattern=${pattern}`, '_blank')
   }

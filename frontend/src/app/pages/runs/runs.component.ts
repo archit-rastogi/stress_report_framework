@@ -1,6 +1,5 @@
-import {Component, OnDestroy, OnInit} from '@angular/core';
+import {Component, effect, OnDestroy, OnInit, signal, WritableSignal} from '@angular/core';
 import {FormControl, FormGroup} from '@angular/forms';
-import {BehaviorSubject} from 'rxjs';
 import * as moment from 'moment';
 import {ApiService} from '../../services/api.service';
 import {ActionsService} from '../../services/actions.service';
@@ -13,8 +12,8 @@ import {ActionsService} from '../../services/actions.service';
 export class RunsComponent implements OnInit, OnDestroy {
   open = false;
   range = RunsComponent.initDates();
-  sourceTests = new BehaviorSubject<Array<any>>([]);
-  showTests = new BehaviorSubject<Array<any>>([]);
+  sourceTests: WritableSignal<Array<any>> = signal([]);
+  showTests: WritableSignal<Array<any>> = signal([]);
   testsSub: any;
   contextSearch = new FormControl();
   searchSub: any = null;
@@ -22,10 +21,9 @@ export class RunsComponent implements OnInit, OnDestroy {
 
   private acceptDialogSub: any;
 
-  constructor(private api: ApiService,
-              public actionsService: ActionsService) {
-    actionsService.refresh.subscribe(refresh => {
-      if (refresh && this.open) {
+  constructor(private api: ApiService, public actionsService: ActionsService) {
+    effect(() => {
+      if (actionsService.refresh() && this.open) {
         this.getTests();
       }
     })
@@ -39,7 +37,7 @@ export class RunsComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy() {
-    this.actionsService.selectedTests.next([]);
+    this.actionsService.selectedTests.set([]);
     this.open = false;
     this.api.unsub(this.acceptDialogSub);
   }
@@ -87,8 +85,8 @@ export class RunsComponent implements OnInit, OnDestroy {
             }
             return test;
           });
-        this.sourceTests.next(tests);
-        this.showTests.next(tests);
+        this.sourceTests.set(tests);
+        this.showTests.set(tests);
         const contextSearchText = localStorage.getItem('runsContextSearch')
         if (contextSearchText !== null) {
           this.filterByContext(contextSearchText);
@@ -102,7 +100,7 @@ export class RunsComponent implements OnInit, OnDestroy {
   }
 
   filterByContext(text: string) {
-    this.showTests.next(this.sourceTests.getValue().filter(test =>
+    this.showTests.set(this.sourceTests().filter(test =>
       Object.keys(test.config).find(k => test.config[k].toString().includes(text)
         || k.includes(text)
         || test.status.includes(text)
@@ -113,7 +111,7 @@ export class RunsComponent implements OnInit, OnDestroy {
 
   searchContext(change: any) {
     if (change.target.value === '') {
-      this.showTests.next(this.sourceTests.getValue());
+      this.showTests.set(this.sourceTests());
       localStorage.removeItem('runsContextSearch');
     }
     if (this.searchSub !== null) {
@@ -128,14 +126,14 @@ export class RunsComponent implements OnInit, OnDestroy {
   }
 
   onTestToggle(test: any): void {
-    if (this.actionsService.selectedTests.getValue().includes(test.test_id)) {
-      this.actionsService.selectedTests.next(
-        this.actionsService.selectedTests.getValue().filter(t => t !== test.test_id)
+    if (this.actionsService.selectedTests().includes(test.test_id)) {
+      this.actionsService.selectedTests.set(
+        this.actionsService.selectedTests().filter(t => t !== test.test_id)
       );
     } else {
-      const selectedTests = this.actionsService.selectedTests.getValue();
+      const selectedTests = this.actionsService.selectedTests();
       selectedTests.push(test.test_id);
-      this.actionsService.selectedTests.next(selectedTests);
+      this.actionsService.selectedTests.set(selectedTests);
     }
   }
 
@@ -144,13 +142,13 @@ export class RunsComponent implements OnInit, OnDestroy {
   }
 
   selectAllShown() {
-    const selectedTests = this.actionsService.selectedTests.getValue();
-    this.showTests.getValue().forEach((test: any) => {
+    const selectedTests = this.actionsService.selectedTests();
+    this.showTests().forEach((test: any) => {
       if (!selectedTests.includes(test.test_id)) {
         selectedTests.push(test.test_id);
       }
     })
-    this.actionsService.selectedTests.next(selectedTests);
+    this.actionsService.selectedTests.set(selectedTests);
   }
 
   today() {

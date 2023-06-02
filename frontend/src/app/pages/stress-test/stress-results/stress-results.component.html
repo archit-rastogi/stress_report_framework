@@ -1,5 +1,5 @@
 <mat-progress-bar *ngIf="loading" mode="indeterminate"></mat-progress-bar>
-<div *ngFor="let result of results | async">
+<div *ngFor="let result of results()">
   <h2>{{result.name}}</h2>
   <ng-container *ngIf="result.type == 'table'">
     <app-result-table [result]="result"></app-result-table>

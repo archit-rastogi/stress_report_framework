@@ -1,7 +1,6 @@
-import {Component, OnDestroy, OnInit} from '@angular/core';
+import {Component, effect, OnDestroy, OnInit, signal, WritableSignal} from '@angular/core';
 import {ActivatedRoute, Router} from '@angular/router';
 import {ApiService} from '../../services/api.service';
-import {BehaviorSubject} from 'rxjs';
 import {FormControl} from '@angular/forms';
 import {ActionsService} from '../../services/actions.service';
 import * as moment from 'moment';
@@ -36,19 +35,19 @@ export class StressReportComponent implements OnInit, OnDestroy {
   reportName: string | null = null;
   showStatistics = false;
 
-  tests = new BehaviorSubject<any[]>([])
-  showTests = new BehaviorSubject<any[]>([])
-  stats = new BehaviorSubject<any[]>([])
-  pages = new BehaviorSubject<Page[]>([]);
-  statistics = new BehaviorSubject<any>(null);
-  statisticsUpdateTime = new BehaviorSubject<any>(null)
+  tests: WritableSignal<any[]> = signal([])
+  showTests: WritableSignal<any[]> = signal([])
+  stats: WritableSignal<any[]> = signal([])
+  pages: WritableSignal<any[]> = signal([])
+  statistics: WritableSignal<any> = signal(null)
+  statisticsUpdateTime: WritableSignal<any> = signal(null)
 
   activePage: string | null = null;
   contextSearch = new FormControl('');
   testsLoading = false;
   statisticsLoading = false;
   pagesLoading = false;
-  activeChip = new BehaviorSubject<string>('all');
+  activeChip: WritableSignal<string> = signal('all')
   orderByCategory: string = 'date';
   orderByCategoryOrder: string = 'down';
 
@@ -63,8 +62,8 @@ export class StressReportComponent implements OnInit, OnDestroy {
               private router: Router,
               private api: ApiService,
               public actionsService: ActionsService) {
-    actionsService.refresh.subscribe(refresh => {
-      if (refresh && this.open) {
+    effect(() => {
+      if (actionsService.refresh() && this.open) {
         this.getReportTests();
       }
     })
@@ -88,7 +87,7 @@ export class StressReportComponent implements OnInit, OnDestroy {
     }
     const activeChip = localStorage.getItem('report_chip_selected');
     if (activeChip !== null) {
-      this.activeChip.next(activeChip);
+      this.activeChip.set(activeChip);
     }
     this.open = true;
     this.activePage = null;
@@ -105,7 +104,7 @@ export class StressReportComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy() {
-    this.actionsService.selectedTests.next([]);
+    this.actionsService.selectedTests.set([]);
     this.open = false;
     [
       this.excludeTestsSub,
@@ -120,9 +119,9 @@ export class StressReportComponent implements OnInit, OnDestroy {
   toggleFilterChips(chipName: string) {
     this.changeFilterChips(chipName);
     const chipFilter = this.getChipFilter(chipName);
-    this.activeChip.next(chipName);
-    this.showTests.next(this.sortTests(
-      this.tests.getValue()
+    this.activeChip.set(chipName);
+    this.showTests.set(this.sortTests(
+      this.tests()
         .filter((test: any) => chipFilter(test) && this.getContextTestFilter(
           test, this.contextSearch.value === null ? '' : this.contextSearch.value
         ))
@@ -146,7 +145,7 @@ export class StressReportComponent implements OnInit, OnDestroy {
               data: res.pages[pageName]
             } as Page
           }).sort((a: any, b: any) => a.data.order - b.data.order);
-          this.pages.next(listPages)
+          this.pages.set(listPages)
           if (this.activePage === null) {
             this.setActivePage(listPages[listPages.length - 1].name)
           }
@@ -164,9 +163,9 @@ export class StressReportComponent implements OnInit, OnDestroy {
     }).subscribe(res => {
       this.statisticsLoading = false;
       if (res.status && res.data) {
-        this.statistics.next(res.data.detailed_statistics);
+        this.statistics.set(res.data.detailed_statistics);
         const updateDate = moment(res.data.update_ts * 1000);
-        this.statisticsUpdateTime.next({
+        this.statisticsUpdateTime.set({
           date: updateDate.toDate(),
           formatted: updateDate.format('HH:mm:ss DD.MM.YYYY')
         });
@@ -177,9 +176,9 @@ export class StressReportComponent implements OnInit, OnDestroy {
 
   updateTestsWithStatistics() {
     const newTests: any[] = [];
-    const stat = this.statistics.getValue();
+    const stat = this.statistics();
     if (stat !== null) {
-      this.tests.getValue().forEach((test: any) => {
+      this.tests().forEach((test: any) => {
         const previousTests: any[] = [];
         Object.keys(stat)
           .filter((page: string) => stat[page].length > 0)
@@ -199,11 +198,11 @@ export class StressReportComponent implements OnInit, OnDestroy {
         );
         newTests.push(test)
       });
-      this.tests.next(newTests);
-      const updateTests = this.showTests.getValue()
+      this.tests.set(newTests);
+      const updateTests = this.showTests()
         .map((test: any) => newTests
           .find((nt: any) => nt.test_id === test.test_id))
-      this.showTests.next(updateTests);
+      this.showTests.set(updateTests);
     }
   }
 
@@ -244,10 +243,10 @@ export class StressReportComponent implements OnInit, OnDestroy {
         if (failedWithoutKnownIssues > 0) {
           chips.push({name: 'failed without known issues', count: failedWithoutKnownIssues});
         }
-        this.stats.next(chips.sort((a: any, b: any) => a.name.localeCompare(b.name)));
-        this.tests.next(tests);
+        this.stats.set(chips.sort((a: any, b: any) => a.name.localeCompare(b.name)));
+        this.tests.set(tests);
         const chipFilteredTests: any[] = tests
-          .filter((test: any) => this.getChipFilter(this.activeChip.getValue())(test))
+          .filter((test: any) => this.getChipFilter(this.activeChip())(test))
         if (chipFilteredTests.length === 0) {
           this.toggleFilterChips('all');
           return;
@@ -255,41 +254,41 @@ export class StressReportComponent implements OnInit, OnDestroy {
         const newTests = this.sortTests(chipFilteredTests.filter(test => this.getContextTestFilter(
           test, this.contextSearch.value === null ? '' : this.contextSearch.value
         )))
-        this.showTests.next(newTests);
+        this.showTests.set(newTests);
         this.updateTestsWithStatistics();
       }
     })
   }
 
   isSelected(test: any): boolean {
-    return this.actionsService.selectedTests.getValue().includes(test.test_id);
+    return this.actionsService.selectedTests().includes(test.test_id);
   }
 
   testSelected(test: any) {
-    const selected = this.actionsService.selectedTests.getValue();
+    const selected = this.actionsService.selectedTests();
     if (this.isSelected(test)) {
-      this.actionsService.selectedTests.next(selected.filter(t => t !== test.test_id));
+      this.actionsService.selectedTests.set(selected.filter(t => t !== test.test_id));
     } else {
       selected.push(test.test_id);
-      this.actionsService.selectedTests.next(selected);
+      this.actionsService.selectedTests.set(selected);
     }
   }
 
   excludeTests() {
     this.excludeTestsSub = this.api.post('add_exclude_tests', {
-      tests: this.actionsService.selectedTests.getValue(),
+      tests: this.actionsService.selectedTests(),
       name: this.reportName
     }).subscribe(res => {
       if (res.status) {
-        this.api.snackMessage(`${this.actionsService.selectedTests.getValue().length} tests excluded from report!`, 2);
-        this.actionsService.selectedTests.next([]);
+        this.api.snackMessage(`${this.actionsService.selectedTests().length} tests excluded from report!`, 2);
+        this.actionsService.selectedTests.set([]);
         this.getReportTests();
       }
     })
   }
 
   getChipStyle(stat: any) {
-    if (stat.name === this.activeChip.getValue()) {
+    if (stat.name === this.activeChip()) {
       return {}
     } else {
       return {
@@ -304,11 +303,11 @@ export class StressReportComponent implements OnInit, OnDestroy {
   }
 
   getChipClass(stat: any): string {
-    return stat.name === this.activeChip.getValue() ? 'selected-chip' : '';
+    return stat.name === this.activeChip() ? 'selected-chip' : '';
   }
 
   filterByContext(text: string) {
-    this.showTests.next(this.sortTests(this.tests.getValue().filter((test: any) => this.getContextTestFilter(test, text))));
+    this.showTests.set(this.sortTests(this.tests().filter((test: any) => this.getContextTestFilter(test, text))));
   }
 
   searchContext(change: any) {
@@ -316,17 +315,17 @@ export class StressReportComponent implements OnInit, OnDestroy {
       clearTimeout(this.searchSub);
     }
     this.searchSub = setTimeout(() => {
-      if (this.activeChip.getValue() != 'all') {
+      if (this.activeChip() != 'all') {
         if (change.target.value === '') {
           localStorage.removeItem('reportContextSearch');
         } else {
           localStorage.setItem('reportContextSearch', change.target.value);
         }
-        this.toggleFilterChips(this.activeChip.getValue());
+        this.toggleFilterChips(this.activeChip());
         return;
       }
       if (change.target.value === '') {
-        this.showTests.next(this.sortTests(this.tests.getValue()));
+        this.showTests.set(this.sortTests(this.tests()));
         localStorage.removeItem('reportContextSearch');
       }
 
@@ -337,13 +336,13 @@ export class StressReportComponent implements OnInit, OnDestroy {
   }
 
   selectAllShown() {
-    const selectedTests = this.actionsService.selectedTests.getValue();
-    this.showTests.getValue().forEach((test: any) => {
+    const selectedTests = this.actionsService.selectedTests();
+    this.showTests().forEach((test: any) => {
       if (!selectedTests.includes(test.test_id)) {
         selectedTests.push(test.test_id);
       }
     })
-    this.actionsService.selectedTests.next(selectedTests);
+    this.actionsService.selectedTests.set(selectedTests);
   }
 
   onSelectPage(page: Page) {
@@ -358,13 +357,13 @@ export class StressReportComponent implements OnInit, OnDestroy {
       this.orderByCategory = name;
       this.orderByCategoryOrder = 'up';
     }
-    this.showTests.next(this.sortTests(this.showTests.getValue()));
+    this.showTests.set(this.sortTests(this.showTests()));
     localStorage.setItem('report_sort_category', this.orderByCategory)
     localStorage.setItem('report_sort_order', this.orderByCategoryOrder)
   }
 
   getStatisticsUpdateWarning(): string {
-    const statDateUpdate = this.statisticsUpdateTime.getValue();
+    const statDateUpdate = this.statisticsUpdateTime();
     if (statDateUpdate !== null) {
       return (statDateUpdate.date.getTime() - new Date().getTime()) / 1000 > 60 * 5 ? 'update in progress. Please update page in minute or so fpr new results' : '';
     }
@@ -378,7 +377,7 @@ export class StressReportComponent implements OnInit, OnDestroy {
 
   private changeFilterChips(chipName: string) {
     localStorage.setItem('report_chip_selected', chipName);
-    this.activeChip.next(chipName);
+    this.activeChip.set(chipName);
   }
 
   private getChipFilter(chipName: string): any {

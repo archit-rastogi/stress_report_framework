@@ -1,14 +1,14 @@
 <div class="flex-container">
   <button mat-button (click)="toggleCloseOpen()"
-  >{{openedGraphs.getValue().length > 0 ? 'Close' : 'Open'}} all
+  >{{openedGraphs().length > 0 ? 'Close' : 'Open'}} all
   </button>
 </div>
 <mat-progress-bar *ngIf="loading" mode="indeterminate"></mat-progress-bar>
 
 <mat-tab-group dynamicHeight mat-align-tabs="center" animationDuration="100ms" color="warn">
-  <mat-tab [label]="section" *ngFor="let section of sections | async">
+  <mat-tab [label]="section" *ngFor="let section of sections()">
     <ng-template matTabContent>
-      <div class="width" *ngFor="let graph of ((graphs | async) ?? {})[section]">
+      <div class="width" *ngFor="let graph of graphs()[section]">
         <div class="flex-container">
           <button class="show-button" mat-button (click)="toggleShow(graph.name)">
             <mat-icon [svgIcon]="graphIsOpen(graph.name) ? 'fas:angle-down' : 'fas:angle-right'"></mat-icon>

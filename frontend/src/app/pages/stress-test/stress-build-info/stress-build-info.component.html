@@ -1,52 +1,52 @@
-<div class="status"
-     [ngStyle]="getStatusStyle(((testInfo | async) ?? {}).status)"
-     *ngIf="getKeys(((testInfo | async) ?? {}).length > 0)">
-  {{ ((testInfo | async) ?? {}).status }}
-</div>
-<div class="flex">
-  <button class="opener" mat-button (click)="toggleInfo()">
-    Build info
-  </button>
-</div>
-<ng-container *ngIf="showInfo">
-  <span class="time">
-    {{format(((testInfo | async) ?? {}).start_time)}}
-    - {{((testInfo | async) ?? {}).end_time ? format(((testInfo | async) ?? {}).end_time) : 'running'}}
-  </span>
-  <div class="flex">
-    <table>
-      <tr *ngFor="let propKey of getKeys((((testInfo | async) ?? {}) ?? {config: {}}).config)">
-        <td style="font-weight: bold; padding-right: 20px">{{ propKey }}</td>
-        <td>
-          <ng-container>
-            <ng-container *ngIf="getValue(propKey).includes('http')">
-              <a *ngFor="let link of getValue(propKey).split(',')"
-                 (click)="openLink(link)">
-                {{ link }}
-              </a>
-            </ng-container>
-            <ng-container *ngIf="!getValue(propKey).includes('http')">
-              {{ getValue(propKey) }}
-            </ng-container>
-          </ng-container>
-        </td>
-      </tr>
-    </table>
+<ng-container *ngIf="testInfo() !== null">
+  <div class="status" [ngStyle]="getStatusStyle(this.testInfo().status)">
+    {{ testInfo().status }}
   </div>
-  <ng-container *ngIf="((testInfo | async) ?? {}) && ((testInfo | async) ?? {}).config && ((testInfo | async) ?? {}).config.hasOwnProperty('comment')">
+  <div class="flex">
+    <button class="opener" mat-button (click)="toggleInfo()">
+      Build info
+    </button>
+  </div>
+  <ng-container *ngIf="showInfo">
+  <span class="time">
+    {{format(testInfo().start_time)}}
+    - {{testInfo().end_time ? format(testInfo().end_time) : 'running'}}
+  </span>
     <div class="flex">
-      <pre class="comment">{{(testInfo | async).config.comment}}</pre>
+      <table>
+        <tr *ngFor="let propKey of getKeys((testInfo() ?? {config: {}}).config)">
+          <td style="font-weight: bold; padding-right: 20px">{{ propKey }}</td>
+          <td>
+            <ng-container>
+              <ng-container *ngIf="getValue(propKey).includes('http')">
+                <a *ngFor="let link of getValue(propKey).split(',')"
+                   (click)="openLink(link)">
+                  {{ link }}
+                </a>
+              </ng-container>
+              <ng-container *ngIf="!getValue(propKey).includes('http')">
+                {{ getValue(propKey) }}
+              </ng-container>
+            </ng-container>
+          </td>
+        </tr>
+      </table>
     </div>
-  </ng-container>
-  <ng-container *ngIf="((knownIssues | async) ?? []).length > 0">
-    <div class="flex">
-      <h2>Known issues</h2>
-    </div>
-    <div class="flex">
-      <mat-card (click)="openLink(knownIssue.url)" *ngFor="let knownIssue of knownIssues | async">
-        <mat-card-title>{{knownIssue.title}}</mat-card-title>
-        <span>{{ knownIssue.url }}</span>
-      </mat-card>
-    </div>
+    <ng-container *ngIf="testInfo() && testInfo().config && testInfo().config.hasOwnProperty('comment')">
+      <div class="flex">
+        <pre class="comment">{{testInfo().config.comment}}</pre>
+      </div>
+    </ng-container>
+    <ng-container *ngIf="knownIssues().length > 0">
+      <div class="flex">
+        <h2>Known issues</h2>
+      </div>
+      <div class="flex">
+        <mat-card (click)="openLink(knownIssue.url)" *ngFor="let knownIssue of knownIssues()">
+          <mat-card-title>{{knownIssue.title}}</mat-card-title>
+          <span>{{ knownIssue.url }}</span>
+        </mat-card>
+      </div>
+    </ng-container>
   </ng-container>
 </ng-container>

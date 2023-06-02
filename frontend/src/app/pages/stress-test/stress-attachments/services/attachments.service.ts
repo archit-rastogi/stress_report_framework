@@ -1,7 +1,6 @@
-import {Injectable} from '@angular/core';
-import {BehaviorSubject} from 'rxjs';
+import {Injectable, signal, WritableSignal} from '@angular/core';
 
 @Injectable()
 export class AttachmentsSyncService {
-  selectedAttachments = new BehaviorSubject<any[]>([]);
+  selectedAttachments: WritableSignal<any[]> = signal([]);
 }

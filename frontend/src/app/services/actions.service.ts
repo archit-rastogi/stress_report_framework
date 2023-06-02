@@ -1,5 +1,4 @@
-import {Inject, Injectable} from '@angular/core';
-import {BehaviorSubject, Subject} from 'rxjs';
+import {Injectable, signal, WritableSignal} from '@angular/core';
 import {AddKnownIssueDialogComponent} from '../components/add-known-issue-dialog/add-known-issue-dialog.component';
 import {AcceptDialogComponent, AcceptOptions} from '../components/accept-dialog/accept-dialog.component';
 import {MatDialog} from '@angular/material/dialog';
@@ -9,8 +8,8 @@ import {AddCommentDialogComponent} from "../components/add-comment-dialog/add-co
 
 @Injectable()
 export class ActionsService {
-  selectedTests = new BehaviorSubject<string[]>([]);
-  refresh = new Subject<boolean>();
+  selectedTests: WritableSignal<string[]> = signal([]);
+  refresh: WritableSignal<boolean> = signal(false);
   dialogSub: any;
   requestSub: any;
 
@@ -21,11 +20,11 @@ export class ActionsService {
   openAddKnownIssue() {
     this.dialogSub = this.dialog.open(
       AddKnownIssueDialogComponent,
-      {data: this.selectedTests.getValue()}
+      {data: this.selectedTests()}
     ).afterClosed().subscribe(res => {
       if (res) {
-        this.selectedTests.next([]);
-        this.refresh.next(true);
+        this.selectedTests.set([]);
+        this.refresh.set(true);
       }
     });
   }
@@ -33,17 +32,17 @@ export class ActionsService {
   removeKnownIssues() {
     this.dialogSub = this.dialog.open(
       AcceptDialogComponent,
-      {data: new AcceptOptions(`Delete known issues for ${this.selectedTests.getValue().length} tests`)}
+      {data: new AcceptOptions(`Delete known issues for ${this.selectedTests().length} tests`)}
     ).afterClosed().subscribe(res => {
       if (res) {
         this.requestSub = this.api.post('remove_test_properties', {
-          test_ids: this.selectedTests.getValue(),
+          test_ids: this.selectedTests(),
           properties: ["known_issues"]
         }).subscribe(res => {
           if (res.status) {
             this.api.snackMessage('Known issues removed successfully!', 2);
-            this.selectedTests.next([]);
-            this.refresh.next(true);
+            this.selectedTests.set([]);
+            this.refresh.set(true);
           }
         })
       }
@@ -53,16 +52,16 @@ export class ActionsService {
   deleteSelectedTests() {
     this.dialogSub = this.dialog.open(
       AcceptDialogComponent,
-      {data: new AcceptOptions(`Delete all selected ${this.selectedTests.getValue().length} tests`)}
+      {data: new AcceptOptions(`Delete all selected ${this.selectedTests().length} tests`)}
     ).afterClosed().subscribe(res => {
       if (res) {
         this.requestSub = this.api.post('delete_test', {
-          test_ids: this.selectedTests.getValue()
+          test_ids: this.selectedTests()
         }).subscribe(res => {
           if (res.status) {
             this.api.snackMessage('Deletion in progress! It\'s take a while', 3);
-            this.selectedTests.next([]);
-            this.refresh.next(true);
+            this.selectedTests.set([]);
+            this.refresh.set(true);
           }
         });
       }
@@ -72,11 +71,11 @@ export class ActionsService {
   openEditModal() {
     this.dialogSub = this.dialog.open(
       EditRunInfoDialogComponent,
-      {data: this.selectedTests.getValue()}
+      {data: this.selectedTests()}
     ).afterClosed().subscribe(res => {
       if (res) {
-        this.selectedTests.next([]);
-        this.refresh.next(true);
+        this.selectedTests.set([]);
+        this.refresh.set(true);
       }
     });
   }
@@ -84,11 +83,11 @@ export class ActionsService {
   openAddCommentModal() {
     this.dialogSub = this.dialog.open(
       AddCommentDialogComponent,
-      {data: this.selectedTests.getValue()}
+      {data: this.selectedTests()}
     ).afterClosed().subscribe(res => {
       if (res) {
-        this.selectedTests.next([]);
-        this.refresh.next(true);
+        this.selectedTests.set([]);
+        this.refresh.set(true);
       }
     });
   }

@@ -1,6 +1,5 @@
-import {Component, OnInit} from '@angular/core';
+import {Component, OnInit, signal, WritableSignal} from '@angular/core';
 import {ApiService} from '../../services/api.service';
-import {BehaviorSubject} from 'rxjs';
 import {MatDialog} from '@angular/material/dialog';
 import {Router} from '@angular/router';
 import {CreateReportDialogComponent} from './create-report-dialog/create-report-dialog.component';
@@ -13,7 +12,7 @@ import {AcceptDialogComponent, AcceptOptions} from '../../components/accept-dial
   styleUrls: ['./stress-reports.component.scss']
 })
 export class StressReportsComponent implements OnInit {
-  reports = new BehaviorSubject<any[]>([])
+  reports: WritableSignal<any[]> = signal([]);
   getReportsSub: any
   dialogSub: any;
   allowToOpen = true;
@@ -47,7 +46,7 @@ export class StressReportsComponent implements OnInit {
     this.getReportsSub = this.api.post('get_reports', {}).subscribe(res => {
       if (res.status) {
         this.loading = false;
-        this.reports.next(this.getResults(res.reports));
+        this.reports.set(this.getResults(res.reports));
       }
     })
   }
@@ -98,7 +97,7 @@ export class StressReportsComponent implements OnInit {
     this.orderByCategory = name;
     localStorage.setItem('reports_sort_category', this.orderByCategory)
     localStorage.setItem('reports_sort_order', this.orderByCategoryOrder)
-    this.reports.next(this.getResults(this.reports.getValue()));
+    this.reports.set(this.getResults(this.reports()));
   }
 
   private disableOpen() {

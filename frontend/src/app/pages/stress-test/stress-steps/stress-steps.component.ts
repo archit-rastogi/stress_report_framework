@@ -1,8 +1,9 @@
-import {Component, Input, OnInit} from '@angular/core';
+import {Component, Input, OnInit, signal, WritableSignal} from '@angular/core';
 import {ApiService} from '../../../services/api.service';
 import * as moment from 'moment-timezone';
 import * as echarts from 'echarts';
-import {BehaviorSubject, map, Observable, startWith} from 'rxjs';
+import {EChartsOption} from 'echarts';
+import {map, Observable, startWith} from 'rxjs';
 import {FormControl} from '@angular/forms';
 
 @Component({
@@ -12,9 +13,9 @@ import {FormControl} from '@angular/forms';
 })
 export class StressStepsComponent implements OnInit {
 
-  chartOptions = new BehaviorSubject<echarts.EChartsOption>({});
+  chartOptions: WritableSignal<echarts.EChartsOption> = signal({} as EChartsOption)
   @Input() testId: string | undefined | null;
-  steps = new BehaviorSubject<any[]>([]);
+  steps: WritableSignal<any[]> = signal([])
   getStepsSub: any;
   loading = false;
   categories = 1;
@@ -533,7 +534,7 @@ export class StressStepsComponent implements OnInit {
     'Zulu'
   ]
 
-  openedSteps = new BehaviorSubject<any[]>([]);
+  openedSteps: WritableSignal<any[]> = signal([])
 
   constructor(private api: ApiService) {
   }
@@ -559,7 +560,7 @@ export class StressStepsComponent implements OnInit {
     this.getStepsSub = this.api.post('get_steps', {test_id: this.testId}).subscribe(res => {
       this.loading = false;
       if (res.status) {
-        this.steps.next(this.deepCopy(res.steps));
+        this.steps.set(this.deepCopy(res.steps));
         this.drawGraph(this.deepCopy(res.steps));
       }
     })
@@ -653,7 +654,7 @@ export class StressStepsComponent implements OnInit {
     };
     let graphHeight = categories.length * 50;
     graphHeight = graphHeight > window.innerHeight - 200 ? window.innerHeight - 200 : graphHeight;
-    this.chartOptions.next({
+    this.chartOptions.set({
       tooltip: {
         formatter: (params: any) => {
           const step = params.data.step
@@ -730,13 +731,13 @@ export class StressStepsComponent implements OnInit {
   }
 
   click(event: any) {
-    let selectedSteps = this.openedSteps.getValue();
+    let selectedSteps = this.openedSteps();
     const step = event.data.step;
     if (selectedSteps.find(s => s.step_id === step.step_id)) {
-      this.openedSteps.next(selectedSteps.filter(s => s.step_id !== step.step_id));
+      this.openedSteps.set(selectedSteps.filter(s => s.step_id !== step.step_id));
     } else {
       selectedSteps.push(step);
-      this.openedSteps.next(selectedSteps);
+      this.openedSteps.set(selectedSteps);
     }
   }
 
@@ -784,12 +785,12 @@ export class StressStepsComponent implements OnInit {
   timezoneChange(change: any) {
     localStorage.setItem('timezone_type_step', change.value);
     this.timezoneType = change.value;
-    this.drawGraph(this.deepCopy(this.steps.getValue()));
+    this.drawGraph(this.deepCopy(this.steps()));
   }
 
   timezoneChangeCustom(change: any) {
     localStorage.setItem('timezone_selected_zone_step', change)
-    this.drawGraph(this.deepCopy(this.steps.getValue()));
+    this.drawGraph(this.deepCopy(this.steps()));
   }
 
   private _filter(value: string): string[] {

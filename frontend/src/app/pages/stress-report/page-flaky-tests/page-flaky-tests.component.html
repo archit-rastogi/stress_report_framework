@@ -1,4 +1,4 @@
-<ng-container *ngIf="((tests | async) ?? []).length > 0">
+<ng-container *ngIf="tests().length > 0">
   <button mat-button class="show-btn" (click)="toggleShow()">
     Most flaky tests
     <mat-icon style="vertical-align: sub" [svgIcon]="show ? 'fas:angle-down' : 'fas:angle-right'"></mat-icon>
@@ -7,7 +7,7 @@
     <span style="margin-left: 10px">
       Top 10 tests from the last report page changed their status more than others. From most frequent to fewer amount of status changes.
     </span>
-    <mat-card class="card" *ngFor="let test of tests | async" (click)="openTest(test)">
+    <mat-card class="card" *ngFor="let test of tests()" (click)="openTest(test)">
       <div style="justify-content: space-between" class="block">
         <div class="title">{{ test.test_name }}</div>
         <div class="block">

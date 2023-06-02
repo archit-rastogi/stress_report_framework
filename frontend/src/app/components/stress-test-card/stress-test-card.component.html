@@ -30,20 +30,20 @@
       </div>
     </div>
   </mat-card-title-group>
-  <mat-card-actions *ngIf="((knownIssues | async)??[]).length > 0 && test.config.hasOwnProperty('comment')">
+  <mat-card-actions *ngIf="knownIssues().length > 0 && test.config.hasOwnProperty('comment')">
     <ng-container *ngIf="test.config.hasOwnProperty('comment')">
       <pre class="comment">{{test.config.comment}}</pre>
     </ng-container>
-    <ng-container *ngIf="((knownIssues | async)??[]).length > 0">
+    <ng-container *ngIf="knownIssues().length > 0">
       <span class="ki-text">Known issues</span>
-      <ng-container *ngFor="let ki of knownIssues | async">
+      <ng-container *ngFor="let ki of knownIssues()">
         <br/>
         <button mat-button (click)="openLink(ki.url)">{{ ki.title }}</button>
       </ng-container>
     </ng-container>
   </mat-card-actions>
 </mat-card>
-<ng-container *ngFor="let exception of ((exceptions | async) ?? [])">
+<ng-container *ngFor="let exception of exceptions()">
   <h3>{{ exception.name }}</h3>
   <app-exception [result]="exception"></app-exception>
 </ng-container>

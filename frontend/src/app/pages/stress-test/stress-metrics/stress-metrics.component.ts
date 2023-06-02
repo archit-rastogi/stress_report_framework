@@ -1,6 +1,5 @@
-import {Component, Input, OnInit} from '@angular/core';
+import {Component, Input, OnInit, signal, WritableSignal} from '@angular/core';
 import {ApiService} from '../../../services/api.service';
-import {BehaviorSubject} from 'rxjs';
 
 
 @Component({
@@ -11,9 +10,9 @@ import {BehaviorSubject} from 'rxjs';
 export class StressMetricsComponent implements OnInit {
 
   @Input() testId: string | undefined | null;
-  graphs = new BehaviorSubject<any>({});
-  sections = new BehaviorSubject<Array<string>>([]);
-  openedGraphs = new BehaviorSubject<Array<string>>([]);
+  graphs : WritableSignal<any> = signal({})
+  sections: WritableSignal<string[]> = signal([])
+  openedGraphs: WritableSignal<string[]> = signal([])
   getMetricsSub: any;
   loading = false;
 
@@ -22,7 +21,7 @@ export class StressMetricsComponent implements OnInit {
 
   ngOnInit(): void {
     this.loading = true;
-    this.openedGraphs.next([]);
+    this.openedGraphs.set([]);
     this.getMetricsSub = this.api
       .post('get_metrics', {test_id: this.testId})
       .subscribe((res: any) => {
@@ -54,34 +53,34 @@ export class StressMetricsComponent implements OnInit {
             .filter(g => g.section === section)
             .sort((a: any, b: any) => a.modified.localeCompare(b.modified));
         });
-        this.sections.next(sections.sort((a: string, b: string) => a.localeCompare(b)));
-        this.graphs.next(graphs);
+        this.sections.set(sections.sort((a: string, b: string) => a.localeCompare(b)));
+        this.graphs.set(graphs);
         this.loading = false;
       });
   }
 
   graphIsOpen(graphName: string) {
-    return this.openedGraphs.getValue().includes(graphName);
+    return this.openedGraphs().includes(graphName);
   }
 
   toggleShow(graphName: string) {
     if (this.graphIsOpen(graphName)) {
-      this.openedGraphs.next(this.openedGraphs.getValue().filter(g => g !== graphName));
+      this.openedGraphs.set(this.openedGraphs().filter(g => g !== graphName));
     } else {
-      const openedGraphs = this.openedGraphs.getValue();
+      const openedGraphs = this.openedGraphs();
       openedGraphs.push(graphName);
-      this.openedGraphs.next(openedGraphs);
+      this.openedGraphs.set(openedGraphs);
     }
   }
 
   toggleCloseOpen() {
-    if (this.openedGraphs.getValue().length > 0) {
-      return this.openedGraphs.next([])
+    if (this.openedGraphs().length > 0) {
+      return this.openedGraphs.set([])
     } else {
       const graphsToOpen: Array<string> = []
-      Object.values(this.graphs.getValue()).forEach(
+      Object.values(this.graphs()).forEach(
         (names: any) => names.forEach((name: string) => graphsToOpen.push(name)));
-      this.openedGraphs.next(graphsToOpen)
+      this.openedGraphs.set(graphsToOpen)
     }
   }
 }

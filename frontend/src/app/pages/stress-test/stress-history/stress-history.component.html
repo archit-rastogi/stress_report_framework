@@ -1,5 +1,5 @@
 <mat-progress-bar *ngIf="loading" mode="indeterminate"></mat-progress-bar>
-<div class="row" *ngFor="let report of foundReports | async">
+<div class="row" *ngFor="let report of foundReports()">
   <div class="report-title block">
     <button mat-button class="title-btn" (click)="openReport(report.name)">{{ report.name }}</button>
   </div>

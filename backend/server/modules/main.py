@@ -20,7 +20,7 @@ class MainModule(AbstractModule):
             test = await self.db.get_test(test_id)
             for k, v in info.items():
                 test['config'][k] = v
-            await self.db.edit_tests_config(info, [test_id], status)
+            await self.db.edit_tests_config(test['config'], [test_id], status)
         if params['status'] == 'failed':
             for test_id in params['test_ids']:
                 await self.db.add_results(

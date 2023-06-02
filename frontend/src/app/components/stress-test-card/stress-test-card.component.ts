@@ -1,8 +1,7 @@
-import {Component, EventEmitter, Input, OnDestroy, OnInit, Output} from '@angular/core';
+import {Component, EventEmitter, Input, OnDestroy, OnInit, Output, signal, WritableSignal} from '@angular/core';
 import {Router} from '@angular/router';
 import * as moment from 'moment';
 import {ApiService} from '../../services/api.service';
-import {BehaviorSubject} from 'rxjs';
 
 @Component({
   selector: 'app-stress-test-card',
@@ -22,8 +21,8 @@ export class StressTestCardComponent implements OnDestroy, OnInit {
     'comment'
   ];
 
-  exceptions = new BehaviorSubject<any[]>([]);
-  knownIssues = new BehaviorSubject<any[]>([]);
+  exceptions: WritableSignal<any[]> = signal([])
+  knownIssues: WritableSignal<any[]> = signal([])
 
   private allowToOpen = true;
   private getResultsSub: any;
@@ -59,21 +58,21 @@ export class StressTestCardComponent implements OnDestroy, OnInit {
               headers: {Accept: 'application/vnd.github+json'}
             }).then((resp) => resp.json())
               .then((respData) => {
-                const existedKnownIssues = this.knownIssues.getValue()
+                const existedKnownIssues = this.knownIssues()
                 existedKnownIssues.push({
                   title: `#${p[3]} ${respData.title}`,
                   url: knownIssue
                 });
-                this.knownIssues.next(existedKnownIssues);
+                this.knownIssues.set(existedKnownIssues);
               });
           }
         } else if (key === 'known_issues') {
-          const existedKnownIssues = this.knownIssues.getValue()
+          const existedKnownIssues = this.knownIssues()
           existedKnownIssues.push({
             title: knownIssue,
             url: knownIssue
           });
-          this.knownIssues.next(existedKnownIssues);
+          this.knownIssues.set(existedKnownIssues);
         }
       });
     });
@@ -151,15 +150,15 @@ export class StressTestCardComponent implements OnDestroy, OnInit {
 
   openException() {
     this.blockOpen();
-    if (this.exceptions.getValue().length > 0) {
-      this.exceptions.next([]);
+    if (this.exceptions().length > 0) {
+      this.exceptions.set([]);
       return;
     }
     this.getResultsSub = this.api.post('get_test_results', {
       test_id: this.test.test_id
     }).subscribe(res => {
       if (res.status) {
-        this.exceptions.next(res.results.filter((result: any) => result.type == 'exception'));
+        this.exceptions.set(res.results.filter((result: any) => result.type == 'exception'));
       }
     })
   }
