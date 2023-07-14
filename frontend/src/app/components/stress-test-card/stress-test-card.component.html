@@ -30,7 +30,7 @@
       </div>
     </div>
   </mat-card-title-group>
-  <mat-card-actions *ngIf="knownIssues().length > 0 && test.config.hasOwnProperty('comment')">
+  <mat-card-actions *ngIf="knownIssues().length > 0 || test.config.comment">
     <ng-container *ngIf="test.config.hasOwnProperty('comment')">
       <pre class="comment">{{test.config.comment}}</pre>
     </ng-container>

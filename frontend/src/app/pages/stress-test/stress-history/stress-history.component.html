@@ -9,6 +9,8 @@
               (click)="openTest(test.test_id)"
               [ngStyle]="getCardStyle(test)">
         {{ test.config[report.config.page_property] }}
+        <br/>
+        {{ test.status }} {{ test.test_id === this.testId ? '(current)' : ''}}
       </button>
       ->
     </div>

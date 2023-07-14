@@ -32,7 +32,7 @@
         </tr>
       </table>
     </div>
-    <ng-container *ngIf="testInfo() && testInfo().config && testInfo().config.hasOwnProperty('comment')">
+    <ng-container *ngIf="testInfo() && testInfo().config && testInfo().config.comment">
       <div class="flex">
         <pre class="comment">{{testInfo().config.comment}}</pre>
       </div>
